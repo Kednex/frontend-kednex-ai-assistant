@@ -8,8 +8,7 @@ import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// TODO: Import native ProductSearchResults after recreating it
-// import ProductSearchResults from "../product/ProductSearchResults";
+import ProductSearchResults from "../product/ProductSearchResults";
 
 interface MessageBubbleProps {
     message: Message;
@@ -24,16 +23,16 @@ export function MessageBubble({
     message,
     isLoading,
     isLast,
-    // combinedRooms,
-    // category,
-    // getChatSession,
+    combinedRooms,
+    category,
+    getChatSession,
 }: MessageBubbleProps) {
     const isAssistant = message.role === "assistant";
     const isStreaming = isAssistant && isLoading && isLast;
 
     // AI SDK 6.0: Combine text parts for content
     const content = useMemo(() => {
-        if (!message.parts) return message.content?.trim() || "";
+        if (!message.parts) return (message as any).content?.trim() || "";
         return message.parts
             .filter((p: any) => p.type === "text")
             .map((p: any) => (p as any).text)
@@ -115,13 +114,15 @@ export function MessageBubble({
                                 </div>
                             ) : null}
 
-                            {/* Product search results (Placeholder until ported) */}
+                            {/* Product search results */}
                             {searchPayload && (
                                 <div className="mt-4">
-                                    {/* <ProductSearchResults searchPayload={searchPayload} ... /> */}
-                                    <p className="text-xs text-muted-foreground italic">
-                                        [Product Recommendations rendering pending refactor...]
-                                    </p>
+                                    <ProductSearchResults
+                                        searchPayload={searchPayload}
+                                        category={category}
+                                        getChatSession={getChatSession}
+                                        rooms={combinedRooms}
+                                    />
                                 </div>
                             )}
                         </div>

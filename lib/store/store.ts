@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
 import chatReducer from '../store/chatSlice';
+import visualiserReducer from '../store/visualiserSlice';
 
 export const makeStore = () => {
     return configureStore({
         reducer: {
             chat: chatReducer,
+            visualiser: visualiserReducer,
         },
         devTools: process.env.NODE_ENV !== 'production',
     });

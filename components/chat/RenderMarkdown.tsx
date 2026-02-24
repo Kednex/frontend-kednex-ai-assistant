@@ -5,15 +5,15 @@ export default function RenderMarkdown(md: string) {
     // Replace tabs
     const input = md.replace(/\t/g, "    ");
 
-    const elements: Array<JSX.Element | string> = [];
+    const elements: Array<React.ReactNode> = [];
     const fence = "`".repeat(3);
     const fenceRegex = new RegExp(fence + "([\\s\\S]*?)" + fence, "g");
     let lastIndex = 0;
     let match: RegExpExecArray | null;
 
     // Helper to render inline formatting for a plain text segment
-    const renderInline = (text: string): Array<JSX.Element | string> => {
-        const nodes: Array<JSX.Element | string> = [];
+    const renderInline = (text: string): Array<React.ReactNode> => {
+        const nodes: Array<React.ReactNode> = [];
         // Split by inline code first
         const parts = text.split(/`([^`]+)`/g);
         parts.forEach((part, i) => {
@@ -30,7 +30,7 @@ export default function RenderMarkdown(md: string) {
                 const boldRegex = /\*\*(.+?)\*\*/g;
                 let bi = 0;
                 let bmatch: RegExpExecArray | null;
-                const boldNodes: Array<JSX.Element | string> = [];
+                const boldNodes: Array<React.ReactNode> = [];
                 while ((bmatch = boldRegex.exec(part)) !== null) {
                     const before = part.slice(bi, bmatch.index);
                     if (before) boldNodes.push(before);
@@ -42,10 +42,10 @@ export default function RenderMarkdown(md: string) {
                 const afterBold = part.slice(bi);
 
                 // Italic *...* (surrounded by spaces or start/end)
-                const italicRegex = /(^|\s)\*(.*?)\*(?=\s|$)/g;
+                const italicRegex = /(^|\\s)\\*(.*?)\\*(?=\\s|$)/g;
                 let ii = 0;
                 let imatch: RegExpExecArray | null;
-                const italicNodes: Array<JSX.Element | string> = [];
+                const italicNodes: Array<React.ReactNode> = [];
                 while ((imatch = italicRegex.exec(afterBold)) !== null) {
                     const beforeI = afterBold.slice(ii, imatch.index);
                     if (beforeI) italicNodes.push(beforeI);

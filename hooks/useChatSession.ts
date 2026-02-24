@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport } from 'ai'
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks'
 import { RootState } from '@/lib/store/store'
 import { setSessionId, setRooms, setCategory } from '@/lib/store/chatSlice'
@@ -79,15 +80,17 @@ export function useChatSession() {
     }, [sessionId, category, rooms])
 
     const chatApi = useChat({
-        api: '/api/chat',
+        transport: new DefaultChatTransport({
+            api: '/api/chat',
+            body: chatBody,
+        }),
         id: sessionId || undefined,
-        body: chatBody,
         onError: (error) => {
             console.error('Chat error:', error)
         }
     })
 
-    const { messages, setMessages, append, status } = chatApi
+    const { messages, setMessages, sendMessage: sdkSendMessage, status } = chatApi
     const isLoading = status === 'submitted' || status === 'streaming'
 
     // Restore previous messages AFTER hydration + chat initialised
@@ -167,11 +170,8 @@ export function useChatSession() {
 
         const introText = `Here is my room. Please recommend ${category.toLowerCase()} that would suit this interior.`
 
-        append({
-            role: 'user',
-            content: introText
-        })
-    }, [messages.length, category, rooms.length, append])
+        sdkSendMessage({ text: introText })
+    }, [messages.length, category, rooms.length, sdkSendMessage])
 
     const getChatSession = useCallback((): ChatSession => {
         return {
@@ -190,12 +190,9 @@ export function useChatSession() {
             if (!content.trim()) return
             if (isLoading) return
 
-            await append({
-                role: 'user',
-                content
-            })
+            await sdkSendMessage({ text: content })
         },
-        [append, isLoading]
+        [sdkSendMessage, isLoading]
     )
 
     return {
