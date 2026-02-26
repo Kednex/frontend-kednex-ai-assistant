@@ -22,6 +22,7 @@ export function useProductSearch({ query, first = 14, minQueryLength = 1 }: UseP
         setError(null);
 
         try {
+            // TODO: Create a new API endpoint for product search. use Redux?
             const response = await fetch(`/api/products/search?q=${encodeURIComponent(query)}&first=${first}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch products');
