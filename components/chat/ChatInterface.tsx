@@ -52,8 +52,9 @@ export function ChatInterface() {
     };
 
     const startNewChat = () => {
-        // Reset or navigate as needed.
-        console.log("Start new chat requested");
+        // Clear session and store to start fresh
+        localStorage.removeItem('imersian:chat_active_session');
+        window.location.reload(); // Hard refresh to ensure clean state
     };
 
     if (!hydrated) {

@@ -43,6 +43,6 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
         products: filteredProducts.length > 0 ? filteredProducts : MOCK_PRODUCTS,
-        message: "Using mock Shopify data for functioning UI",
+        message: "Using mock product data for functioning UI",
     });
 }

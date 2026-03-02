@@ -38,6 +38,10 @@ export function useChatSession() {
                     shouldAutoIntro = true
                 }
             } else {
+                // TODO [BACKEND]: Fetch active session from backend if user is authenticated
+                // const backendSession = await api.getLatestSession();
+                // if (backendSession) session = backendSession;
+
                 const raw = localStorage.getItem(STORAGE_KEYS.CHAT_ACTIVE_SESSION)
                 if (raw) {
                     session = JSON.parse(raw) as ChatSession
@@ -122,6 +126,9 @@ export function useChatSession() {
             }
 
             try {
+                // TODO [BACKEND]: Sync session state with backend
+                // await api.syncSession(session);
+
                 localStorage.setItem(
                     STORAGE_KEYS.CHAT_ACTIVE_SESSION,
                     JSON.stringify(session)

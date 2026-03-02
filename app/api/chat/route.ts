@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         };
 
         const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://api.imersian.com/api/v1';
-        const endpoint = `${API_BASE}/chat/shopify/${category ? category.replace(/\s+/g, "") : "default"}`;
+        const endpoint = `${API_BASE}/chat/${category ? category.replace(/\s+/g, "") : "default"}`;
 
         const stream = createUIMessageStream({
             async execute({ writer }) {
