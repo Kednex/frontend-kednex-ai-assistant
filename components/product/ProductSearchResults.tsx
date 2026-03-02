@@ -60,15 +60,10 @@ export const ProductSearchResults = memo(function ProductSearchResults({
             return;
         }
 
-        // As per the user's requirement, 'view-in-room' will launch the Visualiser.
-        // We navigate to /view-in-room or trigger an event that intercepts it globally.
-        // For now we navigate to the view-in-room route.
-        const encodedProductId = encodeURIComponent(product.id);
-        const activeRoom = rooms[rooms.length - 1];
-        const roomId = activeRoom?.roomId || "new";
-
-        // TODO: Connect this routing payload to Redux
-        router.push(`/view-in-room?roomId=${roomId}&productId=${encodedProductId}`);
+        // The imersian-visualiser launch is now handled by the Imersian JS bundle
+        // which intercepts clicks on elements with the 'imersian-view-in-room' class
+        // and reads the SKU from the 'imersian-variant-sku' hidden input.
+        console.log(`[Assistant] Triggering Visualiser wiring for SKU: ${product.id}`);
     };
 
     if (loading && !products?.length) {

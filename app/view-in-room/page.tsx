@@ -6,22 +6,25 @@ import { useRouter, useSearchParams } from "next/navigation";
 function ViewInRoomLogic() {
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    const sku = searchParams.get('sku');
+    const userUuid = searchParams.get('userUuid');
     const roomId = searchParams.get('roomId');
-    const productId = searchParams.get('productId');
 
     useEffect(() => {
         // This route acts as a bridge to the Visualiser
-        // Instead of rendering a standalone page like in shop-minis, we redirect or trigger state changes
-        console.log(`[ViewInRoomBridge] Triggering Visualiser launch for room ${roomId} and product ${productId}`);
+        // It consumes context from the Assistant and hands it over to the Visualiser application.
+        console.log(`[ViewInRoomBridge] Handing over to Visualiser: SKU=${sku}, User=${userUuid}, Room=${roomId}`);
 
-        // For now we simulate integration by bouncing back to home/chat 
-        // TODO: Actually open the Visualiser modal or trigger its Redux action
-        setTimeout(() => {
-            alert(`Connecting to Visualiser: Loading Room ${roomId} & Product ${productId}`);
+        // In a production implementation, this would likely open the visualiser in a new window or a global modal.
+        // For the standalone POC, we simulate the handover.
+        const timer = setTimeout(() => {
+            alert(`Handing over to Visualiser:\nProduct SKU: ${sku}\nMerchant: ${userUuid}\nRoom ID: ${roomId || 'None'}`);
             router.push('/chat');
         }, 1500);
 
-    }, [roomId, productId, router]);
+        return () => clearTimeout(timer);
+    }, [sku, userUuid, roomId, router]);
 
     return (
         <div className="flex flex-col items-center justify-center h-screen bg-background">

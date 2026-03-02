@@ -44,10 +44,14 @@ export const ChatProductCard = memo(function ChatProductCard({
                         {product.priceRange.minVariantPrice.amount} {product.priceRange.minVariantPrice.currencyCode}
                     </div>
                 )}
+
+                {/* Imersian Visualiser Trigger SKU */}
+                <input type="hidden" className="imersian-variant-sku" value={product.id} />
+
                 {onViewInRoom && (
                     <Button
                         variant="default"
-                        className="h-8 w-full text-xs rounded-full mt-2"
+                        className="h-8 w-full text-xs rounded-full mt-2 imersian-view-in-room"
                         onClick={(e) => {
                             e.stopPropagation();
                             onViewInRoom(product);
