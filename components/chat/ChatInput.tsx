@@ -56,6 +56,9 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
         setInput("");
         setPreviews([]);
 
+        // display message
+        console.log("Sending message:", { messageText, attachmentUrls });
+
         await onSendMessage(messageText, attachmentUrls);
     };
 

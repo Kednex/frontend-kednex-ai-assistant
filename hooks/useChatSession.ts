@@ -23,6 +23,9 @@ export function useChatSession() {
     const isNewChatFromIntro = useRef(false)
     const [hydrated, setHydrated] = useState(false)
 
+    // track the last response ID from the AI backend so we can continue
+    const previousResponseId = useRef<string | null>(null);
+
     // Hydrate once
     useEffect(() => {
         if (hasHydratedRef.current) return
@@ -59,6 +62,11 @@ export function useChatSession() {
                 }
             }
 
+            // restore previousResponseId from the session if present
+            if (session.previousResponseId) {
+                previousResponseId.current = session.previousResponseId;
+            }
+
             dispatch(setSessionId(session.sessionId))
             dispatch(setCategory(session.category || ''))
             dispatch(setRooms(normalizeRooms(session.contextUploads || [])))
@@ -75,7 +83,7 @@ export function useChatSession() {
     }, [dispatch, intent])
 
     // Memoise body so it updates when category/rooms change
-    const chatBody = useMemo(() => {
+    const baseChatBody = useMemo(() => {
         return {
             sessionId,
             category,
@@ -83,15 +91,70 @@ export function useChatSession() {
         }
     }, [sessionId, category, rooms])
 
-    const chatApi = useChat({
-        transport: new DefaultChatTransport({
+    // create transport once but inject previousResponseId on each message
+    const transport = useMemo(() => {
+        return new DefaultChatTransport({
             api: '/api/chat',
-            body: chatBody,
-        }),
+            body: baseChatBody,
+            prepareSendMessagesRequest(request) {
+                // preserve the Chat SDK's default payload while appending our custom field
+                // note: request.body typically already contains any additional fields the
+                // SDK wants to send (e.g. messages), but we explicitly keep `request.messages`
+                // in case it's not included.
+                const payload: any = {
+                    ...request.body,
+                    messages: request.messages,
+                    previousResponseId: previousResponseId.current
+                };
+                console.log('Preparing send request payload', payload);
+                return { body: payload };
+            },
+        })
+    }, [baseChatBody])
+
+    const chatApi = useChat({
+        transport,
         id: sessionId || undefined,
         onError: (error) => {
             console.error('Chat error:', error)
-        }
+        },
+        onData: (dataPart: any) => {
+            // Debug: log all data parts to understand structure
+            console.log('📨 onData received:', {
+                type: dataPart.type,
+                hasData: !!dataPart.data,
+                dataKeys: dataPart.data ? Object.keys(dataPart.data) : [],
+                fullDataPart: dataPart
+            });
+
+            // look for a responseId coming back from the stream
+            // Check multiple possible locations where responseId might be
+            let responseId: string | null = null;
+            
+            if (dataPart.data && typeof dataPart.data === 'object') {
+                if ('responseId' in dataPart.data) {
+                    responseId = (dataPart.data as any).responseId;
+                }
+            }
+            
+            if (responseId) {
+                console.log('✅ Captured responseId from onData:', responseId);
+                previousResponseId.current = responseId;
+            }
+        },
+        onFinish: (message: any) => {
+            // Fallback: try to extract responseId from the message metadata
+            if (message && typeof message === 'object') {
+                // Check in message properties
+                if ('data' in message && message.data && 'responseId' in message.data) {
+                    const responseId = (message.data as any).responseId;
+                    if (responseId) {
+                        console.log('✅ Captured responseId from onFinish:', responseId);
+                        previousResponseId.current = responseId;
+                    }
+                }
+            }
+        },
     })
 
     const { messages, setMessages, sendMessage: sdkSendMessage, status } = chatApi
@@ -109,6 +172,10 @@ export function useChatSession() {
         if (session.messages?.length) {
             setMessages(session.messages)
         }
+        // also restore response id if available (already done in hydration block, but safe here too)
+        if (session.previousResponseId) {
+            previousResponseId.current = session.previousResponseId
+        }
     }, [hydrated, sessionId, setMessages])
 
     // Autosave
@@ -122,7 +189,7 @@ export function useChatSession() {
                 messages,
                 contextUploads: rooms,
                 timestamp: Date.now(),
-                previousResponseId: null
+                previousResponseId: previousResponseId.current
             }
 
             try {
@@ -187,9 +254,16 @@ export function useChatSession() {
             messages: messages as any[],
             contextUploads: rooms,
             timestamp: Date.now(),
-            previousResponseId: null,
+            previousResponseId: previousResponseId.current,
         };
-    }, [sessionId, category, messages, rooms]);
+    }, [sessionId, category, messages, rooms, previousResponseId]);
+
+    // if the messages reset (e.g. new chat), clear the stored response id
+    useEffect(() => {
+        if (messages.length === 0) {
+            previousResponseId.current = null
+        }
+    }, [messages.length])
 
     // Expose an adapted sendMessage that matches what UI expects
     const sendMessage = useCallback(
