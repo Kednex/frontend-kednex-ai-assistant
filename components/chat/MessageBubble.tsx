@@ -107,7 +107,7 @@ export function MessageBubble({
                                 <ChatTypingIndicator />
                             ) : content ? (
                                 <div className={cn(
-                                    "text-sm leading-relaxed whitespace-pre-wrap",
+                                    "text-sm leading-relaxed",
                                     isStreaming && "opacity-90"
                                 )}>
                                     {renderedMarkdown}
