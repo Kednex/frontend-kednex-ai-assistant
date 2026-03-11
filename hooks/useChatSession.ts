@@ -82,14 +82,24 @@ export function useChatSession() {
         }
     }, [dispatch, intent])
 
+    // Read userUuid from URL query params
+    const userUuid = useMemo(() => {
+        if (typeof window === 'undefined') return ''
+        return new URLSearchParams(window.location.search).get('userUuid') || ''
+    }, [])
+
     // Memoise body so it updates when category/rooms change
     const baseChatBody = useMemo(() => {
         return {
             sessionId,
             category,
-            rooms: rooms.map(r => r.imageUrl)
+            rooms: rooms.map(r => r.imageUrl),
+            userUuid
         }
-    }, [sessionId, category, rooms])
+    }, [sessionId, category, rooms, userUuid])
+
+    // ref to hold pending attachments for the next message
+    const pendingAttachmentsRef = useRef<string[]>([]);
 
     // create transport once but inject previousResponseId on each message
     const transport = useMemo(() => {
@@ -97,15 +107,14 @@ export function useChatSession() {
             api: '/api/chat',
             body: baseChatBody,
             prepareSendMessagesRequest(request) {
-                // preserve the Chat SDK's default payload while appending our custom field
-                // note: request.body typically already contains any additional fields the
-                // SDK wants to send (e.g. messages), but we explicitly keep `request.messages`
-                // in case it's not included.
                 const payload: any = {
                     ...request.body,
                     messages: request.messages,
-                    previousResponseId: previousResponseId.current
+                    previousResponseId: previousResponseId.current,
+                    attachments: pendingAttachmentsRef.current
                 };
+                // clear after sending
+                pendingAttachmentsRef.current = [];
                 console.log('Preparing send request payload', payload);
                 return { body: payload };
             },
@@ -267,10 +276,11 @@ export function useChatSession() {
 
     // Expose an adapted sendMessage that matches what UI expects
     const sendMessage = useCallback(
-        async (content: string) => {
-            if (!content.trim()) return
+        async (content: string, attachments?: string[]) => {
+            if (!content.trim() && (!attachments || attachments.length === 0)) return
             if (isLoading) return
 
+            pendingAttachmentsRef.current = attachments || [];
             await sdkSendMessage({ text: content })
         },
         [sdkSendMessage, isLoading]

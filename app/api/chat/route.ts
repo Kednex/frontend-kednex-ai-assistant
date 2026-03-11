@@ -3,7 +3,7 @@ import { createUIMessageStream, JsonToSseTransformStream } from 'ai';
 
 export async function POST(req: Request) {
     try {
-        const { messages, category, rooms, sessionId, previousResponseId } = await req.json();
+        const { messages, category, rooms, sessionId, previousResponseId, attachments, userUuid } = await req.json();
 
         //log the incoming request for debugging
         console.log("Received chat request from UI:", { messages, category, rooms, sessionId, previousResponseId });
@@ -45,7 +45,9 @@ export async function POST(req: Request) {
         const payload = {
             message: latestText,
             previousResponseId: previousResponseId || null,
-            sessionId
+            sessionId,
+            attachments: attachments || [],
+            userUuid: userUuid || ''
         };
 
         // debug payload
