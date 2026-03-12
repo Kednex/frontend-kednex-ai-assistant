@@ -7,6 +7,7 @@ import { setSessionId, setRooms, setCategory } from '@/lib/store/chatSlice'
 import type { ChatSession } from '@/lib/types'
 import { generateUUID } from '@/lib/utils/uuid'
 import { normalizeRooms } from '@/lib/utils/storage'
+import attachmentsStore from './attachmentsStore'
 
 const STORAGE_KEYS = {
     CHAT_ACTIVE_SESSION: 'imersian:chat_active_session',
@@ -25,6 +26,12 @@ export function useChatSession() {
 
     // track the last response ID from the AI backend so we can continue
     const previousResponseId = useRef<string | null>(null);
+
+    // products returned by the backend MCP tool call — attached to the message in onFinish
+    const pendingProducts = useRef<any[] | null>(null);
+
+    // ref so onFinish (defined before chatApi) can call setMessages
+    const setMessagesRef = useRef<((updater: any) => void) | null>(null);
 
     // Hydrate once
     useEffect(() => {
@@ -97,14 +104,17 @@ export function useChatSession() {
             api: '/api/chat',
             body: baseChatBody,
             prepareSendMessagesRequest(request) {
-                // preserve the Chat SDK's default payload while appending our custom field
-                // note: request.body typically already contains any additional fields the
-                // SDK wants to send (e.g. messages), but we explicitly keep `request.messages`
-                // in case it's not included.
+                // Read attachments from the module-level store (immune to closure staleness).
+                // Clear immediately after reading so stale attachments never leak into
+                // a subsequent text-only message.
+                const attachments = attachmentsStore.current;
+                attachmentsStore.current = [];
+
                 const payload: any = {
                     ...request.body,
                     messages: request.messages,
-                    previousResponseId: previousResponseId.current
+                    previousResponseId: previousResponseId.current,
+                    attachments,
                 };
                 console.log('Preparing send request payload', payload);
                 return { body: payload };
@@ -119,45 +129,49 @@ export function useChatSession() {
             console.error('Chat error:', error)
         },
         onData: (dataPart: any) => {
-            // Debug: log all data parts to understand structure
-            console.log('📨 onData received:', {
-                type: dataPart.type,
-                hasData: !!dataPart.data,
-                dataKeys: dataPart.data ? Object.keys(dataPart.data) : [],
-                fullDataPart: dataPart
-            });
+            // 🔍 Log everything so we can see what the AI SDK delivers
+            console.log('📨 onData TYPE:', dataPart.type, '| data:', JSON.stringify(dataPart.data));
 
-            // look for a responseId coming back from the stream
-            // Check multiple possible locations where responseId might be
-            let responseId: string | null = null;
-            
             if (dataPart.data && typeof dataPart.data === 'object') {
                 if ('responseId' in dataPart.data) {
-                    responseId = (dataPart.data as any).responseId;
-                }
-            }
-            
-            if (responseId) {
-                console.log('✅ Captured responseId from onData:', responseId);
-                previousResponseId.current = responseId;
-            }
-        },
-        onFinish: (message: any) => {
-            // Fallback: try to extract responseId from the message metadata
-            if (message && typeof message === 'object') {
-                // Check in message properties
-                if ('data' in message && message.data && 'responseId' in message.data) {
-                    const responseId = (message.data as any).responseId;
+                    const responseId = (dataPart.data as any).responseId;
                     if (responseId) {
-                        console.log('✅ Captured responseId from onFinish:', responseId);
+                        console.log('✅ Captured responseId from onData:', responseId);
                         previousResponseId.current = responseId;
                     }
                 }
+
+                if ('products' in dataPart.data && Array.isArray((dataPart.data as any).products)) {
+                    pendingProducts.current = (dataPart.data as any).products;
+                    console.log('✅ Captured products from onData:', pendingProducts.current?.length);
+                }
+            }
+        },
+        onFinish: (message: any) => {
+            console.log('🏁 onFinish called | message.id:', message?.id, '| pendingProducts:', pendingProducts.current?.length ?? 0);
+            // Attach any products the backend returned to the finished assistant message.
+            // Use last-assistant-message matching (more robust than ID matching)
+            if (pendingProducts.current?.length) {
+                const products = pendingProducts.current;
+                pendingProducts.current = null;
+                setMessagesRef.current?.((prev: any[]) => {
+                    const lastAssistantIdx = prev.map(m => m.role).lastIndexOf('assistant');
+                    if (lastAssistantIdx === -1) return prev;
+                    return prev.map((m, i) =>
+                        i === lastAssistantIdx
+                            ? { ...m, searchPayload: { products } }
+                            : m
+                    );
+                });
+                console.log('✅ Attached products to last assistant message');
             }
         },
     })
 
     const { messages, setMessages, sendMessage: sdkSendMessage, status } = chatApi
+
+    // keep the ref in sync so onFinish can always reach the current setMessages
+    setMessagesRef.current = setMessages;
     const isLoading = status === 'submitted' || status === 'streaming'
 
     // Restore previous messages AFTER hydration + chat initialised
@@ -267,9 +281,14 @@ export function useChatSession() {
 
     // Expose an adapted sendMessage that matches what UI expects
     const sendMessage = useCallback(
-        async (content: string) => {
-            if (!content.trim()) return
+        async (content: string, attachments?: string[]) => {
+            if (!content.trim() && (!attachments || attachments.length === 0)) return
             if (isLoading) return
+
+            // Write to the module-level store synchronously before the SDK call.
+            // prepareSendMessagesRequest reads from the same store.
+            attachmentsStore.current = attachments ?? []
+            console.log('[sendMessage] wrote attachments to store:', attachmentsStore.current)
 
             await sdkSendMessage({ text: content })
         },

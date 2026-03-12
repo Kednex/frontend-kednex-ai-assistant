@@ -51,7 +51,10 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
         if ((!input.trim() && previews.length === 0) || isLoading) return;
 
         const messageText = input;
-        const attachmentUrls = previews.map((p) => p.previewUrl);
+        // const attachmentUrls = previews.map((p) => p.previewUrl);
+        
+        let imageURL: string[] = ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1200&q=80"];
+        const attachmentUrls = imageURL;
 
         setInput("");
         setPreviews([]);
