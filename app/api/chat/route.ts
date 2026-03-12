@@ -1,5 +1,6 @@
 import { generateUUID } from '@/lib/utils/uuid';
 import { createUIMessageStream, JsonToSseTransformStream } from 'ai';
+import { use } from 'react';
 
 // Normalise the raw Shopify MCP product shape → frontend Product type
 function normalizeMcpProduct(p: any) {
@@ -29,7 +30,6 @@ function normalizeMcpProduct(p: any) {
 
 export async function POST(req: Request) {
     try {
-
         const { messages, category, rooms, sessionId, previousResponseId, attachments, userUuid } = await req.json();
 
 
@@ -69,7 +69,7 @@ export async function POST(req: Request) {
             previousResponseId: previousResponseId || null,
             sessionId,
             attachments: attachments || [],
-            userUuid: userUuid || ''
+            userUuid: userUuid || "",
 
         };
 
@@ -97,6 +97,7 @@ export async function POST(req: Request) {
                 let fullText = '';
                 let responseId = '';
                 let products: any[] = [];
+                let designID = '';
 
                 dataStream.write({
                     type: 'text-start',
@@ -126,6 +127,8 @@ export async function POST(req: Request) {
                             if (parsed.chunk) {
                                 if (parsed.chunk.startsWith('___RESPONSE_ID___')) {
                                     responseId = parsed.chunk.replace('___RESPONSE_ID___', '').replace('___', '');
+                                }else if(parsed.chunk.startsWith('___DESIGN_ID___')) {
+                                    designID = parsed.chunk.replace('___DESIGN_ID___', '').replace('___', '');
                                 }else if(parsed.chunk.startsWith('___PRODUCTS___')) {
                                     const match = parsed.chunk.match(/___PRODUCTS___([\s\S]*?)___END_PRODUCTS___/);
                                     if (match) {
@@ -157,6 +160,8 @@ export async function POST(req: Request) {
 
                 console.log('🔑 Extracted responseId from backend:', responseId);
 
+                console.log('🔑 Extracted designId from backend:', designID); // design id extracted from backend
+
                 // Send response ID and products (normalised to frontend Product type)
                 dataStream.write({
                     type: 'data-usage',
@@ -166,11 +171,13 @@ export async function POST(req: Request) {
                     completionTokens: 0,
                     totalTokens: 0,
                     responseId: responseId,
+                    designId: designID,
                     products: products.map(normalizeMcpProduct)
                     }
                 });
                 
                 console.log('✅ Sent data-usage event | responseId:', responseId, '| products:', products.length);
+                console.log('Products:', products[0]);
             },
             generateId: generateUUID,
         });

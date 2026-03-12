@@ -4,6 +4,7 @@ import { DefaultChatTransport } from 'ai'
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks'
 import { RootState } from '@/lib/store/store'
 import { setSessionId, setRooms, setCategory } from '@/lib/store/chatSlice'
+import { setDesignId } from '@/lib/store/visualiserSlice'
 import type { ChatSession } from '@/lib/types'
 import { generateUUID } from '@/lib/utils/uuid'
 import { normalizeRooms } from '@/lib/utils/storage'
@@ -150,6 +151,11 @@ export function useChatSession() {
                 if ('products' in dataPart.data && Array.isArray((dataPart.data as any).products)) {
                     pendingProducts.current = (dataPart.data as any).products;
                     console.log('✅ Captured products from onData:', pendingProducts.current?.length);
+                }
+
+                if ('designId' in dataPart.data && (dataPart.data as any).designId) {
+                    dispatch(setDesignId((dataPart.data as any).designId));
+                    console.log('✅ Captured designId from onData:', (dataPart.data as any).designId);
                 }
             }
         },
