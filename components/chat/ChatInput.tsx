@@ -60,9 +60,14 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
         if ((!input.trim() && previews.length === 0) || isLoading) return;
 
         const messageText = input;
+
         const base64Images = await Promise.all(
             previews.map((p) => fileToBase64(p.file))
         );
+
+        // const attachmentUrls = previews.map((p) => p.previewUrl);
+        
+
 
         setInput("");
         setPreviews([]);

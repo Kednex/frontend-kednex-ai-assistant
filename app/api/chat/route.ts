@@ -1,12 +1,40 @@
 import { generateUUID } from '@/lib/utils/uuid';
 import { createUIMessageStream, JsonToSseTransformStream } from 'ai';
 
+// Normalise the raw Shopify MCP product shape → frontend Product type
+function normalizeMcpProduct(p: any) {
+    return {
+        id:    p.product_id ?? p.id ?? '',
+        title: p.title ?? '',
+        handle: p.handle ?? '',
+        vendor: p.vendor ?? '',
+        featuredImage: p.image_url
+            ? { url: p.image_url, altText: p.image_alt_text ?? p.title ?? '' }
+            : (p.featuredImage ?? null),
+        priceRange: p.price_range
+            ? {
+                minVariantPrice: { amount: String(p.price_range.min ?? '0'), currencyCode: p.price_range.currency ?? 'USD' },
+                maxVariantPrice: { amount: String(p.price_range.max ?? '0'), currencyCode: p.price_range.currency ?? 'USD' },
+              }
+            : (p.priceRange ?? null),
+        variants: (p.variants ?? []).map((v: any) => ({
+            id:             v.variant_id ?? v.id ?? '',
+            title:          v.title ?? '',
+            availableForSale: v.available ?? true,
+            price:          { amount: String(v.price ?? '0'), currencyCode: v.currency ?? 'USD' },
+            image:          v.image_url ? { url: v.image_url } : null,
+        })),
+    };
+}
+
 export async function POST(req: Request) {
     try {
+
         const { messages, category, rooms, sessionId, previousResponseId, attachments, userUuid } = await req.json();
 
+
         //log the incoming request for debugging
-        console.log("Received chat request from UI:", { messages, category, rooms, sessionId, previousResponseId });
+        console.log("Received chat request from UI:", { messages, category, rooms, sessionId, previousResponseId, attachments });
 
         // AI SDK 6.0 uses 'parts'. We extract text from the latest message.
         const latestMessage = messages[messages.length - 1];
@@ -26,21 +54,15 @@ export async function POST(req: Request) {
         // Log the extracted text for debugging
         console.log("Extracted latest text from message:", latestText);
 
-        // Construct payload for Imersian backend
-        const backendParts: any[] = [
-            { type: "text", text: latestText }
-        ];
-
-        if (rooms && rooms.length > 0) {
-            rooms.forEach((url: string) => {
-                backendParts.push({
-                    type: "file",
-                    url,
-                    name: "room.png",
-                    mediaType: "image/png"
-                });
-            });
-        }
+        // Map URL strings to the Attachment shape MerchantChatService expects
+        const attachmentObjects = Array.isArray(attachments) && attachments.length > 0
+            ? attachments.map((url: string) => ({
+                type: "file" as const,
+                url,
+                name: "room.png",
+                mediaType: "image/png",
+            }))
+            : undefined;
 
         const payload = {
             message: latestText,
@@ -48,6 +70,7 @@ export async function POST(req: Request) {
             sessionId,
             attachments: attachments || [],
             userUuid: userUuid || ''
+
         };
 
         // debug payload
@@ -73,6 +96,7 @@ export async function POST(req: Request) {
                 const messageId = generateUUID();
                 let fullText = '';
                 let responseId = '';
+                let products: any[] = [];
 
                 dataStream.write({
                     type: 'text-start',
@@ -100,17 +124,23 @@ export async function POST(req: Request) {
                         try {
                             const parsed = JSON.parse(data);
                             if (parsed.chunk) {
-                            if (parsed.chunk.startsWith('___RESPONSE_ID___')) {
-                                responseId = parsed.chunk.replace('___RESPONSE_ID___', '').replace('___', '');
-                            } else {
-                                fullText += parsed.chunk;
-                                // Stream each chunk to frontend
-                                dataStream.write({
-                                type: 'text-delta',
-                                id: messageId,
-                                delta: parsed.chunk
-                                });
-                            }
+                                if (parsed.chunk.startsWith('___RESPONSE_ID___')) {
+                                    responseId = parsed.chunk.replace('___RESPONSE_ID___', '').replace('___', '');
+                                }else if(parsed.chunk.startsWith('___PRODUCTS___')) {
+                                    const match = parsed.chunk.match(/___PRODUCTS___([\s\S]*?)___END_PRODUCTS___/);
+                                    if (match) {
+                                        try { products = JSON.parse(match[1]); } catch {}
+                                    }
+                                
+                                }else {
+                                    fullText += parsed.chunk;
+                                    // Stream each chunk to frontend
+                                    dataStream.write({
+                                    type: 'text-delta',
+                                    id: messageId,
+                                    delta: parsed.chunk
+                                    });
+                                }
                             }
                         } catch (e) {
                             // Skip invalid JSON
@@ -127,7 +157,7 @@ export async function POST(req: Request) {
 
                 console.log('🔑 Extracted responseId from backend:', responseId);
 
-                // Send response ID
+                // Send response ID and products (normalised to frontend Product type)
                 dataStream.write({
                     type: 'data-usage',
                     id: messageId,
@@ -135,11 +165,12 @@ export async function POST(req: Request) {
                     promptTokens: 0,
                     completionTokens: 0,
                     totalTokens: 0,
-                    responseId: responseId
+                    responseId: responseId,
+                    products: products.map(normalizeMcpProduct)
                     }
                 });
                 
-                console.log('✅ Sent data-usage event with responseId:', responseId);
+                console.log('✅ Sent data-usage event | responseId:', responseId, '| products:', products.length);
             },
             generateId: generateUUID,
         });

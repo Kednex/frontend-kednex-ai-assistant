@@ -119,6 +119,7 @@ export function MessageBubble({
                                 <div className="mt-4">
                                     <ProductSearchResults
                                         searchPayload={searchPayload}
+                                        cachedProducts={searchPayload.products?.length ? searchPayload.products : undefined}
                                         category={category}
                                         getChatSession={getChatSession}
                                         rooms={combinedRooms}
