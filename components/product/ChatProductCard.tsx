@@ -62,11 +62,11 @@ export const ChatProductCard = memo(function ChatProductCard({
                     <Button
                         variant="default"
                         className="h-8 w-full text-xs rounded-full mt-2 imersian-view-in-room"
-                        // onClick={(e) => {
-                        //     e.stopPropagation();
-                        //     onViewInRoom(product);
-                        // }}
+                        
                         onClick={(e) => {
+
+                            console.log(`[ChatProductCard] View in Room clicked for design ID: ${designId}, variant ID: ${firstVariantId}`); //check the design id and variant id are correct
+
                             e.stopPropagation();
                             const url = `${NEXT_PUBLIC_VISUALIZER_URL}/?userUuid=${userUuid}/&designId=${designId}/&productVariantId=${firstVariantId}`;
                             window.open(url, '_blank');

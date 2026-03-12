@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/lib/store/hooks'
 import { RootState } from '@/lib/store/store'
 import { setSessionId, setRooms, setCategory } from '@/lib/store/chatSlice'
 import { setDesignId } from '@/lib/store/visualiserSlice'
-import type { ChatSession } from '@/lib/types'
+import type { ChatSession, Message } from '@/lib/types'
 import { generateUUID } from '@/lib/utils/uuid'
 import { normalizeRooms } from '@/lib/utils/storage'
 import attachmentsStore from './attachmentsStore'
@@ -106,8 +106,11 @@ export function useChatSession() {
         }
     }, [sessionId, category, rooms, userUuid])
 
-    // ref to hold pending attachments for the next message
+    // ref to hold pending base64 attachments for the next API request
     const pendingAttachmentsRef = useRef<string[]>([]);
+
+    // ref to hold pending blob preview URLs for thumbnail display in the chat thread
+    const pendingPreviewUrlsRef = useRef<string[]>([]);
 
     // create transport once but inject previousResponseId on each message
     const transport = useMemo(() => {
@@ -291,13 +294,28 @@ export function useChatSession() {
         }
     }, [messages.length])
 
+    // After a user message is added by the SDK, patch it with the pending preview URLs
+    // so thumbnail images appear above the text bubble in the conversation.
+    useEffect(() => {
+        if (pendingPreviewUrlsRef.current.length === 0) return;
+        const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+        if (!lastUserMsg) return;
+        if ((lastUserMsg as Message).attachments?.length) return; // already patched
+        const urls = [...pendingPreviewUrlsRef.current];
+        pendingPreviewUrlsRef.current = [];
+        setMessages(prev =>
+            prev.map(m => m.id === lastUserMsg.id ? { ...m, attachments: urls } : m)
+        );
+    }, [messages, setMessages])
+
     // Expose an adapted sendMessage that matches what UI expects
     const sendMessage = useCallback(
-        async (content: string, attachments?: string[]) => {
-            if (!content.trim() && (!attachments || attachments.length === 0)) return
+        async (content: string, base64Images?: string[], previewUrls?: string[]) => {
+            if (!content.trim() && (!base64Images || base64Images.length === 0)) return
             if (isLoading) return
 
-            pendingAttachmentsRef.current = attachments || [];
+            pendingAttachmentsRef.current = base64Images || [];
+            pendingPreviewUrlsRef.current = previewUrls || [];
             await sdkSendMessage({ text: content })
         },
         [sdkSendMessage, isLoading]
