@@ -89,14 +89,24 @@ export function useChatSession() {
         }
     }, [dispatch, intent])
 
+    // Read userUuid from URL query params
+    const userUuid = useMemo(() => {
+        if (typeof window === 'undefined') return ''
+        return new URLSearchParams(window.location.search).get('userUuid') || ''
+    }, [])
+
     // Memoise body so it updates when category/rooms change
     const baseChatBody = useMemo(() => {
         return {
             sessionId,
             category,
-            rooms: rooms.map(r => r.imageUrl)
+            rooms: rooms.map(r => r.imageUrl),
+            userUuid
         }
-    }, [sessionId, category, rooms])
+    }, [sessionId, category, rooms, userUuid])
+
+    // ref to hold pending attachments for the next message
+    const pendingAttachmentsRef = useRef<string[]>([]);
 
     // create transport once but inject previousResponseId on each message
     const transport = useMemo(() => {
@@ -104,18 +114,14 @@ export function useChatSession() {
             api: '/api/chat',
             body: baseChatBody,
             prepareSendMessagesRequest(request) {
-                // Read attachments from the module-level store (immune to closure staleness).
-                // Clear immediately after reading so stale attachments never leak into
-                // a subsequent text-only message.
-                const attachments = attachmentsStore.current;
-                attachmentsStore.current = [];
-
                 const payload: any = {
                     ...request.body,
                     messages: request.messages,
                     previousResponseId: previousResponseId.current,
-                    attachments,
+                    attachments: pendingAttachmentsRef.current
                 };
+                // clear after sending
+                pendingAttachmentsRef.current = [];
                 console.log('Preparing send request payload', payload);
                 return { body: payload };
             },
@@ -285,11 +291,7 @@ export function useChatSession() {
             if (!content.trim() && (!attachments || attachments.length === 0)) return
             if (isLoading) return
 
-            // Write to the module-level store synchronously before the SDK call.
-            // prepareSendMessagesRequest reads from the same store.
-            attachmentsStore.current = attachments ?? []
-            console.log('[sendMessage] wrote attachments to store:', attachmentsStore.current)
-
+            pendingAttachmentsRef.current = attachments || [];
             await sdkSendMessage({ text: content })
         },
         [sdkSendMessage, isLoading]

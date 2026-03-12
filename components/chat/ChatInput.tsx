@@ -46,23 +46,33 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
         });
     };
 
+    const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    };
+
     const handleSubmit = async (e?: FormEvent) => {
         e?.preventDefault();
         if ((!input.trim() && previews.length === 0) || isLoading) return;
 
         const messageText = input;
+
+        const base64Images = await Promise.all(
+            previews.map((p) => fileToBase64(p.file))
+        );
+
         // const attachmentUrls = previews.map((p) => p.previewUrl);
         
-        let imageURL: string[] = ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1200&q=80"];
-        const attachmentUrls = imageURL;
+
 
         setInput("");
         setPreviews([]);
 
-        // display message
-        console.log("Sending message:", { messageText, attachmentUrls });
-
-        await onSendMessage(messageText, attachmentUrls);
+        await onSendMessage(messageText, base64Images);
     };
 
     const onKeyDown = (e: React.KeyboardEvent) => {

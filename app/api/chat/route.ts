@@ -29,7 +29,9 @@ function normalizeMcpProduct(p: any) {
 
 export async function POST(req: Request) {
     try {
-        const { messages, category, rooms, sessionId, previousResponseId, attachments } = await req.json();
+
+        const { messages, category, rooms, sessionId, previousResponseId, attachments, userUuid } = await req.json();
+
 
         //log the incoming request for debugging
         console.log("Received chat request from UI:", { messages, category, rooms, sessionId, previousResponseId, attachments });
@@ -66,7 +68,9 @@ export async function POST(req: Request) {
             message: latestText,
             previousResponseId: previousResponseId || null,
             sessionId,
-            ...(attachmentObjects && { attachments: attachmentObjects }),
+            attachments: attachments || [],
+            userUuid: userUuid || ''
+
         };
 
         // debug payload
