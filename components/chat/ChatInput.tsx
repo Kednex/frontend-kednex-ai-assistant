@@ -1,16 +1,15 @@
 'use client';
 
 import { useRef, useState, ChangeEvent, FormEvent, useEffect } from "react";
-import { Send, Plus, X, Image as ImageIcon } from "lucide-react";
+import { Send, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { generateUUID } from "@/lib/utils/uuid";
 import type { PreviewImage } from "@/lib/types";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
-    onSendMessage: (message: string, attachments?: string[]) => Promise<void>;
+    onSendMessage: (message: string, base64Images: string[], previewUrls: string[]) => Promise<void>;
     isLoading: boolean;
 }
 
@@ -36,6 +35,8 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
             file,
         }));
         setPreviews((prev) => [...prev, ...newPreviews]);
+        // Reset so the same file can be re-selected
+        e.target.value = "";
     };
 
     const removePreview = (id: string) => {
@@ -61,18 +62,16 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
 
         const messageText = input;
 
+        // Capture preview URLs BEFORE clearing state so thumbnails can be shown in chat
+        const previewUrls = previews.map((p) => p.previewUrl);
         const base64Images = await Promise.all(
             previews.map((p) => fileToBase64(p.file))
         );
 
-        // const attachmentUrls = previews.map((p) => p.previewUrl);
-        
-
-
         setInput("");
         setPreviews([]);
 
-        await onSendMessage(messageText, base64Images);
+        await onSendMessage(messageText, base64Images, previewUrls);
     };
 
     const onKeyDown = (e: React.KeyboardEvent) => {
@@ -90,11 +89,11 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
                     {previews.map((preview) => (
                         <div key={preview.id} className="relative shrink-0 group">
                             <div className="w-20 h-20 rounded-xl overflow-hidden border bg-muted">
-                                <Image
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
                                     src={preview.previewUrl}
                                     alt="preview"
-                                    fill
-                                    className="object-cover"
+                                    className="w-full h-full object-cover"
                                 />
                             </div>
                             <button

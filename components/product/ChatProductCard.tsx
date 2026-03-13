@@ -1,8 +1,12 @@
+'use client';
+
 import React, { memo } from "react";
 import Image from "next/image";
 import { Product } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAppSelector } from "@/lib/store/hooks";
+import { RootState } from "@/lib/store/store";
 
 type ChatProductCardProps = {
     product: Product;
@@ -16,6 +20,12 @@ export const ChatProductCard = memo(function ChatProductCard({
     onOpenProduct,
 }: ChatProductCardProps) {
     const imageUrl = product.featuredImage?.url || "/placeholder.png";
+    const NEXT_PUBLIC_VISUALIZER_URL = process.env.NEXT_PUBLIC_VISUALIZER_URL || "notcatched";
+    const designId = useAppSelector((state: RootState) => state.visualiser.designId);
+    const userUuid = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('userUuid') || ''
+        : '';
+    const firstVariantId = (product.variants as any)?.[0]?.id || "notcatched";
 
     return (
         <Card
@@ -52,10 +62,16 @@ export const ChatProductCard = memo(function ChatProductCard({
                     <Button
                         variant="default"
                         className="h-8 w-full text-xs rounded-full mt-2 imersian-view-in-room"
+                        
                         onClick={(e) => {
+
+                            console.log(`[ChatProductCard] View in Room clicked for design ID: ${designId}, variant ID: ${firstVariantId}`); //check the design id and variant id are correct
+
                             e.stopPropagation();
-                            onViewInRoom(product);
+                            const url = `${NEXT_PUBLIC_VISUALIZER_URL}/?userUuid=${userUuid}/&designId=${designId}/&productVariantId=${firstVariantId}`;
+                            window.open(url, '_blank');
                         }}
+                        
                     >
                         View in my room
                     </Button>

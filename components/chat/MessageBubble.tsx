@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Message, RoomContext, ChatSession } from "@/lib/types";
 import RenderMarkdown from "./RenderMarkdown";
-import Image from "next/image";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -162,12 +161,12 @@ function UserAttachment({ url }: { url: string }) {
                 "w-full h-full transition-opacity duration-500",
                 loaded ? "opacity-100" : "opacity-0"
             )}>
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                     src={url}
                     alt="attachment"
-                    fill
-                    className="object-cover"
-                    onLoadingComplete={() => setLoaded(true)}
+                    className="w-full h-full object-cover"
+                    onLoad={() => setLoaded(true)}
                 />
             </div>
         </div>
