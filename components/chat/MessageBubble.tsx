@@ -107,7 +107,7 @@ export function MessageBubble({
                                 <ChatTypingIndicator />
                             ) : content ? (
                                 <div className={cn(
-                                    "text-sm leading-relaxed whitespace-pre-wrap",
+                                    "text-sm leading-relaxed",
                                     isStreaming && "opacity-90"
                                 )}>
                                     {renderedMarkdown}
@@ -119,6 +119,7 @@ export function MessageBubble({
                                 <div className="mt-4">
                                     <ProductSearchResults
                                         searchPayload={searchPayload}
+                                        cachedProducts={searchPayload.products?.length ? searchPayload.products : undefined}
                                         category={category}
                                         getChatSession={getChatSession}
                                         rooms={combinedRooms}
