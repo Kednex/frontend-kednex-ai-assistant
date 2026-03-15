@@ -8,7 +8,6 @@ import { setDesignId } from '@/lib/store/visualiserSlice'
 import type { ChatSession, Message } from '@/lib/types'
 import { generateUUID } from '@/lib/utils/uuid'
 import { normalizeRooms } from '@/lib/utils/storage'
-import attachmentsStore from './attachmentsStore'
 
 const STORAGE_KEYS = {
     CHAT_ACTIVE_SESSION: 'imersian:chat_active_session',

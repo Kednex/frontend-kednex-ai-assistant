@@ -1,6 +1,5 @@
 import { generateUUID } from '@/lib/utils/uuid';
 import { createUIMessageStream, JsonToSseTransformStream } from 'ai';
-import { use } from 'react';
 
 // Normalise the raw Shopify MCP product shape → frontend Product type
 function normalizeMcpProduct(p: any) {

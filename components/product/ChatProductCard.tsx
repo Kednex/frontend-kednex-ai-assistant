@@ -68,7 +68,7 @@ export const ChatProductCard = memo(function ChatProductCard({
                             console.log(`[ChatProductCard] View in Room clicked for design ID: ${designId}, variant ID: ${firstVariantId}`); //check the design id and variant id are correct
 
                             e.stopPropagation();
-                            const url = `${NEXT_PUBLIC_VISUALIZER_URL}/?userUuid=${userUuid}/&designId=${designId}/&productVariantId=${firstVariantId}`;
+                            const url = `${NEXT_PUBLIC_VISUALIZER_URL}userUuid=${userUuid}&designId=${designId}&sku=${firstVariantId}`;
                             window.open(url, '_blank');
                         }}
                         
