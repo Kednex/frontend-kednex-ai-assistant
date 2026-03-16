@@ -19,6 +19,7 @@ export function ChatInterface() {
         rooms,
         sendMessage,
         getChatSession,
+        roomAnalysisStatus,
     } = useChatSession();
 
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -126,6 +127,7 @@ export function ChatInterface() {
                                     combinedRooms={rooms}
                                     category={category}
                                     getChatSession={getChatSession}
+                                    roomAnalysisStatus={roomAnalysisStatus}
                                 />
                             ))}
                         </>

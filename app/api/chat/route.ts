@@ -133,7 +133,19 @@ export async function POST(req: Request) {
                                     if (match) {
                                         try { products = JSON.parse(match[1]); } catch {}
                                     }
-                                
+
+                                }else if(parsed.chunk === '___ANALYSING_ROOM___') {
+                                    // Room analysis started — send as a data event, NOT as visible text
+                                    (dataStream as any).write({
+                                        type: 'data-roomAnalysis',
+                                        data: { status: 'analysing' }
+                                    });
+                                }else if(parsed.chunk === '___DETECTED_ROOM_LAYOUT___') {
+                                    // Room layout detected — send as a data event, NOT as visible text
+                                    (dataStream as any).write({
+                                        type: 'data-roomAnalysis',
+                                        data: { status: 'detected' }
+                                    });
                                 }else {
                                     fullText += parsed.chunk;
                                     // Stream each chunk to frontend
