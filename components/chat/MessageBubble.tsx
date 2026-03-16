@@ -1,10 +1,10 @@
 'use client';
 
-import { useMemo, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useMemo, useState, type ReactNode } from "react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { Message, RoomContext, ChatSession } from "@/lib/types";
 import RenderMarkdown from "./RenderMarkdown";
-import { Loader2 } from "lucide-react";
+import { Check, Loader2, LayoutDashboard, ScanLine, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import ProductSearchResults from "../product/ProductSearchResults";
@@ -16,6 +16,7 @@ interface MessageBubbleProps {
     combinedRooms: RoomContext[];
     category: string;
     getChatSession: () => ChatSession;
+    roomAnalysisStatus?: 'idle' | 'analysing' | 'detected';
 }
 
 export function MessageBubble({
@@ -25,6 +26,7 @@ export function MessageBubble({
     combinedRooms,
     category,
     getChatSession,
+    roomAnalysisStatus = 'idle', // this shows the system status if the message is streaming and has no content yet
 }: MessageBubbleProps) {
     const isAssistant = message.role === "assistant";
     const isStreaming = isAssistant && isLoading && isLast;
@@ -69,6 +71,10 @@ export function MessageBubble({
         return RenderMarkdown(processedContent);
     }, [processedContent]);
 
+    // Decide what to show in the assistant bubble while streaming with no content yet
+    const showRoomAnalysis = isStreaming && !content && roomAnalysisStatus !== 'idle';
+    const showTypingFallback = isStreaming && !content && roomAnalysisStatus === 'idle';
+
     return (
         <div className="py-2 flex flex-col gap-3">
             {/* User attachments (first row, right-aligned) */}
@@ -101,8 +107,10 @@ export function MessageBubble({
                             "w-full px-5 py-4 rounded-3xl rounded-tl-none overflow-hidden border shadow-sm",
                             message.isError ? "border-destructive/50 bg-destructive/5 text-destructive" : "border-border bg-card text-card-foreground"
                         )}>
-                            {/* Assistant text */}
-                            {!content && isStreaming ? (
+                            {/* Room analysis thinking indicator */}
+                            {showRoomAnalysis ? (
+                                <RoomAnalysisIndicator status={roomAnalysisStatus as 'analysing' | 'detected'} />
+                            ) : showTypingFallback ? (
                                 <ChatTypingIndicator />
                             ) : content ? (
                                 <div className={cn(
@@ -141,13 +149,73 @@ export function MessageBubble({
 
 // Sub-components
 
+// this is shown in the assistant bubble while waiting for the first chunk to arrive, or if the first chunk has no text content (e.g. starts with an image or product search results)
+function RoomAnalysisIndicator({ status }: { status: 'analysing' | 'detected' }) {
+    return (
+        <div className="room-analysis-container flex flex-col gap-3 py-1.5 pl-3">
+            <AnalysisStep
+                icon={<ScanLine className="w-3.5 h-3.5" />}
+                label="Analysing your room"
+                stepStatus={status === 'analysing' ? 'active' : 'complete'}
+            />
+            {status === 'detected' && (
+                <AnalysisStep
+                    icon={<LayoutDashboard className="w-3.5 h-3.5" />}
+                    label="Room layout detected"
+                    stepStatus="active"
+                />
+            )}
+        </div>
+    );
+}
+
+function AnalysisStep({
+    icon,
+    label,
+    stepStatus,
+}: {
+    icon: ReactNode;
+    label: string;
+    stepStatus: 'pending' | 'active' | 'complete';
+}) {
+    return (
+        <div className={cn(
+            "flex items-center gap-2.5 room-analysis-step-in",
+            stepStatus === 'pending' && "opacity-30",
+        )}>
+            <div className={cn(
+                "shrink-0 flex items-center justify-center",
+                stepStatus === 'active' && "text-primary room-analysis-icon-glow",
+                stepStatus === 'complete' && "text-green-500",
+                stepStatus === 'pending' && "text-muted-foreground",
+            )}>
+                {stepStatus === 'complete' ? (
+                    <Check className="w-3.5 h-3.5" />
+                ) : stepStatus === 'active' ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                    icon
+                )}
+            </div>
+            <span className={cn(
+                stepStatus === 'active' && "room-analysis-shimmer font-mono text-[11px] tracking-[0.12em] uppercase",
+                stepStatus === 'complete' && "text-muted-foreground text-xs tracking-wide font-medium",
+                stepStatus === 'pending' && "text-muted-foreground text-xs",
+            )}>
+                {label}
+            </span>
+        </div>
+    );
+}
+
 function ChatTypingIndicator() {
     return (
-        <div className="flex items-center gap-2 text-muted-foreground py-1">
-            <Loader2 className="w-4 h-4 animate-spin text-primary" />
-            <span className="text-sm font-medium italic">
-                Analysing spatial requirements...
-            </span>
+        <div className="room-analysis-container flex flex-col gap-3 py-1.5 pl-3">
+            <AnalysisStep
+                icon={<Sparkles className="w-3.5 h-3.5" />}
+                label="Thinking"
+                stepStatus="active"
+            />
         </div>
     );
 }
@@ -172,3 +240,4 @@ function UserAttachment({ url }: { url: string }) {
         </div>
     );
 }
+

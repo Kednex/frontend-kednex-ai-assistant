@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Check, Loader2 } from "lucide-react";
 import { useChatSession } from "@/hooks/useChatSession";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
@@ -19,6 +19,7 @@ export function ChatInterface() {
         rooms,
         sendMessage,
         getChatSession,
+        roomAnalysisStatus,
     } = useChatSession();
 
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -39,6 +40,10 @@ export function ChatInterface() {
     useEffect(() => {
         scrollToBottom();
     }, [messages.length, isLoading]);
+
+    // Show a pending bubble when isLoading but no assistant message in the array yet
+    const lastMessage = messages[messages.length - 1];
+    const showPendingBubble = isLoading && lastMessage?.role === 'user';
 
     const suggestions = [
         `Find ${category || 'products'} under $2000.`,
@@ -126,8 +131,14 @@ export function ChatInterface() {
                                     combinedRooms={rooms}
                                     category={category}
                                     getChatSession={getChatSession}
+                                    roomAnalysisStatus={roomAnalysisStatus}
                                 />
                             ))}
+
+                            {/* Waiting bubble — shown before the first assistant chunk arrives */}
+                            {showPendingBubble && (
+                                <PendingBubble roomAnalysisStatus={roomAnalysisStatus} />
+                            )}
                         </>
                     )}
                 </div>
@@ -135,6 +146,72 @@ export function ChatInterface() {
 
             {/* Input Area */}
             <ChatInput onSendMessage={sendMessage} isLoading={isLoading} />
+        </div>
+    );
+}
+
+// ── Pending / waiting bubble ────────────────────────────────────────────────
+
+type RoomStatus = 'idle' | 'analysing' | 'detected';
+
+function PendingBubble({ roomAnalysisStatus }: { roomAnalysisStatus: RoomStatus }) {
+    return (
+        <div className="py-2">
+            <div className="flex items-start w-full">
+                <div className="w-full px-5 py-4 rounded-3xl rounded-tl-none border shadow-sm border-border bg-card text-card-foreground">
+                    {roomAnalysisStatus === 'idle' ? (
+                        <div className="room-analysis-container flex flex-col gap-3 py-1.5 pl-3">
+                            <PendingStep
+                                label="Thinking"
+                                stepStatus="active"
+                            />
+                        </div>
+                    ) : (
+                        <div className="room-analysis-container flex flex-col gap-3 py-1.5 pl-3">
+                            <PendingStep
+                                label="Analysing your room"
+                                stepStatus={roomAnalysisStatus === 'analysing' ? 'active' : 'complete'}
+                            />
+                            {roomAnalysisStatus === 'detected' && (
+                                <PendingStep
+                                    label="Room layout detected"
+                                    stepStatus="active"
+                                />
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function PendingStep({
+    label,
+    stepStatus,
+}: {
+    label: string;
+    stepStatus: 'active' | 'complete';
+}) {
+    return (
+        <div className="flex items-center gap-2.5 room-analysis-step-in">
+            <div className={cn(
+                "shrink-0 flex items-center justify-center",
+                stepStatus === 'active' && "text-primary room-analysis-icon-glow",
+                stepStatus === 'complete' && "text-green-500",
+            )}>
+                {stepStatus === 'complete' ? (
+                    <Check className="w-3.5 h-3.5" />
+                ) : (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                )}
+            </div>
+            <span className={cn(
+                stepStatus === 'active' && "room-analysis-shimmer font-mono text-[11px] tracking-[0.12em] uppercase",
+                stepStatus === 'complete' && "text-muted-foreground text-xs tracking-wide font-medium",
+            )}>
+                {label}
+            </span>
         </div>
     );
 }
