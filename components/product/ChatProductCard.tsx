@@ -61,7 +61,7 @@ export const ChatProductCard = memo(function ChatProductCard({
                 {onViewInRoom && (
                     <Button
                         variant="default"
-                        className="h-8 w-full text-xs rounded-full mt-2 imersian-view-in-room"
+                        className="h-8 w-full text-xs rounded-full mt-2 imersian-view-in-room cursor-pointer"
                         
                         onClick={(e) => {
 
