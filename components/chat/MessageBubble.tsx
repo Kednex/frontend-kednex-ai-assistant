@@ -4,7 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { Message, RoomContext, ChatSession } from "@/lib/types";
 import RenderMarkdown from "./RenderMarkdown";
-import { Check, Loader2, LayoutDashboard, ScanLine } from "lucide-react";
+import { Check, Loader2, LayoutDashboard, ScanLine, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import ProductSearchResults from "../product/ProductSearchResults";
@@ -209,11 +209,12 @@ function AnalysisStep({
 
 function ChatTypingIndicator() {
     return (
-        <div className="flex items-center gap-2 text-muted-foreground py-1">
-            <Loader2 className="w-4 h-4 animate-spin text-primary" />
-            <span className="text-sm font-medium italic">
-                Analysing spatial requirements...
-            </span>
+        <div className="room-analysis-container flex flex-col gap-3 py-1.5 pl-3">
+            <AnalysisStep
+                icon={<Sparkles className="w-3.5 h-3.5" />}
+                label="Thinking"
+                stepStatus="active"
+            />
         </div>
     );
 }
