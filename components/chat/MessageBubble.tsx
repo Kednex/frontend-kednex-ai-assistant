@@ -26,7 +26,7 @@ export function MessageBubble({
     combinedRooms,
     category,
     getChatSession,
-    roomAnalysisStatus = 'idle',
+    roomAnalysisStatus = 'idle', // this shows the system status if the message is streaming and has no content yet
 }: MessageBubbleProps) {
     const isAssistant = message.role === "assistant";
     const isStreaming = isAssistant && isLoading && isLast;
@@ -149,6 +149,7 @@ export function MessageBubble({
 
 // Sub-components
 
+// this is shown in the assistant bubble while waiting for the first chunk to arrive, or if the first chunk has no text content (e.g. starts with an image or product search results)
 function RoomAnalysisIndicator({ status }: { status: 'analysing' | 'detected' }) {
     return (
         <div className="room-analysis-container flex flex-col gap-3 py-1.5 pl-3">
