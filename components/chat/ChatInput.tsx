@@ -58,7 +58,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
 
     const handleSubmit = async (e?: FormEvent) => {
         e?.preventDefault();
-        if ((!input.trim() && previews.length === 0) || isLoading) return;
+        if (!input.trim() || isLoading) return; // Prevent sending empty messages or multiple submissions
 
         const messageText = input;
 
@@ -80,6 +80,8 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
             void handleSubmit();
         }
     };
+
+
 
     return (
         <div className="border-t bg-background p-4 flex flex-col gap-3">
@@ -125,7 +127,8 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={onKeyDown}
-                        placeholder="Type your message..."
+                        // Show different placeholder if there are image previews to encourage description
+                        placeholder={previews.length > 0 ?"Describe the room in the image..." : "Type your message..."}
                         className="min-h-[44px] max-h-[200px] w-full rounded-[24px] pl-11 pr-12 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden"
                     />
 
@@ -138,11 +141,12 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
                         className="hidden"
                     />
                 </div>
-
+                
                 <Button
                     type="submit"
                     size="icon"
-                    disabled={(!input.trim() && previews.length === 0) || isLoading}
+                    // Disable send button if loading or input is empty (but allow if there are images to send)
+                    disabled={isLoading || input.trim() === ""}
                     className="h-11 w-11 rounded-full shrink-0 shadow-sm"
                 >
                     <Send size={20} />
