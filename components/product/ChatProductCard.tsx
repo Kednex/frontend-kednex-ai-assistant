@@ -50,7 +50,7 @@ export const ChatProductCard = memo(function ChatProductCard({
             <CardContent className="p-3 flex flex-col gap-1">
                 <div className="text-sm font-medium line-clamp-2">{product.title}</div>
                 {product.priceRange && (
-                    <div className="text-sm font-bold text-primary">
+                    <div className="text-sm font-bold">
                         {product.priceRange.minVariantPrice.amount} {product.priceRange.minVariantPrice.currencyCode}
                     </div>
                 )}
