@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-
-const Backend = process.env.BackEnd || 'http://localhost:4000'
+import { useTheme } from './theme-context'
 
 function normalizeHexColor(value: string): string | null {
   if (!value) return null
@@ -13,40 +12,55 @@ function normalizeHexColor(value: string): string | null {
 }
 
 export default function MerchantTheme() {
+  const { setThemeLoading } = useTheme()
+
   useEffect(() => {
     if (typeof window === 'undefined') return
 
     const userUuid = new URLSearchParams(window.location.search).get('userUuid') || ''
-    if (!userUuid) return
+
+    // If no userUuid, set theme as loaded immediately
+    if (!userUuid) {
+      setThemeLoading(false)
+      return
+    }
 
     const controller = new AbortController()
 
     const applyTheme = async () => {
       try {
-        const response = await fetch(`${Backend}/merchant/info/${userUuid}`, {
+        // Load response from the frontend route that proxies the Imersian backend, which includes the primary color for the merchant's theme
+        const response = await fetch(`/api/chat?userUuid=${encodeURIComponent(userUuid)}`, {
           signal: controller.signal,
         })
 
-        if (!response.ok) return
+        if (!response.ok) {
+          setThemeLoading(false)
+          return
+        }
 
         const payload = await response.json()
         const color = normalizeHexColor(payload?.primaryColor || '')
-        if (!color) return
 
-        const root = document.documentElement
-        root.style.setProperty('--primary', color) // change primary color
+        if (color) {
+          const root = document.documentElement
+          root.style.setProperty('--primary', color) // change primary color
+          root.style.setProperty('--sidebar-primary', color)
+        }
 
-        root.style.setProperty('--sidebar-primary', color)
+        // Set theme as loaded after applying colors
+        setThemeLoading(false)
       } catch (error: any) {
         if (error?.name === 'AbortError') return
         console.error('[MerchantTheme] Failed to apply theme', error)
+        setThemeLoading(false)
       }
     }
 
     applyTheme()
 
     return () => controller.abort()
-  }, [])
+  }, [setThemeLoading])
 
   return null
 }

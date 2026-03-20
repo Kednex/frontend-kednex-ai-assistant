@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, ChangeEvent, FormEvent, useEffect } from "react";
-import { Send, Plus, X } from "lucide-react";
+import { Send, Plus, X, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { generateUUID } from "@/lib/utils/uuid";
@@ -110,18 +110,17 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
             )}
 
             {/* Input Row */}
-            <form onSubmit={handleSubmit} className="flex items-end gap-2 max-w-4xl mx-auto w-full">
-                <div className="relative flex-1 flex items-end">
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute left-2 bottom-1.5 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
-                        onClick={() => fileInputRef.current?.click()}
-                    >
-                        <Plus size={20} />
-                    </Button>
+            <form onSubmit={handleSubmit} className="flex items-end gap-3 max-w-4xl mx-auto w-full">
+                <Button
+                    type="button"
+                    size="icon"
+                    className="h-11 w-11 rounded-full shrink-0 bg-muted/50 text-foreground shadow-sm transition-all hover:bg-muted/60 hover:text-foreground hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
+                    onClick={() => fileInputRef.current?.click()}
+                >
+                    <Plus size={20} />
+                </Button>
 
+                <div className="relative flex-1 flex items-end">
                     <Textarea
                         ref={textareaRef}
                         value={input}
@@ -129,8 +128,18 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
                         onKeyDown={onKeyDown}
                         // Show different placeholder if there are image previews to encourage description
                         placeholder={previews.length > 0 ?"Describe the room in the image..." : "Type your message..."}
-                        className="min-h-[44px] max-h-[200px] w-full rounded-[24px] pl-11 pr-12 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden"
+                        className="min-h-[44px] max-h-[200px] w-full rounded-[24px] pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden"
                     />
+
+                    <Button
+                        type="submit"
+                        size="icon"
+                        // Disable send button if loading or input is empty (but allow if there are images to send)
+                        disabled={isLoading || input.trim() === ""}
+                        className="absolute right-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full shadow-sm"
+                    >
+                        <ArrowUp size={18} />
+                    </Button>
 
                     <input
                         type="file"
@@ -141,16 +150,6 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
                         className="hidden"
                     />
                 </div>
-                
-                <Button
-                    type="submit"
-                    size="icon"
-                    // Disable send button if loading or input is empty (but allow if there are images to send)
-                    disabled={isLoading || input.trim() === ""}
-                    className="h-11 w-11 rounded-full shrink-0 shadow-sm"
-                >
-                    <Send size={20} />
-                </Button>
             </form>
         </div>
     );

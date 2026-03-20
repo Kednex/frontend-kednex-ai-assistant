@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from "react";
-import { ChevronLeft, Check, Loader2 } from "lucide-react";
+import { ChevronLeft, Check, Loader2, Plus } from "lucide-react";
 import { useChatSession } from "@/hooks/useChatSession";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
@@ -84,7 +84,8 @@ export function ChatInterface() {
                         onClick={startNewChat}
                         className="rounded-full"
                     >
-                        <ChevronLeft size={20} />
+                        <Plus size={20} />
+                        
                     </Button>
                     <h1 className="text-base font-semibold tracking-tight">Design Assistant</h1>
                 </div>
@@ -92,7 +93,7 @@ export function ChatInterface() {
 
             {/* Messages Scroll Area */}
             <ScrollArea ref={scrollRef} className="flex-1 overflow-y-auto px-4">
-                <div className="py-6 flex flex-col gap-4 min-h-full">
+                <div className="py-6 flex flex-col gap-4 min-h-full ">
                     {messages.length === 0 ? (
                         <div className="flex flex-col items-start justify-start flex-1 text-left min-h-[400px]">
                             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl mb-2">

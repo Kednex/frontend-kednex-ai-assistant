@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import MerchantTheme from "./merchant-theme";
+import { ThemeProvider } from "./theme-context";
+import { ThemeWrapper } from "./theme-wrapper";
 
 const roboto = Roboto({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -30,8 +32,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable}`}
       >
-        <MerchantTheme />
-        {children}
+        <ThemeProvider>
+          <MerchantTheme />
+          <ThemeWrapper>
+            {children}
+          </ThemeWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );
