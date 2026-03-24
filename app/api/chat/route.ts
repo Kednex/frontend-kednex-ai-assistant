@@ -1,5 +1,6 @@
 import { generateUUID } from '@/lib/utils/uuid';
 import { createUIMessageStream, JsonToSseTransformStream } from 'ai';
+import { getMerchantThemeSample } from './merchant-sample';
 
 // Normalise the raw Shopify MCP product shape → frontend Product type
 function normalizeMcpProduct(p: any) {
@@ -207,18 +208,38 @@ export async function GET(req: Request) {
         const { searchParams } = new URL(req.url);
         const userUuid = searchParams.get('userUuid') || '';
 
+        // // fetch merchant info from backend
+
+        // if (!userUuid) {
+        //     return new Response(JSON.stringify({ error: 'Missing userUuid parameter' }), { status: 400 });
+        // }
+
+        // const Backend = process.env.BackEnd || 'http://localhost:4000';
+        // const response = await fetch(`${Backend}/merchant/info/${userUuid}`);
+
+        // if (!response.ok) {
+        //     throw new Error(`Backend error: ${response.status}`);
+        // }
+
+        // const merchantInfo = await response.json();
+        // if (!merchantInfo) {
+        //     return new Response(JSON.stringify({ error: 'Unknown userUuid' }), { status: 404 });
+        // }
+
+        // return new Response(JSON.stringify(merchantInfo), { status: 200 });
+
+
+        // fetch merchant info from sample hardcoded data from merchant-sample.ts file 
+
         if (!userUuid) {
             return new Response(JSON.stringify({ error: 'Missing userUuid parameter' }), { status: 400 });
         }
 
-        const Backend = process.env.BackEnd || 'http://localhost:4000';
-        const response = await fetch(`${Backend}/merchant/info/${userUuid}`);
-
-        if (!response.ok) {
-            throw new Error(`Backend error: ${response.status}`);
+        const merchantInfo = getMerchantThemeSample(userUuid);
+        if (!merchantInfo) {
+            return new Response(JSON.stringify({ error: 'Unknown userUuid' }), { status: 404 });
         }
 
-        const merchantInfo = await response.json();
         return new Response(JSON.stringify(merchantInfo), { status: 200 });
 
     } catch (error: any) {
