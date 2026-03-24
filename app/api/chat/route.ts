@@ -61,7 +61,7 @@ export async function POST(req: Request) {
 
         // merchant informations
         const merchantInfo = userUuid ? await resolveMerchantInfo(userUuid) : undefined;
-        const fallbackResponse = merchantInfo?.aiAssistant?.rules?.fallbackResponse?.trim() || '';
+        const fallbackResponse = merchantInfo?.aiAssistant?.rules?.fallbackResponse?.trim() || 'Sorry, I had trouble processing that. Can you please try again later?';
 
 
         //log the incoming request for debugging
