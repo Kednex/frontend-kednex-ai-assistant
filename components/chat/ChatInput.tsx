@@ -128,7 +128,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
                         onKeyDown={onKeyDown}
                         // Show different placeholder if there are image previews to encourage description
                         placeholder={previews.length > 0 ?"Describe the room in the image..." : "Type your message..."}
-                        className="min-h-[44px] max-h-[200px] w-full rounded-[24px] pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden"
+                        className="min-h-[44px] max-h-[200px] w-full rounded-[var(--radius)] pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden font-sans"
                     />
 
                     <Button

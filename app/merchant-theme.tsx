@@ -11,20 +11,56 @@ function normalizeHexColor(value: string): string | null {
   return isValid ? withHash : null
 }
 
+// normalize radius values, allowing numbers (assumed to be px) or strings with units
 function normalizeRadius(value: unknown): string | null {
   if (typeof value === 'number' && Number.isFinite(value)) return `${value}px`
   if (typeof value === 'string' && value.trim()) {
-    const numeric = Number(value)
+    const trimmed = value.trim()
+    // ✅ Accept already-unitized values like '24px', '1.5rem', '0.5em'
+    if (/^\d+(\.\d+)?(px|rem|em)$/.test(trimmed)) return trimmed
+    // ✅ Accept plain numbers as strings like '24'
+    const numeric = Number(trimmed)
     if (Number.isFinite(numeric)) return `${numeric}px`
   }
   return null
 }
+
 
 function normalizeFont(value: unknown): string | null {
   if (typeof value !== 'string') return null
   const trimmed = value.trim()
   if (!trimmed) return null
   return `${trimmed}, ui-sans-serif, system-ui, -apple-system, sans-serif`
+}
+
+function toGoogleFontFamily(value: string): string {
+  return value.trim().replace(/\s+/g, '+')
+}
+
+function ensureGoogleFontLoaded(fontFamily: string) {
+  if (typeof document === 'undefined') return
+  const id = 'merchant-theme-font'
+  const existing = document.getElementById(id)
+  const fontUrl = `https://fonts.googleapis.com/css2?family=${toGoogleFontFamily(fontFamily)}:wght@300;400;500;600;700&display=swap`
+
+  if (existing) {
+    if ((existing as HTMLLinkElement).href !== fontUrl) {
+      ;(existing as HTMLLinkElement).href = fontUrl
+    }
+    return
+  }
+
+  const link = document.createElement('link')
+  link.id = id
+  link.rel = 'stylesheet'
+  link.href = fontUrl
+  document.head.appendChild(link)
+}
+
+function removeGoogleFont() {
+  if (typeof document === 'undefined') return
+  const existing = document.getElementById('merchant-theme-font')
+  if (existing) existing.remove()
 }
 
 export default function MerchantTheme() {
@@ -41,6 +77,7 @@ export default function MerchantTheme() {
     root.style.removeProperty('--popover')
     root.style.removeProperty('--radius')
     root.style.removeProperty('--font-sans')
+    removeGoogleFont()
   }
 
   useEffect(() => {
@@ -91,7 +128,12 @@ export default function MerchantTheme() {
             root.style.setProperty('--popover', background)
           }
           if (radius) root.style.setProperty('--radius', radius)
-          if (font) root.style.setProperty('--font-sans', font)
+          
+          // change font and load from Google Fonts if specified  
+          if (font) {
+            ensureGoogleFontLoaded(theme.font)  // ✅ loads wght@300;400;500;600;700
+            root.style.setProperty('--font-sans', `'${theme.font}', sans-serif`)
+          }
         } else {
           resetThemeColors()
         }
