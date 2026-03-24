@@ -96,11 +96,11 @@ export function MessageBubble({
                 {isAssistant ? (
                     <div className="flex items-start w-full gap-3">
                         {/* Avatar */}
-                        {!isLast && (
+                        {/* {!isLast && (
                             <Avatar className="w-8 h-8 border">
                                 <AvatarFallback className="bg-background text-foreground text-xs font-bold">A</AvatarFallback>
                             </Avatar>
-                        )}
+                        )} */}
 
                         {/* Assistant content */}
                         <div className={cn(

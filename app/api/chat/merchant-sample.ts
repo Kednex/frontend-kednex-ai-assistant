@@ -27,7 +27,7 @@ export type MerchantThemeSample = {
 
 const merchantThemeSamples: Record<string, MerchantThemeSample> = {
   '835b7458-9477-4394-8957-c1e65225a481': {
-    companyId: '835b7458-9477-4394-8957-c1e65225a481',
+    companyId: '1',
     aiAssistant: {
       isChatbotEnabled: true,
       identity: {
