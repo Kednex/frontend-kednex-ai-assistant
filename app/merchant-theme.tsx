@@ -64,7 +64,7 @@ function removeGoogleFont() {
 }
 
 export default function MerchantTheme() {
-  const { setThemeLoading } = useTheme()
+  const { setThemeLoading, setWelcomeMessage } = useTheme()
 
   const resetThemeColors = () => {
     const root = document.documentElement
@@ -78,6 +78,7 @@ export default function MerchantTheme() {
     root.style.removeProperty('--radius')
     root.style.removeProperty('--font-sans')
     removeGoogleFont()
+    setWelcomeMessage('How can I help you today?') // reset to default welcome message
   }
 
   useEffect(() => {
@@ -109,6 +110,7 @@ export default function MerchantTheme() {
 
         const payload = await response.json()
         const theme = payload?.aiAssistant?.theme
+        const nextWelcome = payload?.aiAssistant?.behaviour?.welcomeMessage // allow dynamic welcome message from backend, fallback to default if not provided
         const color = normalizeHexColor(theme?.primary || payload?.primaryColor || '')
         const highlight = normalizeHexColor(theme?.highlight || '')
         const highlightText = normalizeHexColor(theme?.highlightText || '')
@@ -133,6 +135,10 @@ export default function MerchantTheme() {
           if (font) {
             ensureGoogleFontLoaded(theme.font)  // ✅ loads wght@300;400;500;600;700
             root.style.setProperty('--font-sans', `'${theme.font}', sans-serif`)
+          }
+          // Set welcome message if provided, otherwise keep default
+          if (typeof nextWelcome === 'string' && nextWelcome.trim()) {
+            setWelcomeMessage(nextWelcome.trim())
           }
         } else {
           resetThemeColors()

@@ -9,8 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/app/theme-context";
 
 export function ChatInterface() {
+    const { welcomeMessage } = useTheme();
     const {
         hydrated,
         messages,
@@ -100,7 +102,8 @@ export function ChatInterface() {
                                 Hello there!
                             </h2>
                             <p className="text-lg font-medium text-muted-foreground mb-8">
-                                How can I help you today?
+                                {welcomeMessage}
+                                
                             </p>
 
                             <div className="flex-1" aria-hidden="true" />

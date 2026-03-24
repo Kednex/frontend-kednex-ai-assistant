@@ -2,6 +2,32 @@ import { generateUUID } from '@/lib/utils/uuid';
 import { createUIMessageStream, JsonToSseTransformStream } from 'ai';
 import { getMerchantThemeSample } from './merchant-sample';
 
+async function resolveMerchantInfo(userUuid: string) {
+    // TODO: replace with backend fetch once schema is ready
+
+    // // fetch merchant info from backend
+    // if (!userUuid) {
+    //     return new Response(JSON.stringify({ error:'Missing userUuid parameter' }), { status: 400 });
+    // }
+
+    // const Backend = process.env.BackEnd || 'http:/localhost:4000';
+    // const response = await fetch(`${Backend}/merchantinfo/${userUuid}`);
+
+    // if (!response.ok) {
+    //     throw new Error(`Backend error: ${responsestatus}`);
+    // }
+
+    // const merchantInfo = await response.json();
+    // if (!merchantInfo) {
+    //     return new Response(JSON.stringify({ error:'Unknown userUuid' }), { status: 404 });
+    // }
+
+    // return new Response(JSON.stringify(merchantInfo), {status: 200 });    
+
+
+    return getMerchantThemeSample(userUuid);
+}
+
 // Normalise the raw Shopify MCP product shape → frontend Product type
 function normalizeMcpProduct(p: any) {
     return {
@@ -32,6 +58,10 @@ function normalizeMcpProduct(p: any) {
 export async function POST(req: Request) {
     try {
         const { messages, category, rooms, sessionId, previousResponseId, attachments, userUuid } = await req.json();
+
+        // merchant informations
+        const merchantInfo = userUuid ? await resolveMerchantInfo(userUuid) : undefined;
+        const fallbackResponse = merchantInfo?.aiAssistant?.rules?.fallbackResponse?.trim() || '';
 
 
         //log the incoming request for debugging
@@ -166,6 +196,15 @@ export async function POST(req: Request) {
                     }
                 }
 
+                if (!fullText.trim() && fallbackResponse) {
+                    fullText = fallbackResponse;
+                    dataStream.write({
+                        type: 'text-delta',
+                        id: messageId,
+                        delta: fallbackResponse,
+                    });
+                }
+
                 dataStream.write({
                     type: 'text-end',
                     id: messageId
@@ -208,34 +247,15 @@ export async function GET(req: Request) {
         const { searchParams } = new URL(req.url);
         const userUuid = searchParams.get('userUuid') || '';
 
-        // // fetch merchant info from backend
-
-        // if (!userUuid) {
-        //     return new Response(JSON.stringify({ error: 'Missing userUuid parameter' }), { status: 400 });
-        // }
-
-        // const Backend = process.env.BackEnd || 'http://localhost:4000';
-        // const response = await fetch(`${Backend}/merchant/info/${userUuid}`);
-
-        // if (!response.ok) {
-        //     throw new Error(`Backend error: ${response.status}`);
-        // }
-
-        // const merchantInfo = await response.json();
-        // if (!merchantInfo) {
-        //     return new Response(JSON.stringify({ error: 'Unknown userUuid' }), { status: 404 });
-        // }
-
-        // return new Response(JSON.stringify(merchantInfo), { status: 200 });
 
 
-        // fetch merchant info from sample hardcoded data from merchant-sample.ts file 
 
+        // fetch merchant info
         if (!userUuid) {
             return new Response(JSON.stringify({ error: 'Missing userUuid parameter' }), { status: 400 });
         }
 
-        const merchantInfo = getMerchantThemeSample(userUuid);
+        const merchantInfo = await resolveMerchantInfo(userUuid);
         if (!merchantInfo) {
             return new Response(JSON.stringify({ error: 'Unknown userUuid' }), { status: 404 });
         }
