@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAppSelector } from "@/lib/store/hooks";
 import { RootState } from "@/lib/store/store";
+import { useImersianClient } from "@/hooks/useImersianClient";
 
 type ChatProductCardProps = {
     product: Product;
@@ -22,6 +23,7 @@ export const ChatProductCard = memo(function ChatProductCard({
     const imageUrl = product.featuredImage?.url || "/placeholder.png";
     const NEXT_PUBLIC_VISUALIZER_URL = process.env.NEXT_PUBLIC_VISUALIZER_URL || "notcatched";
     const designId = useAppSelector((state: RootState) => state.visualiser.designId);
+    const { openVisualiser } = useImersianClient(); //load visualiser client and function to open it
     const userUuid = typeof window !== 'undefined'
         ? new URLSearchParams(window.location.search).get('userUuid') || ''
         : '';
@@ -56,20 +58,34 @@ export const ChatProductCard = memo(function ChatProductCard({
                 )}
 
                 {/* Imersian Visualiser Trigger SKU */}
-                <input type="hidden" className="imersian-variant-sku" value={product.id} />
+                <input type="hidden" className="imersian-variant-sku" value={firstVariantId} />
 
                 {onViewInRoom && (
                     <Button
                         variant="default"
                         className="h-8 w-full text-xs rounded-[var(--radius)] mt-2 imersian-view-in-room cursor-pointer"
                         
-                        onClick={(e) => {
-
-                            console.log(`[ChatProductCard] View in Room clicked for design ID: ${designId}, variant ID: ${firstVariantId}`); //check the design id and variant id are correct
-
+                        onClick={async (e) => {
                             e.stopPropagation();
+
+                            console.log(`[ChatProductCard] View in Room clicked for design ID: ${designId}, variant ID: ${firstVariantId}`);
+
+                            const result = await openVisualiser(firstVariantId, {
+                                userUuid: userUuid || undefined,
+                            });
+
+                            if (result.ok) {
+                                onViewInRoom?.(product);
+                                return;
+                            }
+
+                            const fallbackMessage = "Imersian visualiser is temporarily unavailable. Opening fallback page in a new tab.";
+                            console.warn(`[ChatProductCard] ${fallbackMessage} Reason: ${result.message}`);
+                            window.alert(fallbackMessage);
+
                             const url = `${NEXT_PUBLIC_VISUALIZER_URL}userUuid=${userUuid}&designId=${designId}&sku=${firstVariantId}`;
-                            window.open(url, '_blank');
+                            window.open(url, "_blank");
+                            onViewInRoom?.(product);
                         }}
                         
                     >

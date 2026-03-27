@@ -5,6 +5,7 @@ import "./globals.css";
 import MerchantTheme from "./merchant-theme";
 import { ThemeProvider } from "./theme-context";
 import { ThemeWrapper } from "./theme-wrapper";
+import { ImersianInitializer } from "@/components/ImersianInitializer";
 
 // const roboto = Roboto({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable}`}
       >
+        <ImersianInitializer />
         <ThemeProvider>
           <MerchantTheme />
           <ThemeWrapper>
