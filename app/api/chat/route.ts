@@ -46,6 +46,7 @@ function normalizeMcpProduct(p: any) {
             : (p.priceRange ?? null),
         variants: (p.variants ?? []).map((v: any) => ({
             id:             v.variant_id ?? v.id ?? '',
+            sku:            v.variant_sku ?? v.variantSku ?? v.sku ?? '',
             title:          v.title ?? '',
             availableForSale: v.available ?? true,
             price:          { amount: String(v.price ?? '0'), currencyCode: v.currency ?? 'USD' },

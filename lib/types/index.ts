@@ -26,6 +26,7 @@ export type Product = {
 
 export type ProductVariant = {
     id: string;
+    sku?: string;
     title: string;
     availableForSale?: boolean;
     price?: Price;

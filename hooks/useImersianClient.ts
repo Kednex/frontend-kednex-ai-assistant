@@ -78,6 +78,25 @@ function getUserUuidFromQuery(): string | null {
   return userUuid && userUuid.trim().length > 0 ? userUuid : null;
 }
 
+function normalizeVisualiserSku(sku?: string): string | undefined {
+  if (!sku) {
+    return undefined;
+  }
+
+  const trimmed = sku.trim();
+  if (trimmed.length === 0) {
+    return undefined;
+  }
+
+  // Shopify GIDs are not visualizer-compatible; use the terminal ID segment.
+  if (trimmed.startsWith("gid://")) {
+    const segments = trimmed.split("/");
+    return segments[segments.length - 1] || undefined;
+  }
+
+  return trimmed;
+}
+
 async function loadClient(): Promise<ImersianClient | null> {
   if (cachedClient) {
     return cachedClient;
@@ -171,13 +190,18 @@ export function useImersianClient() {
         return configured;
       }
 
+      const formattedSku = normalizeVisualiserSku(sku);
+      if (!formattedSku) {
+        return { ok: false, message: "Missing sku for Imersian visualiser." };
+      }
+
       const client = await loadClient();
       if (!client) {
         return { ok: false, message: "Imersian library is unavailable." };
       }
 
       try {
-        client.showImersianVisualiser(sku);
+        client.showImersianVisualiser(formattedSku);
         return { ok: true, message: "Imersian visualiser opened." };
       } catch {
         return { ok: false, message: "Failed to open Imersian visualiser." };

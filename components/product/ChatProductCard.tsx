@@ -15,6 +15,20 @@ type ChatProductCardProps = {
     onOpenProduct?: (product: Product) => void;
 };
 
+function normalizeVisualiserSku(sku?: string): string {
+    if (!sku) {
+        return "";
+    }
+
+    const trimmed = sku.trim();
+    if (trimmed.startsWith("gid://")) {
+        const segments = trimmed.split("/");
+        return segments[segments.length - 1] || "";
+    }
+
+    return trimmed;
+}
+
 export const ChatProductCard = memo(function ChatProductCard({
     product,
     onViewInRoom,
@@ -27,7 +41,15 @@ export const ChatProductCard = memo(function ChatProductCard({
     const userUuid = typeof window !== 'undefined'
         ? new URLSearchParams(window.location.search).get('userUuid') || ''
         : '';
-    const firstVariantId = (product.variants as any)?.[0]?.id || "notcatched";
+
+    const variantNodes = Array.isArray(product.variants)
+        ? product.variants
+        : (product.variants?.edges ?? []).map((edge: any) => edge?.node).filter(Boolean);
+
+    const firstVariant = variantNodes[0] as any;
+    const firstVariantId = firstVariant?.id || "";
+    const firstVariantSku = firstVariant?.sku || "";
+    const visualiserSku = normalizeVisualiserSku(firstVariantSku || firstVariantId);
 
     return (
         <Card
@@ -58,7 +80,9 @@ export const ChatProductCard = memo(function ChatProductCard({
                 )}
 
                 {/* Imersian Visualiser Trigger SKU */}
-                <input type="hidden" className="imersian-variant-sku" value={firstVariantId} />
+                <input type="hidden" className="imersian-variant-sku" value={visualiserSku} />
+
+                {/* console.log(`[ChatProductCard] Visualiser SKU: {visualiserSku}`); */}
 
                 {onViewInRoom && (
                     <Button
@@ -68,22 +92,24 @@ export const ChatProductCard = memo(function ChatProductCard({
                         onClick={async (e) => {
                             e.stopPropagation();
 
-                            console.log(`[ChatProductCard] View in Room clicked for design ID: ${designId}, variant ID: ${firstVariantId}`);
+                            console.log(
+                                `[ChatProductCard] View in Room clicked | designId=${designId} | variantId=${firstVariantId} | variantSku=${firstVariantSku} | visualiserSku=${visualiserSku}`,
+                            );
 
-                            const result = await openVisualiser(firstVariantId, {
-                                userUuid: userUuid || undefined,
-                            });
+                            // const result = await openVisualiser(visualiserSku, {
+                            //     userUuid: userUuid || undefined,
+                            // });
 
-                            if (result.ok) {
-                                onViewInRoom?.(product);
-                                return;
-                            }
+                            // if (result.ok) {
+                            //     onViewInRoom?.(product);
+                            //     return;
+                            // }
 
-                            const fallbackMessage = "Imersian visualiser is temporarily unavailable. Opening fallback page in a new tab.";
-                            console.warn(`[ChatProductCard] ${fallbackMessage} Reason: ${result.message}`);
-                            window.alert(fallbackMessage);
+                            // const fallbackMessage = "Imersian visualiser is temporarily unavailable. Opening fallback page in a new tab.";
+                            // console.warn(`[ChatProductCard] ${fallbackMessage} Reason: ${result.message}`);
+                            // window.alert(fallbackMessage);
 
-                            const url = `${NEXT_PUBLIC_VISUALIZER_URL}userUuid=${userUuid}&designId=${designId}&sku=${firstVariantId}`;
+                            const url = `${NEXT_PUBLIC_VISUALIZER_URL}userUuid=${userUuid}&designId=${designId}&sku=${visualiserSku}`;
                             window.open(url, "_blank");
                             onViewInRoom?.(product);
                         }}
