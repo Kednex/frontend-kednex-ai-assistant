@@ -96,22 +96,23 @@ export const ChatProductCard = memo(function ChatProductCard({
                                 `[ChatProductCard] View in Room clicked | designId=${designId} | variantId=${firstVariantId} | variantSku=${firstVariantSku} | visualiserSku=${visualiserSku}`,
                             );
 
-                            // const result = await openVisualiser(visualiserSku, {
-                            //     userUuid: userUuid || undefined,
-                            // });
+                            const result = await openVisualiser(visualiserSku, {
+                                userUuid: userUuid || undefined,
+                                designId: designId || undefined,
+                            });
 
-                            // if (result.ok) {
-                            //     onViewInRoom?.(product);
-                            //     return;
-                            // }
+                            if (result.ok) {
+                                onViewInRoom?.(product);
+                                return;
+                            }
 
-                            // const fallbackMessage = "Imersian visualiser is temporarily unavailable. Opening fallback page in a new tab.";
-                            // console.warn(`[ChatProductCard] ${fallbackMessage} Reason: ${result.message}`);
-                            // window.alert(fallbackMessage);
+                            const fallbackMessage = "Imersian visualiser is temporarily unavailable. Opening fallback page in a new tab.";
+                            console.warn(`[ChatProductCard] ${fallbackMessage} Reason: ${result.message}`);
+                            window.alert(fallbackMessage);
 
-                            const url = `${NEXT_PUBLIC_VISUALIZER_URL}userUuid=${userUuid}&designId=${designId}&sku=${visualiserSku}`;
-                            window.open(url, "_blank");
-                            onViewInRoom?.(product);
+                            // const url = `${NEXT_PUBLIC_VISUALIZER_URL}userUuid=${userUuid}&designId=${designId}&sku=${visualiserSku}`;
+                            // window.open(url, "_blank");
+                            // onViewInRoom?.(product);
                         }}
                         
                     >

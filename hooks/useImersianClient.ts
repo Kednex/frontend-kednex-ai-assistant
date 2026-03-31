@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 
 type ImersianConfig = {
   userUuid: string;
+  designId: string;
   viewerUrl: string;
   type?: string;
   lang?: string;
@@ -31,7 +32,8 @@ let cachedClient: ImersianClient | null = null;
 let loadPromise: Promise<ImersianClient | null> | null = null;
 let scriptPromise: Promise<void> | null = null;
 
-const IMERSIAN_SCRIPT_SRC = "/lib/imersian-client.js";
+const IMERSIAN_SCRIPT_SRC = "/lib/bundled.js";
+// const IMERSIAN_SCRIPT_SRC = "/lib/imersian-client.js";
 
 function resolveWindowClient(): ImersianClient | null {
   if (typeof window === "undefined" || !window.ImersianWebClient) {
@@ -76,6 +78,16 @@ function getUserUuidFromQuery(): string | null {
 
   const userUuid = new URLSearchParams(window.location.search).get("userUuid");
   return userUuid && userUuid.trim().length > 0 ? userUuid : null;
+}
+
+//get designId from query params to pass to visualiser
+function getDesignIdFromQuery(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const designId = new URLSearchParams(window.location.search).get("designId");
+  return designId && designId.trim().length > 0 ? designId : null;
 }
 
 function normalizeVisualiserSku(sku?: string): string | undefined {
@@ -171,9 +183,16 @@ export function useImersianClient() {
     if (!userUuid) {
       return { ok: false, message: "Missing userUuid in URL query." };
     }
+    const designId = config?.designId || getDesignIdFromQuery();
+    console.log(`[useImersianClient] Configuring Imersian client with userUuid=${userUuid} and designId=${designId}`);
+    
+    if (!designId) {
+      return { ok: false, message: "Missing designId in URL query." };
+    }
 
     client.configSettings({
       userUuid,
+      designId,
       viewerUrl: config?.viewerUrl || process.env.NEXT_PUBLIC_IMERSIAN_VIEWER_URL || "viewer.imersian.com",
       type: config?.type || "shopify",
       lang: config?.lang || "en",
@@ -191,6 +210,7 @@ export function useImersianClient() {
       }
 
       const formattedSku = normalizeVisualiserSku(sku);
+      console.log(`[useImersianClient] Opening visualiser with SKU=${formattedSku} (raw: ${sku})`); //see the log to verify SKU formatting
       if (!formattedSku) {
         return { ok: false, message: "Missing sku for Imersian visualiser." };
       }
@@ -201,7 +221,8 @@ export function useImersianClient() {
       }
 
       try {
-        client.showImersianVisualiser(formattedSku);
+        // client.showImersianVisualiser(formattedSku);
+        client.showImersianVisualiser(sku);
         return { ok: true, message: "Imersian visualiser opened." };
       } catch {
         return { ok: false, message: "Failed to open Imersian visualiser." };
