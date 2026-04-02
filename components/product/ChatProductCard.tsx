@@ -37,7 +37,8 @@ export const ChatProductCard = memo(function ChatProductCard({
     const imageUrl = product.featuredImage?.url || "/placeholder.png";
     const NEXT_PUBLIC_VISUALIZER_URL = process.env.NEXT_PUBLIC_VISUALIZER_URL || "notcatched";
     const designId = useAppSelector((state: RootState) => state.visualiser.designId);
-    const { openVisualiser } = useImersianClient(); //load visualiser client and function to open it
+    // const { openVisualiser } = useImersianClient(); //load visualiser client and function to open it
+    const { openAIVisualiser } = useImersianClient(); //load AI visualiser client and function to open it
     const userUuid = typeof window !== 'undefined'
         ? new URLSearchParams(window.location.search).get('userUuid') || ''
         : '';
@@ -96,9 +97,14 @@ export const ChatProductCard = memo(function ChatProductCard({
                                 `[ChatProductCard] View in Room clicked | designId=${designId} | variantId=${firstVariantId} | variantSku=${firstVariantSku} | visualiserSku=${visualiserSku}`,
                             );
 
-                            const result = await openVisualiser(visualiserSku, {
+                            // const result = await openVisualiser(visualiserSku, {
+                            //     userUuid: userUuid || undefined,
+                            //     designId: designId || "1",
+                            // });
+
+                            const result = await openAIVisualiser(visualiserSku, {
                                 userUuid: userUuid || undefined,
-                                designId: designId || undefined,
+                                designId: designId || "1",
                             });
 
                             if (result.ok) {

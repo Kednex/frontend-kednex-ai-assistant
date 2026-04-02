@@ -12,7 +12,7 @@ type ImersianConfig = {
 
 type ImersianClient = {
   configSettings: (config: ImersianConfig) => void;
-  showImersianVisualiser: (currentSKU?: string) => void;
+  showImersianVisualiser: (designId: any, currentSKU?: string) => void;
   bindVisualiserMessageHandlers?: () => void;
   unbindVisualiserMessageHandlers?: () => void;
   closeImersianView?: () => void;
@@ -90,24 +90,24 @@ function getDesignIdFromQuery(): string | null {
   return designId && designId.trim().length > 0 ? designId : null;
 }
 
-function normalizeVisualiserSku(sku?: string): string | undefined {
-  if (!sku) {
-    return undefined;
-  }
+// function normalizeVisualiserSku(sku?: string): string | undefined {
+//   if (!sku) {
+//     return undefined;
+//   }
 
-  const trimmed = sku.trim();
-  if (trimmed.length === 0) {
-    return undefined;
-  }
+//   const trimmed = sku.trim();
+//   if (trimmed.length === 0) {
+//     return undefined;
+//   }
 
-  // Shopify GIDs are not visualizer-compatible; use the terminal ID segment.
-  if (trimmed.startsWith("gid://")) {
-    const segments = trimmed.split("/");
-    return segments[segments.length - 1] || undefined;
-  }
+//   // Shopify GIDs are not visualizer-compatible; use the terminal ID segment.
+//   if (trimmed.startsWith("gid://")) {
+//     const segments = trimmed.split("/");
+//     return segments[segments.length - 1] || undefined;
+//   }
 
-  return trimmed;
-}
+//   return trimmed;
+// }
 
 async function loadClient(): Promise<ImersianClient | null> {
   if (cachedClient) {
@@ -209,9 +209,14 @@ export function useImersianClient() {
         return configured;
       }
 
-      const formattedSku = normalizeVisualiserSku(sku);
-      console.log(`[useImersianClient] Opening visualiser with SKU=${formattedSku} (raw: ${sku})`); //see the log to verify SKU formatting
-      if (!formattedSku) {
+      // const formattedSku = normalizeVisualiserSku(sku);
+      // console.log(`[useImersianClient] Opening visualiser with SKU=${formattedSku} (raw: ${sku})`); //see the log to verify SKU formatting
+      // if (!formattedSku) {
+      //   return { ok: false, message: "Missing sku for Imersian visualiser." };
+      // }
+
+      console.log(`[useImersianClient] Opening visualiser with SKU=${sku})`); //see the log to verify SKU formatting
+      if (!sku) {
         return { ok: false, message: "Missing sku for Imersian visualiser." };
       }
 
@@ -231,9 +236,49 @@ export function useImersianClient() {
     [configure],
   );
 
+  // imersian ai assistant support visualizer opens here
+  const openAIVisualiser = useCallback(
+    async (sku?: string, config?: Partial<ImersianConfig>) => {
+      const configured = await configure(config);
+      if (!configured.ok) {
+        return configured;
+      }
+
+      // const formattedSku = normalizeVisualiserSku(sku);
+      // console.log(`[useImersianClient] Opening visualiser with SKU=${formattedSku} (raw: ${sku})`); //see the log to verify SKU formatting
+      // if (!formattedSku) {
+      //   return { ok: false, message: "Missing sku for Imersian visualiser." };
+      // }
+
+      console.log(`[useImersianClient] Opening visualiser with SKU=${sku})`); //see the log to verify SKU formatting
+      if (!sku) {
+        return { ok: false, message: "Missing sku for Imersian visualiser." };
+      }
+
+      const designId = config?.designId || getDesignIdFromQuery();
+
+      const client = await loadClient();
+      if (!client) {
+        return { ok: false, message: "Imersian library is unavailable." };
+      }
+
+      
+
+      try {
+        // client.showImersianVisualiser(formattedSku);
+        client.showImersianVisualiser(designId, sku);
+        return { ok: true, message: "Imersian visualiser opened." };
+      } catch {
+        return { ok: false, message: "Failed to open Imersian visualiser." };
+      }
+    },
+    [configure],
+  );
+
   return {
     isReady,
     configure,
     openVisualiser,
+    openAIVisualiser,
   };
 }
