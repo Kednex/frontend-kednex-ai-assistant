@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, ChangeEvent, FormEvent, useEffect, useCallback } from "react";
+import { useRef, useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useIntroContext } from "@/lib/store/IntroContext";
 import { revokeBlobUrl } from "@/lib/utils/imageUtils";
 import { Send, Plus, X, ArrowUp } from "lucide-react";
@@ -25,7 +25,13 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
     // Load pre-loaded images from intro on mount
     useEffect(() => {
         if (uploadedImages.length > 0) {
-            setPreviews(uploadedImages);
+            const regeneratedPreviews: PreviewImage[] = uploadedImages.map((image) => ({
+                id: generateUUID(),
+                file: image.file,
+                previewUrl: URL.createObjectURL(image.file),
+            }));
+
+            setPreviews(regeneratedPreviews);
             // Clear from context after loading so they don't appear again if page reloads
             clearUploadedImages();
         }

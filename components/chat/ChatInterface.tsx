@@ -54,7 +54,18 @@ export function ChatInterface() {
         `List outdoor ${category || 'products'} on sale.`,
     ];
 
+    // when clicking a suggestion, send it as a message
     const handleSuggestionClick = (suggestion: string) => {
+        // check is there any previews in ChatInput, if yes, pass them along with the suggestion    
+        
+        // const previewUrls = previews.map((p) => p.previewUrl);
+        // const base64Images = await Promise.all(
+        //     previews.map((p) => fileToBase64(p.file))
+        // );
+          
+        
+
+
         void sendMessage(suggestion);
     };
 
