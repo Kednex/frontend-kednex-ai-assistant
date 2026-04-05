@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, Check, Loader2, Plus } from "lucide-react";
 import { useChatSession } from "@/hooks/useChatSession";
 import { MessageBubble } from "./MessageBubble";
@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/app/theme-context";
+import type { PreviewImage } from "@/lib/types";
 
 export function ChatInterface() {
     const { welcomeMessage } = useTheme();
@@ -25,6 +26,8 @@ export function ChatInterface() {
     } = useChatSession();
 
     const scrollRef = useRef<HTMLDivElement>(null);
+    const [composerPreviews, setComposerPreviews] = useState<PreviewImage[]>([]);
+    const [resetPreviewsToken, setResetPreviewsToken] = useState(0);
 
     const scrollToBottom = () => {
         if (scrollRef.current) {
@@ -55,18 +58,26 @@ export function ChatInterface() {
     ];
 
     // when clicking a suggestion, send it as a message
-    const handleSuggestionClick = (suggestion: string) => {
-        // check is there any previews in ChatInput, if yes, pass them along with the suggestion    
-        
-        // const previewUrls = previews.map((p) => p.previewUrl);
-        // const base64Images = await Promise.all(
-        //     previews.map((p) => fileToBase64(p.file))
-        // );
-          
-        
+    const handleSuggestionClick = async (suggestion: string) => {
+        const fileToBase64 = (file: File): Promise<string> => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        };
 
+        const previewUrls = composerPreviews.map((p) => p.previewUrl);
+        const base64Images = await Promise.all(
+            composerPreviews.map((p) => fileToBase64(p.file))
+        );
 
-        void sendMessage(suggestion);
+        await sendMessage(suggestion, base64Images, previewUrls);
+
+        // Reset previews in composer after suggestion send to match send button behavior.
+        setComposerPreviews([]);
+        setResetPreviewsToken((prev) => prev + 1);
     };
 
     const startNewChat = () => {
@@ -124,7 +135,7 @@ export function ChatInterface() {
                                 {suggestions.map((suggestion, index) => (
                                     <Button
                                         key={index}
-                                        onClick={() => handleSuggestionClick(suggestion)}
+                                        onClick={() => void handleSuggestionClick(suggestion)}
                                         variant="outline"
                                         className="w-full h-auto px-6 py-4 justify-start text-left rounded-3xl border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
                                     >
@@ -160,7 +171,12 @@ export function ChatInterface() {
             </ScrollArea>
 
             {/* Input Area */}
-            <ChatInput onSendMessage={sendMessage} isLoading={isLoading} />
+            <ChatInput
+                onSendMessage={sendMessage}
+                isLoading={isLoading}
+                onPreviewsChange={setComposerPreviews}
+                resetPreviewsToken={resetPreviewsToken}
+            />
         </div>
     );
 }

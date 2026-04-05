@@ -13,13 +13,16 @@ import { cn } from "@/lib/utils";
 interface ChatInputProps {
     onSendMessage: (message: string, base64Images: string[], previewUrls: string[]) => Promise<void>;
     isLoading: boolean;
+    onPreviewsChange?: (previews: PreviewImage[]) => void;
+    resetPreviewsToken?: number;
 }
 
-export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
+export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPreviewsToken }: ChatInputProps) {
     const [input, setInput] = useState("");
     const [previews, setPreviews] = useState<PreviewImage[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const lastResetTokenRef = useRef<number | undefined>(resetPreviewsToken);
     const { uploadedImages, clearUploadedImages } = useIntroContext();
 
     // Load pre-loaded images from intro on mount
@@ -36,6 +39,17 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
             clearUploadedImages();
         }
     }, [uploadedImages, clearUploadedImages]);
+
+    useEffect(() => {
+        if (typeof resetPreviewsToken === "undefined") return;
+        if (lastResetTokenRef.current === resetPreviewsToken) return;
+        lastResetTokenRef.current = resetPreviewsToken;
+        setPreviews([]);
+    }, [resetPreviewsToken]);
+
+    useEffect(() => {
+        onPreviewsChange?.(previews);
+    }, [previews, onPreviewsChange]);
 
     // Auto-resize textarea
     useEffect(() => {
