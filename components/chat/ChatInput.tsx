@@ -1,6 +1,8 @@
 'use client';
 
-import { useRef, useState, ChangeEvent, FormEvent, useEffect } from "react";
+import { useRef, useState, ChangeEvent, FormEvent, useEffect, useCallback } from "react";
+import { useIntroContext } from "@/lib/store/IntroContext";
+import { revokeBlobUrl } from "@/lib/utils/imageUtils";
 import { Send, Plus, X, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +20,16 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
     const [previews, setPreviews] = useState<PreviewImage[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const { uploadedImages, clearUploadedImages } = useIntroContext();
+
+    // Load pre-loaded images from intro on mount
+    useEffect(() => {
+        if (uploadedImages.length > 0) {
+            setPreviews(uploadedImages);
+            // Clear from context after loading so they don't appear again if page reloads
+            clearUploadedImages();
+        }
+    }, [uploadedImages, clearUploadedImages]);
 
     // Auto-resize textarea
     useEffect(() => {
@@ -42,7 +54,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
     const removePreview = (id: string) => {
         setPreviews((prev) => {
             const removed = prev.find((p) => p.id === id);
-            if (removed) URL.revokeObjectURL(removed.previewUrl);
+            if (removed) revokeBlobUrl(removed.previewUrl);
             return prev.filter((p) => p.id !== id);
         });
     };
@@ -111,6 +123,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
 
             {/* Input Row */}
             <form onSubmit={handleSubmit} className="flex items-end gap-3 max-w-4xl mx-auto w-full">
+                {/* file input button */}
                 <Button
                     type="button"
                     size="icon"

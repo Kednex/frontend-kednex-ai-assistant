@@ -1,14 +1,15 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { use, useState, useEffect, useRef, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, ChevronLeft, Camera, Lock } from "lucide-react";
+import { generateUUID } from "@/lib/utils/uuid";
+import type { PreviewImage } from "@/lib/types";
 
 type IntroPageProps = {
     params: Promise<{ step: string }>;
-    onComplete?: () => void;
+    onComplete?: (images: PreviewImage[]) => void;
 };
 
 export default function IntroPage({ params, onComplete }: IntroPageProps) {
@@ -18,9 +19,34 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
     const totalSteps = 2; // change to 2 steps
     const isEmbedded = typeof onComplete === "function";
 
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+    const [previews, setPreviews] = useState<PreviewImage[]>([]);
     const [embeddedStep, setEmbeddedStep] = useState(routeStep);
+
+    // file upload handler
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        const selectedFile = files[0];
+        if (!selectedFile) {
+            return;
+        }
+
+        const newPreview: PreviewImage = {
+            id: generateUUID(),
+            previewUrl: URL.createObjectURL(selectedFile),
+            file: selectedFile,
+        };
+
+        // Keep only one room photo and clean old blob URLs.
+        setPreviews((prev) => {
+            prev.forEach((preview) => URL.revokeObjectURL(preview.previewUrl));
+            return [newPreview];
+        });
+
+        // Reset so the same file can be re-selected
+        e.target.value = "";
+    };
 
     useEffect(() => {
         if (!isEmbedded) {
@@ -28,7 +54,14 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
         }
     }, [isEmbedded, routeStep]);
 
+    useEffect(() => {
+        return () => {
+            previews.forEach((preview) => URL.revokeObjectURL(preview.previewUrl));
+        };
+    }, [previews]);
+
     const currentStep = isEmbedded ? embeddedStep : routeStep;
+    const currentPreview = previews[0];
 
     const onNext = () => {
         if (currentStep < totalSteps) {
@@ -39,7 +72,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
             }
         } else {
             if (isEmbedded) {
-                onComplete();
+                onComplete?.(previews);
             } else {
                 // Finalize and go to chat route if used as standalone wizard.
                 router.push("/");
@@ -111,12 +144,79 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                 )} */}
 
                 {currentStep === 2 && (
-                    <div className="flex flex-col items-center justify-center h-full">
-                        <div className="w-full aspect-square max-w-xs border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center bg-muted/20">
-                            <Camera className="w-8 h-8 text-muted-foreground mb-4" />
-                            <span className="text-sm font-medium">Upload a photo of your room</span>
+                    <div className="flex flex-col items-center justify-center h-full gap-4">
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            accept="image/*"
+                            className="hidden"
+                        />
+
+                        <div className="w-full aspect-square max-w-xs border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center bg-muted/20 overflow-hidden">
+                            {currentPreview ? (
+                                <img
+                                    src={currentPreview.previewUrl}
+                                    alt="Uploaded room preview"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="flex flex-col items-center justify-center space-y-4">
+                                    {/* 1. The Icon and Text Label */}
+                                    <div className="flex flex-col items-center">
+                                        <Camera className="w-8 h-8 text-muted-foreground mb-2 text-primary" onClick={() => fileInputRef.current?.click()}/>
+                                        <span className="text-sm font-medium text-center">Upload a photo of your room</span>
+                                    </div>
+
+                                    {/* 2. The Separate Button */}
+                                    <Button
+                                        type="button"
+                                        className="h-10 px-6 rounded-full bg-primary text-primary-foreground shadow-sm hover:opacity-90 transition-all"
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        Upload Image
+                                    </Button>
+                                </div>
+                            )}
                         </div>
-                        <p className="mt-4 text-xs text-muted-foreground flex items-center gap-1"><Lock className="w-3 h-3" /> Your image remains private.</p>
+
+                        {/* <div className="w-full aspect-square max-w-xs border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center bg-muted/20 overflow-hidden">
+                            {currentPreview ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={currentPreview.previewUrl}
+                                    alt="Uploaded room preview"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="w-full h-full flex flex-col items-center justify-center"
+                                >
+                                    <Camera className="w-8 h-8 text-muted-foreground mb-4" />
+                                    <span className="text-sm font-medium">Upload a photo of your room</span>
+                                </button>
+                                
+                            )}
+                        </div> */}
+
+                        {currentPreview && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                className="text-base font-semibold text-primary h-auto p-0"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <Camera className="w-5 h-5 mr-2" />
+                                Change photo
+                            </Button>
+                        )}
+
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Lock className="w-3 h-3" />
+                            Your image remains private and safe.
+                        </p>
                     </div>
                 )}
             </div>
