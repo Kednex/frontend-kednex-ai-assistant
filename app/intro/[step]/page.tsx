@@ -16,7 +16,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
     const router = useRouter();
     const { step } = use(params);
     const routeStep = parseInt(step) || 1;
-    const totalSteps = 2; // change to 2 steps
+    const totalSteps = 1; // change to 2 steps
     const isEmbedded = typeof onComplete === "function";
 
     const [previews, setPreviews] = useState<PreviewImage[]>([]);
@@ -115,33 +115,97 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
             {/* Body Content Placeholder */}
             <div className="flex-1 overflow-y-auto px-6 py-8">
                 {currentStep === 1 && (
-                    <div className="w-full aspect-[4/5] bg-muted rounded-2xl flex items-center justify-center">
-                        <video 
-                            src="https://s3.ap-southeast-2.amazonaws.com/cdn.imersian/landing/imersian-ai-assistant.mp4"
-                            className="w-full h-full object-cover"
-                            autoPlay 
-                            loop 
-                            muted 
-                            playsInline
-                        />
+                    // <div className="w-full aspect-[4/5] bg-muted rounded-2xl flex items-center justify-center">
+                    //     <video 
+                    //         src="https://s3.ap-southeast-2.amazonaws.com/cdn.imersian/landing/imersian-ai-assistant.mp4"
+                    //         className="w-full h-full object-cover"
+                    //         autoPlay 
+                    //         loop 
+                    //         muted 
+                    //         playsInline
+                    //     />
                         
+                    // </div>
+
+                    
+
+                    <div className="flex flex-col items-center justify-center h-full gap-4">
+
+                        
+                            <video 
+                                src="https://s3.ap-southeast-2.amazonaws.com/cdn.imersian/landing/imersian-ai-assistant.mp4"
+                                className="w-1/2 h-1/2 object-cover"
+                                autoPlay 
+                                loop 
+                                muted 
+                                playsInline
+                            />
+                        
+                        
+                        
+
+
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            accept="image/*"
+                            className="hidden"
+                        />
+
+                        <div className="w-1/2 aspect-square max-w-xs border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center bg-muted/20 overflow-hidden">
+                            {currentPreview ? (
+                                <img
+                                    src={currentPreview.previewUrl}
+                                    alt="Uploaded room preview"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="flex flex-col items-center justify-center space-y-4">
+                                    {/* 1. The Icon and Text Label */}
+                                    <div className="flex flex-col items-center">
+                                        <Camera className="w-8 h-8 text-muted-foreground mb-2 text-primary" onClick={() => fileInputRef.current?.click()}/>
+                                        <span className="text-sm font-medium text-center">Upload a photo of your room</span>
+                                    </div>
+
+                                    {/* 2. The Separate Button */}
+                                    <Button
+                                        type="button"
+                                        className="h-8 px-4 rounded-full bg-primary text-primary-foreground shadow-sm hover:opacity-90 transition-all"
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        Upload Image
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
+
+                        
+
+                        {currentPreview && (
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                className="text-base font-semibold text-primary h-auto p-0"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <Camera className="w-5 h-5 mr-2" />
+                                Change photo
+                            </Button>
+                        )}
+
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Lock className="w-3 h-3" />
+                            Your image remains private and safe.
+                        </p>
                     </div>
+
+
                 )}
 
-                {/* {currentStep === 2 && (
-                    <div className="grid grid-cols-2 gap-4">
-                        {['rugs', 'sofas', 'wallart', 'decor'].map(cat => (
-                            <div
-                                key={cat}
-                                onClick={() => setSelectedCategory(cat)}
-                                className={`p-4 border-2 rounded-xl text-center cursor-pointer ${selectedCategory === cat ? 'border-primary bg-primary/5' : 'border-border'}`}
-                            >
-                                <div className="h-16 w-16 bg-muted mx-auto mb-2 rounded-lg"></div>
-                                <span className="font-medium capitalize">{cat}</span>
-                            </div>
-                        ))}
-                    </div>
-                )} */}
+                
+
+
 
                 {currentStep === 2 && (
                     <div className="flex flex-col items-center justify-center h-full gap-4">
@@ -180,26 +244,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                             )}
                         </div>
 
-                        {/* <div className="w-full aspect-square max-w-xs border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center bg-muted/20 overflow-hidden">
-                            {currentPreview ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                    src={currentPreview.previewUrl}
-                                    alt="Uploaded room preview"
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="w-full h-full flex flex-col items-center justify-center"
-                                >
-                                    <Camera className="w-8 h-8 text-muted-foreground mb-4" />
-                                    <span className="text-sm font-medium">Upload a photo of your room</span>
-                                </button>
-                                
-                            )}
-                        </div> */}
+                        
 
                         {currentPreview && (
                             <Button
@@ -231,11 +276,11 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                     {currentStep === 1 ? "Start Designing" : currentStep === totalSteps ? "Proceed" : "Next"}
                     {currentStep < totalSteps && <ChevronRight className="ml-2 w-5 h-5" />}
                 </Button>
-                <div className="flex justify-center gap-2 mt-6">
+                {/* <div className="flex justify-center gap-2 mt-6">
                     {[1, 2].map(s => (
                         <div key={s} className={`h-2 rounded-full transition-all ${s === currentStep ? 'w-4 bg-primary' : 'w-2 bg-primary/30'}`} />
                     ))}
-                </div>
+                </div> */}
             </div>
         </div>
     );
