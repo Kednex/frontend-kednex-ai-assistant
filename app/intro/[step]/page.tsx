@@ -146,7 +146,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                         
                             <video 
                                 src="https://s3.ap-southeast-2.amazonaws.com/cdn.imersian/landing/imersian-ai-assistant.mp4"
-                                className="w-1/2 h-1/2 object-cover"
+                                className="w-full h-full object-cover"
                                 autoPlay 
                                 loop 
                                 muted 
@@ -165,32 +165,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                             className="hidden"
                         />
 
-                        <div className="w-1/2 aspect-square max-w-xs border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center bg-muted/20 overflow-hidden">
-                            {currentPreview ? (
-                                <img
-                                    src={currentPreview.previewUrl}
-                                    alt="Uploaded room preview"
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <div className="flex flex-col items-center justify-center space-y-4">
-                                    {/* 1. The Icon and Text Label */}
-                                    <div className="flex flex-col items-center">
-                                        <Camera className="w-8 h-8 text-muted-foreground mb-2 text-primary" onClick={() => fileInputRef.current?.click()}/>
-                                        <span className="text-sm font-medium text-center">Upload a photo of your room</span>
-                                    </div>
-
-                                    {/* 2. The Separate Button */}
-                                    <Button
-                                        type="button"
-                                        className="h-8 px-4 rounded-full bg-primary text-primary-foreground shadow-sm hover:opacity-90 transition-all"
-                                        onClick={() => fileInputRef.current?.click()}
-                                    >
-                                        Upload Image
-                                    </Button>
-                                </div>
-                            )}
-                        </div>
+                        
 
                         
 
