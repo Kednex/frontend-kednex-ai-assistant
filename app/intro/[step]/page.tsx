@@ -25,7 +25,9 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
     // file upload handler
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+
         const files = Array.from(e.target.files || []);
         const selectedFile = files[0];
         if (!selectedFile) {
@@ -42,7 +44,17 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
         setPreviews((prev) => {
             prev.forEach((preview) => URL.revokeObjectURL(preview.previewUrl));
             return [newPreview];
+            // return [newPreview];
+
         });
+
+        // open next page
+        onNext();
+
+        // send files to parent if in embedded mode
+        if (isEmbedded) {
+            onComplete?.([newPreview]);
+        }
 
         // Reset so the same file can be re-selected
         e.target.value = "";
@@ -270,10 +282,11 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
             <div className="p-6 pb-12">
                 <Button
                     className="w-full rounded-full h-12 text-lg"
-                    onClick={onNext}
+                    // onClick={onNext}
+                    onClick={() => fileInputRef.current?.click()}
                     // disabled={(currentStep === 2 && !selectedCategory) || (currentStep === 3 && !uploadedImage)}
                 >
-                    {currentStep === 1 ? "Start Designing" : currentStep === totalSteps ? "Proceed" : "Next"}
+                    {currentStep === 1 ? "Upload Your Room" : currentStep === totalSteps ? "Proceed" : "Next"}
                     {currentStep < totalSteps && <ChevronRight className="ml-2 w-5 h-5" />}
                 </Button>
                 {/* <div className="flex justify-center gap-2 mt-6">

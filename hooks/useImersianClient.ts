@@ -90,33 +90,6 @@ function getDesignIdFromQuery(): string | null {
   return designId && designId.trim().length > 0 ? designId : null;
 }
 
-function requestParentVisualiserOpen(designId: string, sku: string): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  // If this runs inside the chatbot iframe, delegate to host page.
-  if (window.parent && window.parent !== window) {
-    try {
-      window.parent.postMessage(
-        {
-          event: "openImersianVisualiser",
-          data: {
-            designId,
-            sku,
-          },
-        },
-        "*",
-      );
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  return false;
-}
-
 // function normalizeVisualiserSku(sku?: string): string | undefined {
 //   if (!sku) {
 //     return undefined;
@@ -252,18 +225,9 @@ export function useImersianClient() {
         return { ok: false, message: "Imersian library is unavailable." };
       }
 
-      const designId = config?.designId || getDesignIdFromQuery();
-      if (!designId) {
-        return { ok: false, message: "Missing designId for Imersian visualiser." };
-      }
-
-      if (requestParentVisualiserOpen(designId, sku)) {
-        return { ok: true, message: "Imersian visualiser requested on parent window." };
-      }
-
       try {
         // client.showImersianVisualiser(formattedSku);
-        client.showImersianVisualiser(designId, sku);
+        client.showImersianVisualiser(sku);
         return { ok: true, message: "Imersian visualiser opened." };
       } catch {
         return { ok: false, message: "Failed to open Imersian visualiser." };
@@ -296,14 +260,6 @@ export function useImersianClient() {
       const client = await loadClient();
       if (!client) {
         return { ok: false, message: "Imersian library is unavailable." };
-      }
-
-      if (!designId) {
-        return { ok: false, message: "Missing designId for Imersian visualiser." };
-      }
-
-      if (requestParentVisualiserOpen(designId, sku)) {
-        return { ok: true, message: "Imersian visualiser requested on parent window." };
       }
 
       
