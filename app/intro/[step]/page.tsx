@@ -21,16 +21,54 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
 
     const [previews, setPreviews] = useState<PreviewImage[]>([]);
     const [embeddedStep, setEmbeddedStep] = useState(routeStep);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     // file upload handler
     const fileInputRef = useRef<HTMLInputElement>(null);
 
 
-    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const readFileWithProgress = (file: File) => {
+        return new Promise<void>((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const percent = Math.round((event.loaded / event.total) * 100);
+                    setUploadProgress(percent);
+                }
+            };
+
+            reader.onload = () => {
+                setUploadProgress(100);
+                resolve();
+            };
+
+            reader.onerror = () => {
+                reject(new Error("Failed to process selected image."));
+            };
+
+            reader.readAsArrayBuffer(file);
+        });
+    };
+
+    const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
 
         const files = Array.from(e.target.files || []);
         const selectedFile = files[0];
         if (!selectedFile) {
+            return;
+        }
+
+        setIsUploading(true);
+        setUploadProgress(0);
+
+        try {
+            await readFileWithProgress(selectedFile);
+        } catch (error) {
+            setIsUploading(false);
+            setUploadProgress(0);
+            e.target.value = "";
             return;
         }
 
@@ -48,13 +86,15 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
 
         });
 
-        // open next page
-        onNext();
-
         // send files to parent if in embedded mode
         if (isEmbedded) {
             onComplete?.([newPreview]);
+        } else {
+            router.push("/");
         }
+
+        setIsUploading(false);
+        setUploadProgress(0);
 
         // Reset so the same file can be re-selected
         e.target.value = "";
@@ -175,10 +215,25 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                                 variant="ghost"
                                 className="text-base font-semibold text-primary h-auto p-0"
                                 onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploading}
                             >
                                 <Camera className="w-5 h-5 mr-2" />
                                 Change photo
                             </Button>
+                        )}
+
+                        {isUploading && (
+                            <div className="w-full max-w-xs">
+                                <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                                    <div
+                                        className="h-full bg-primary transition-all duration-150"
+                                        style={{ width: `${uploadProgress}%` }}
+                                    />
+                                </div>
+                                <p className="mt-2 text-xs text-muted-foreground text-center">
+                                    Uploading photo... {uploadProgress}%
+                                </p>
+                            </div>
                         )}
 
                         <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -259,9 +314,16 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                     className="w-full rounded-full h-12 text-lg"
                     // onClick={onNext}
                     onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
                     // disabled={(currentStep === 2 && !selectedCategory) || (currentStep === 3 && !uploadedImage)}
                 >
-                    {currentStep === 1 ? "Upload Your Room" : currentStep === totalSteps ? "Proceed" : "Next"}
+                    {isUploading
+                        ? `Uploading... ${uploadProgress}%`
+                        : currentStep === 1
+                            ? "Upload Your Room"
+                            : currentStep === totalSteps
+                                ? "Proceed"
+                                : "Next"}
                     {currentStep < totalSteps && <ChevronRight className="ml-2 w-5 h-5" />}
                 </Button>
                 {/* <div className="flex justify-center gap-2 mt-6">
