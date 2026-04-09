@@ -12,7 +12,7 @@ type ImersianConfig = {
 
 type ImersianClient = {
   configSettings: (config: ImersianConfig) => void;
-  showImersianVisualiser: (designId: any, currentSKU?: string) => void;
+  showImersianVisualiser: (currentSKU?: string, designId?: any) => void;
   bindVisualiserMessageHandlers?: () => void;
   unbindVisualiserMessageHandlers?: () => void;
   closeImersianView?: () => void;
@@ -88,6 +88,33 @@ function getDesignIdFromQuery(): string | null {
 
   const designId = new URLSearchParams(window.location.search).get("designId");
   return designId && designId.trim().length > 0 ? designId : null;
+}
+
+function requestParentVisualiserOpen(sku: string, designId: string): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  // If this runs inside the chatbot iframe, delegate to host page.
+  if (window.parent && window.parent !== window) {
+    try {
+      window.parent.postMessage(
+        {
+          event: "openImersianVisualiser",
+          data: {
+            designId,
+            sku
+          },
+        },
+        "*",
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
 }
 
 // function normalizeVisualiserSku(sku?: string): string | undefined {
@@ -209,11 +236,6 @@ export function useImersianClient() {
         return configured;
       }
 
-      // const formattedSku = normalizeVisualiserSku(sku);
-      // console.log(`[useImersianClient] Opening visualiser with SKU=${formattedSku} (raw: ${sku})`); //see the log to verify SKU formatting
-      // if (!formattedSku) {
-      //   return { ok: false, message: "Missing sku for Imersian visualiser." };
-      // }
 
       console.log(`[useImersianClient] Opening visualiser with SKU=${sku})`); //see the log to verify SKU formatting
       if (!sku) {
@@ -225,9 +247,19 @@ export function useImersianClient() {
         return { ok: false, message: "Imersian library is unavailable." };
       }
 
+      // get desingnId from config or query params to pass to visualiser
+      const designId = config?.designId || getDesignIdFromQuery();
+      if (!designId) {
+        return { ok: false, message: "Missing designId for Imersian visualiser." };
+      }
+
+      if (requestParentVisualiserOpen(sku, designId )) {
+        return { ok: true, message: "Imersian visualiser requested on parent window." };
+      }
+
       try {
         // client.showImersianVisualiser(formattedSku);
-        client.showImersianVisualiser(sku);
+        client.showImersianVisualiser(sku, designId);
         return { ok: true, message: "Imersian visualiser opened." };
       } catch {
         return { ok: false, message: "Failed to open Imersian visualiser." };
@@ -266,7 +298,7 @@ export function useImersianClient() {
 
       try {
         // client.showImersianVisualiser(formattedSku);
-        client.showImersianVisualiser(designId, sku);
+        client.showImersianVisualiser( sku, designId);
         return { ok: true, message: "Imersian visualiser opened." };
       } catch {
         return { ok: false, message: "Failed to open Imersian visualiser." };

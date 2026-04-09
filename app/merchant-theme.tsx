@@ -16,10 +16,11 @@ function normalizeRadius(value: unknown): string | null {
   if (typeof value === 'number' && Number.isFinite(value)) return `${value}px`
   if (typeof value === 'string' && value.trim()) {
     const trimmed = value.trim()
+    const normalized = trimmed.replace(/\s+/g, '')
     // ✅ Accept already-unitized values like '24px', '1.5rem', '0.5em'
-    if (/^\d+(\.\d+)?(px|rem|em)$/.test(trimmed)) return trimmed
+    if (/^\d+(\.\d+)?(px|rem|em)$/.test(normalized)) return normalized
     // ✅ Accept plain numbers as strings like '24'
-    const numeric = Number(trimmed)
+    const numeric = Number(normalized)
     if (Number.isFinite(numeric)) return `${numeric}px`
   }
   return null

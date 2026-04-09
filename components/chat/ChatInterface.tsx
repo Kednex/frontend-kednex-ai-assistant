@@ -137,7 +137,7 @@ export function ChatInterface() {
                                         key={index}
                                         onClick={() => void handleSuggestionClick(suggestion)}
                                         variant="outline"
-                                        className="w-full h-auto px-6 py-4 justify-start text-left rounded-2xl border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
+                                        className="w-full h-auto px-6 py-4 justify-start text-left rounded-3xl border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
                                     >
                                         <span className="text-sm font-bold truncate">
                                             {suggestion}
