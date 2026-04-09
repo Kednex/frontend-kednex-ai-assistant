@@ -47,7 +47,7 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         highlight: '#f59e0b',
         highlightText: '#111827',
         background: '#fef9f9',
-        radius: '5rem', //type: integer
+        radius: '0rem', //type: integer
         // font: 'Inter',
         font: 'Inter'
       },
