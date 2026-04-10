@@ -41,10 +41,8 @@
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+
+
 }
 
 :root {
@@ -54,9 +52,10 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
+  /* --primary: oklch(0.205 0 0); */
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
+  --secondary: oklch(97.015% 0.00011 271.152);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
@@ -71,7 +70,7 @@
   --chart-3: oklch(0.546 0.245 262.881);
   --chart-4: oklch(0.488 0.243 264.376);
   --chart-5: oklch(0.424 0.199 265.638);
-  --radius: 0.875rem;
+  --radius: 0;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -80,6 +79,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  
+  --font-sans: 'Inter', sans-serif; /* fallback until merchant font loads */
 }
 
 .dark {
@@ -123,4 +124,55 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ── Room Analysis Indicator animations ── */
+
+@keyframes shimmer-sweep {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+@keyframes step-in {
+  0%   { opacity: 0; transform: translateY(5px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Glow pulse on the spinning icon */
+@keyframes icon-glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0px currentColor); }
+  50%       { filter: drop-shadow(0 0 5px currentColor); }
+}
+
+/* Breathing left-border on the container */
+@keyframes border-breathe {
+  0%, 100% { border-color: color-mix(in oklch, var(--primary) 18%, transparent); }
+  50%       { border-color: color-mix(in oklch, var(--primary) 55%, transparent); }
+}
+
+.room-analysis-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--muted-foreground) 0%,
+    var(--foreground) 38%,
+    var(--muted-foreground) 62%,
+    var(--muted-foreground) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-sweep 1.8s linear infinite;
+}
+
+.room-analysis-step-in {
+  animation: step-in 0.25s ease-out forwards;
+}
+
+.room-analysis-icon-glow { animation: icon-glow-pulse 1.8s ease-in-out infinite; }
+
+.room-analysis-container {
+  border-left-width: 2px;
+  border-left-style: solid;
+  animation: border-breathe 1.8s ease-in-out infinite;
 }
