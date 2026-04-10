@@ -8,7 +8,6 @@ import { setDesignId } from '@/lib/store/visualiserSlice'
 import type { ChatSession, Message } from '@/lib/types'
 import { generateUUID } from '@/lib/utils/uuid'
 import { normalizeRooms } from '@/lib/utils/storage'
-import attachmentsStore from './attachmentsStore'
 
 const STORAGE_KEYS = {
     CHAT_ACTIVE_SESSION: 'imersian:chat_active_session',
@@ -33,6 +32,9 @@ export function useChatSession() {
 
     // ref so onFinish (defined before chatApi) can call setMessages
     const setMessagesRef = useRef<((updater: any) => void) | null>(null);
+
+    // room analysis status driven by ___ANALYSING_ROOM___ / ___DETECTED_ROOM_LAYOUT___ tokens
+    const [roomAnalysisStatus, setRoomAnalysisStatus] = useState<'idle' | 'analysing' | 'detected'>('idle');
 
     // Hydrate once
     useEffect(() => {
@@ -142,6 +144,10 @@ export function useChatSession() {
             // 🔍 Log everything so we can see what the AI SDK delivers
             console.log('📨 onData TYPE:', dataPart.type, '| data:', JSON.stringify(dataPart.data));
 
+            if (dataPart.type === 'data-roomAnalysis' && dataPart.data?.status) {
+                setRoomAnalysisStatus(dataPart.data.status as 'analysing' | 'detected');
+            }
+
             if (dataPart.data && typeof dataPart.data === 'object') {
                 if ('responseId' in dataPart.data) {
                     const responseId = (dataPart.data as any).responseId;
@@ -164,6 +170,7 @@ export function useChatSession() {
         },
         onFinish: (message: any) => {
             console.log('🏁 onFinish called | message.id:', message?.id, '| pendingProducts:', pendingProducts.current?.length ?? 0);
+            setRoomAnalysisStatus('idle');
             // Attach any products the backend returned to the finished assistant message.
             // Use last-assistant-message matching (more robust than ID matching)
             if (pendingProducts.current?.length) {
@@ -314,6 +321,7 @@ export function useChatSession() {
             if (!content.trim() && (!base64Images || base64Images.length === 0)) return
             if (isLoading) return
 
+            setRoomAnalysisStatus('idle');
             pendingAttachmentsRef.current = base64Images || [];
             pendingPreviewUrlsRef.current = previewUrls || [];
             await sdkSendMessage({ text: content })
@@ -329,6 +337,7 @@ export function useChatSession() {
         sessionId,
         hydrated,
         isLoading,
-        getChatSession
+        getChatSession,
+        roomAnalysisStatus,
     }
 }

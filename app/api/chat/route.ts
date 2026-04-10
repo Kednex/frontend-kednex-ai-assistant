@@ -1,6 +1,32 @@
 import { generateUUID } from '@/lib/utils/uuid';
 import { createUIMessageStream, JsonToSseTransformStream } from 'ai';
-import { use } from 'react';
+import { getMerchantThemeSample } from './merchant-sample';
+
+async function resolveMerchantInfo(userUuid: string) {
+    // TODO: replace with backend fetch once schema is ready
+
+    // // fetch merchant info from backend
+    // if (!userUuid) {
+    //     return new Response(JSON.stringify({ error:'Missing userUuid parameter' }), { status: 400 });
+    // }
+
+    // const Backend = process.env.BackEnd || 'http:/localhost:4000';
+    // const response = await fetch(`${Backend}/merchantinfo/${userUuid}`);
+
+    // if (!response.ok) {
+    //     throw new Error(`Backend error: ${responsestatus}`);
+    // }
+
+    // const merchantInfo = await response.json();
+    // if (!merchantInfo) {
+    //     return new Response(JSON.stringify({ error:'Unknown userUuid' }), { status: 404 });
+    // }
+
+    // return new Response(JSON.stringify(merchantInfo), {status: 200 });    
+
+
+    return getMerchantThemeSample(userUuid);
+}
 
 // Normalise the raw Shopify MCP product shape → frontend Product type
 function normalizeMcpProduct(p: any) {
@@ -20,6 +46,7 @@ function normalizeMcpProduct(p: any) {
             : (p.priceRange ?? null),
         variants: (p.variants ?? []).map((v: any) => ({
             id:             v.variant_id ?? v.id ?? '',
+            sku:            v.variant_sku ?? v.variantSku ?? v.sku ?? '',
             title:          v.title ?? '',
             availableForSale: v.available ?? true,
             price:          { amount: String(v.price ?? '0'), currencyCode: v.currency ?? 'USD' },
@@ -28,9 +55,14 @@ function normalizeMcpProduct(p: any) {
     };
 }
 
+// chat endpoint for handling chat messages from the frontend, forwarding to Imersian backend, and streaming responses back to UI
 export async function POST(req: Request) {
     try {
         const { messages, category, rooms, sessionId, previousResponseId, attachments, userUuid } = await req.json();
+
+        // merchant informations
+        const merchantInfo = userUuid ? await resolveMerchantInfo(userUuid) : undefined;
+        const fallbackResponse = merchantInfo?.aiAssistant?.rules?.fallbackResponse?.trim() || 'Sorry, I had trouble processing that. Can you please try again later?';
 
 
         //log the incoming request for debugging
@@ -78,7 +110,7 @@ export async function POST(req: Request) {
 
         
 
-        const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
+        const API_BASE = process.env.NEXT_PUBLIC_API_BASE!
         // const endpoint = `${API_BASE}/chat/merchant/rug`;
 
         const backendResponse = await fetch(`${API_BASE}/chat/merchant/rug`, {
@@ -134,7 +166,19 @@ export async function POST(req: Request) {
                                     if (match) {
                                         try { products = JSON.parse(match[1]); } catch {}
                                     }
-                                
+
+                                }else if(parsed.chunk === '___ANALYSING_ROOM___') {
+                                    // Room analysis started — send as a data event, NOT as visible text
+                                    (dataStream as any).write({
+                                        type: 'data-roomAnalysis',
+                                        data: { status: 'analysing' }
+                                    });
+                                }else if(parsed.chunk === '___DETECTED_ROOM_LAYOUT___') {
+                                    // Room layout detected — send as a data event, NOT as visible text
+                                    (dataStream as any).write({
+                                        type: 'data-roomAnalysis',
+                                        data: { status: 'detected' }
+                                    });
                                 }else {
                                     fullText += parsed.chunk;
                                     // Stream each chunk to frontend
@@ -151,6 +195,15 @@ export async function POST(req: Request) {
                         }
                     }
                     }
+                }
+
+                if (!fullText.trim() && fallbackResponse) {
+                    fullText = fallbackResponse;
+                    dataStream.write({
+                        type: 'text-delta',
+                        id: messageId,
+                        delta: fallbackResponse,
+                    });
                 }
 
                 dataStream.write({
@@ -189,142 +242,28 @@ export async function POST(req: Request) {
     }
 }
 
+// chat endpoint for fetching merchant information from backend to apply theming based on merchant's primary color
+export async function GET(req: Request) {
+    try {
+        const { searchParams } = new URL(req.url);
+        const userUuid = searchParams.get('userUuid') || '';
 
 
-// export async function POST(req: Request) {
-//     try {
-//         const { messages, category, rooms, sessionId } = await req.json();
-
-//         //log the incoming request for debugging
-//         console.log("Received chat request from UI:", { messages, category, rooms, sessionId });
-
-//         // AI SDK 6.0 uses 'parts'. We extract text from the latest message.
-//         const latestMessage = messages[messages.length - 1];
-//         let latestText = '';
-
-//         if (Array.isArray(latestMessage.parts)) {
-//             latestText = latestMessage.parts
-//                 .filter((p: any) => p.type === 'text')
-//                 .map((p: any) => p.text)
-//                 .join(' ');
-//         } else {
-//             // Fallback for older formats or unexpected input
-//             latestText = latestMessage.content || '';
-//         }
-
-//         // Log the extracted text for debugging
-//         console.log("Extracted latest text from message:", latestText);
-
-//         // Construct payload for Imersian backend
-//         const backendParts: any[] = [
-//             { type: "text", text: latestText }
-//         ];
-
-//         if (rooms && rooms.length > 0) {
-//             rooms.forEach((url: string) => {
-//                 backendParts.push({
-//                     type: "file",
-//                     url,
-//                     name: "room.png",
-//                     mediaType: "image/png"
-//                 });
-//             });
-//         }
-
-//         const payload = {
-//             message: { parts: backendParts },
-//             selectedChatModel: "chat-model",
-//             selectedVisibilityType: "public",
-//             sessionId
-//         };
 
 
-//         // debug payload
-//         console.log("payload : ", payload);
+        // fetch merchant info
+        if (!userUuid) {
+            return new Response(JSON.stringify({ error: 'Missing userUuid parameter' }), { status: 400 });
+        }
 
-//         const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://api.imersian.com/api/v1';
-//         const endpoint = `${API_BASE}/chat/${category ? category.replace(/\s+/g, "") : "default"}`;
+        const merchantInfo = await resolveMerchantInfo(userUuid);
+        if (!merchantInfo) {
+            return new Response(JSON.stringify({ error: 'Unknown userUuid' }), { status: 404 });
+        }
 
+        return new Response(JSON.stringify(merchantInfo), { status: 200 });
 
-//         const stream = createUIMessageStream({
-//             async execute({ writer }) {
-//                 try {
-//                     const response = await fetch(endpoint, {
-//                         method: 'POST',
-//                         headers: {
-//                             'Content-Type': 'application/json',
-//                             'Accept': 'text/event-stream'
-//                         },
-//                         body: JSON.stringify(payload)
-                        
-//                     });
-
-//                     if (!response.ok) {
-//                         throw new Error(`Imersian API error: ${response.status}`);
-//                     }
-
-//                     if (!response.body) {
-//                         writer.write({ type: 'error', errorText: 'No response body from Imersian API' });
-//                         return;
-//                     }
-
-//                     const reader = response.body.getReader();
-//                     const decoder = new TextDecoder("utf-8");
-//                     let buffer = "";
-
-//                     while (true) {
-//                         const { value, done } = await reader.read();
-//                         if (done) break;
-
-//                         buffer += decoder.decode(value, { stream: true });
-//                         const lastNewline = buffer.lastIndexOf("\n");
-
-//                         if (lastNewline !== -1) {
-//                             const chunkToProcess = buffer.slice(0, lastNewline);
-//                             buffer = buffer.slice(lastNewline + 1);
-
-//                             const lines = chunkToProcess.split("\n");
-//                             for (const line of lines) {
-//                                 if (!line.startsWith("data:")) continue;
-//                                 const dataStr = line.slice(5).trim();
-
-//                                 if (!dataStr || dataStr === "[DONE]") continue;
-
-//                                 try {
-//                                     const obj = JSON.parse(dataStr);
-
-//                                     // Use backend's responseId or messageId if available
-//                                     const id = obj.responseId || obj.messageId || `msg-${Date.now()}`;
-
-//                                     // Pass Imersian-specific structured data using AI SDK data parts
-//                                     if (obj.responseId) {
-//                                         writer.write({ type: 'data-responseId' as any, data: obj.responseId, id });
-//                                     }
-//                                     if (obj.type === "search-payload") {
-//                                         writer.write({ type: 'data-searchPayload' as any, data: obj.searchPayload, id });
-//                                     }
-
-//                                     // Write the actual text delta
-//                                     const content = obj.delta ?? obj.content ?? "";
-//                                     if (content) {
-//                                         writer.write({ type: 'text-delta', delta: content, id });
-//                                     }
-//                                 } catch {
-//                                     // Fallback if not JSON
-//                                     writer.write({ type: 'text-delta', delta: dataStr, id: `msg-${Date.now()}` });
-//                                 }
-//                             }
-//                         }
-//                     }
-//                 } catch (error: any) {
-//                     writer.write({ type: 'error', errorText: error.message || 'Stream processing failed' });
-//                 }
-//             }
-//         });
-
-//         return createUIMessageStreamResponse({ stream });
-
-//     } catch (error: any) {
-//         return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-//     }
-// }
+    } catch (error: any) {
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    }
+}

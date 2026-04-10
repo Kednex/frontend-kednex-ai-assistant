@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Roboto } from "next/font/google";
+// import { Geist, Geist_Mono, Roboto } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import MerchantTheme from "./merchant-theme";
+import { ThemeProvider } from "./theme-context";
+import { ThemeWrapper } from "./theme-wrapper";
+import { ImersianInitializer } from "@/components/ImersianInitializer";
 
-const roboto = Roboto({ subsets: ['latin'], variable: '--font-sans' });
+// const roboto = Roboto({ subsets: ['latin'], variable: '--font-sans' });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,11 +30,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={roboto.variable}>
+    // <html lang="en" className={roboto.variable}>
+    < html lang="en" >
       <body
         className={`${geistSans.variable} ${geistMono.variable}`}
       >
-        {children}
+        <ImersianInitializer />
+        <ThemeProvider>
+          <MerchantTheme />
+          <ThemeWrapper>
+            {children}
+          </ThemeWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );
