@@ -149,6 +149,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                     size="icon"
                     className="h-11 w-11 rounded-full shrink-0 bg-muted/50 text-foreground shadow-sm transition-all hover:bg-muted/60 hover:text-foreground hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
                     onClick={() => fileInputRef.current?.click()}
+                    hidden={previews.length === 0} // hide if there are previews to encourage description
                 >
                     <Plus size={20} />
                 </Button>
@@ -162,7 +163,24 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                         // Show different placeholder if there are image previews to encourage description
                         placeholder={previews.length > 0 ?"Describe the room in the image..." : "Type your message..."}
                         className="min-h-[44px] max-h-[200px] w-full rounded-[var(--radius)] pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden font-sans"
+                        // hide textarea prviews.length = 0 to avoid confusion with image previews
+                        hidden={previews.length === 0}
+                        
                     />
+
+                    {/*  upload your room button show if no previews */}
+                    <div className="relative flex-1 flex items-end">
+                        <Button
+                        type="button"
+                        size="icon"
+                        className="w-full rounded-[var(--radius)] h-10 text-sm "
+                        onClick={() => fileInputRef.current?.click()}
+                        hidden={previews.length > 0} // hide if there are previews to encourage description 
+                    >
+                        Upload Your Room
+                    </Button>
+                    </div>
+                    
 
                     <Button
                         type="submit"
@@ -170,6 +188,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                         // Disable send button if loading or input is empty (but allow if there are images to send)
                         disabled={isLoading || input.trim() === ""}
                         className="absolute right-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full shadow-sm"
+                        hidden={previews.length === 0} // hide if there are previews to encourage description 
                     >
                         <ArrowUp size={18} />
                     </Button>
