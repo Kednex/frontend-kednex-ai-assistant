@@ -7,6 +7,14 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'cdn.shopify.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.imersian.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.imersian-sandbox.com',
+      },
     ],
   },
 };

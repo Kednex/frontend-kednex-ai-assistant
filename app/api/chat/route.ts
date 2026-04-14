@@ -110,7 +110,7 @@ export async function POST(req: Request) {
 
         
 
-        const API_BASE = process.env.NEXT_PUBLIC_API_BASE!
+        const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
         // const endpoint = `${API_BASE}/chat/merchant/rug`;
 
         const backendResponse = await fetch(`${API_BASE}/chat/merchant/rug`, {
@@ -260,6 +260,8 @@ export async function GET(req: Request) {
         if (!merchantInfo) {
             return new Response(JSON.stringify({ error: 'Unknown userUuid' }), { status: 404 });
         }
+
+        console.log('Fetched merchant info for userUuid[route.ts frontend]:', userUuid, merchantInfo);
 
         return new Response(JSON.stringify(merchantInfo), { status: 200 });
 
