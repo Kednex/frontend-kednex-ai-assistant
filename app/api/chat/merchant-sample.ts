@@ -53,7 +53,36 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
       },
     },
   },
+  '8fd0db69-b8cf-4356-8689-6c1a0719fe80': {
+    companyId: '1',
+    aiAssistant: {
+      isChatbotEnabled: true,
+      identity: {
+        name: 'Design Assistant',
+        description: 'Rug recommendation assistant',
+        avatarUrl: 'https://example.com/avatar.png',
+      },
+      behaviour: {
+        tone: 'Friendly',
+        welcomeMessage: 'Upload a room photo and tell me your style.',
+      },
+      rules: {
+        fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
+      },
+      theme: {
+        primary: '#24328d',
+        highlight: '#90ef93',
+        highlightText: '#111827',
+        background: '#fef9f9',
+        radius: '1.5rem',
+        font: 'Inter',
+        // font: 'Playwrite IE'
+      },
+    },
+  },
 }
+
+
 
 export function getMerchantThemeSample(userUuid?: string) {
   if (!userUuid) return undefined

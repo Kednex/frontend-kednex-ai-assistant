@@ -261,6 +261,8 @@ export async function GET(req: Request) {
             return new Response(JSON.stringify({ error: 'Unknown userUuid' }), { status: 404 });
         }
 
+        console.log('Fetched merchant info for userUuid[route.ts frontend]:', userUuid, merchantInfo);
+
         return new Response(JSON.stringify(merchantInfo), { status: 200 });
 
     } catch (error: any) {
