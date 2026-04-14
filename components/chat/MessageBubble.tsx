@@ -104,7 +104,7 @@ export function MessageBubble({
 
                         {/* Assistant content */}
                         <div className={cn(
-                            "w-full px-5 py-4 rounded-3xl rounded-tl-none overflow-hidden border shadow-sm",
+                            "w-full px-5 py-4 rounded-[var(--radius)] rounded-tl-none overflow-hidden border shadow-sm",
                             message.isError ? "border-destructive/50 bg-destructive/5 text-destructive" : "border-border bg-card text-card-foreground"
                         )}>
                             {/* Room analysis thinking indicator */}
@@ -136,7 +136,7 @@ export function MessageBubble({
                         </div>
                     </div>
                 ) : (
-                    <div className="max-w-[85%] px-5 py-4 rounded-3xl rounded-br-none bg-primary text-primary-foreground shadow-sm">
+                    <div className="max-w-[85%] px-5 py-4 rounded-[var(--radius)] rounded-br-none bg-primary text-primary-foreground shadow-sm">
                         <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">
                             {content}
                         </p>
@@ -224,7 +224,7 @@ function UserAttachment({ url }: { url: string }) {
     const [loaded, setLoaded] = useState(false);
 
     return (
-        <div className="relative w-36 aspect-square rounded-2xl overflow-hidden border shadow-sm bg-background">
+        <div className="relative w-36 aspect-square rounded-[var(--radius)] overflow-hidden border shadow-sm bg-background">
             <div className={cn(
                 "w-full h-full transition-opacity duration-500",
                 loaded ? "opacity-100" : "opacity-0"

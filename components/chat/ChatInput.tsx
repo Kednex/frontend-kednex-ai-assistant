@@ -130,9 +130,9 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
         <div className="border-t bg-background p-4 flex flex-col gap-3">
             {/* Previews Row */}
             {previews.length > 0 && (
-                <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar rounded-[var(--radius)]">
                     {previews.map((preview) => (
-                        <div key={preview.id} className="relative shrink-0 group">
+                        <div key={preview.id} className="relative shrink-0 group ">
                             <div className="w-20 h-20 overflow-hidden border bg-muted">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
