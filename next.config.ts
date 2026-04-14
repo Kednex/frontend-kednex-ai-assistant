@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'cdn.imersian.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.imersian-sandbox.com',
+      },
     ],
   },
 };
