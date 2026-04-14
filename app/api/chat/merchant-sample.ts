@@ -47,7 +47,7 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         highlight: '#f59e0b',
         highlightText: '#111827',
         background: '#fef9f9',
-        radius: '1.5rem',
+        radius: '1rem',
         font: 'Inter',
         // font: 'Playwrite IE'
       },
@@ -74,7 +74,7 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         highlight: '#90ef93',
         highlightText: '#111827',
         background: '#fef9f9',
-        radius: '1.5rem',
+        radius: '0rem',
         font: 'Inter',
         // font: 'Playwrite IE'
       },

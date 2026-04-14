@@ -110,7 +110,7 @@ export async function POST(req: Request) {
 
         
 
-        const API_BASE = process.env.NEXT_PUBLIC_API_BASE!
+        const API_BASE = process.env.BackEnd || 'http://localhost:4000';
         // const endpoint = `${API_BASE}/chat/merchant/rug`;
 
         const backendResponse = await fetch(`${API_BASE}/chat/merchant/rug`, {

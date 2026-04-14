@@ -279,7 +279,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                                     {/* 2. The Separate Button */}
                                     <Button
                                         type="button"
-                                        className="h-10 px-6 rounded-full bg-primary text-primary-foreground shadow-sm hover:opacity-90 transition-all"
+                                        className="h-10 px-6 rounded-[var(--radius)] bg-primary text-primary-foreground shadow-sm hover:opacity-90 transition-all"
                                         onClick={() => fileInputRef.current?.click()}
                                     >
                                         Upload Image
@@ -313,7 +313,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
             {/* Footer Controls */}
             <div className="p-6 pb-12">
                 <Button
-                    className="w-full rounded-full h-12 text-lg"
+                    className="w-full rounded-[var(--radius)] h-12 text-lg"
                     // onClick={onNext}
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
