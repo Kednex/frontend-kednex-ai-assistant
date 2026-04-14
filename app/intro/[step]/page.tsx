@@ -20,6 +20,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
     const isEmbedded = typeof onComplete === "function";
 
     const [previews, setPreviews] = useState<PreviewImage[]>([]);
+    
     const [embeddedStep, setEmbeddedStep] = useState(routeStep);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -85,6 +86,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
             // return [newPreview];
 
         });
+
 
         // send files to parent if in embedded mode
         if (isEmbedded) {

@@ -20,6 +20,7 @@ interface ChatInputProps {
 export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPreviewsToken }: ChatInputProps) {
     const [input, setInput] = useState("");
     const [previews, setPreviews] = useState<PreviewImage[]>([]);
+    const [firstImage, setFirstImage] = useState<PreviewImage[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const lastResetTokenRef = useRef<number | undefined>(resetPreviewsToken);
@@ -34,7 +35,12 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                 previewUrl: URL.createObjectURL(image.file),
             }));
 
+            setFirstImage(regeneratedPreviews);
             setPreviews(regeneratedPreviews);
+            
+            
+
+
             // Clear from context after loading so they don't appear again if page reloads
             clearUploadedImages();
         }
@@ -69,6 +75,8 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
         setPreviews((prev) => [...prev, ...newPreviews]);
         // Reset so the same file can be re-selected
         e.target.value = "";
+        
+        
     };
 
     const removePreview = (id: string) => {
@@ -78,6 +86,8 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
             return prev.filter((p) => p.id !== id);
         });
     };
+
+    
 
     const fileToBase64 = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {
@@ -102,6 +112,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
 
         setInput("");
         setPreviews([]);
+        setFirstImage([]);
 
         await onSendMessage(messageText, base64Images, previewUrls);
     };
@@ -140,7 +151,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                     ))}
                 </div>
             )}
-
+            
             {/* Input Row */}
             <form onSubmit={handleSubmit} className="flex items-end gap-3 max-w-4xl mx-auto w-full">
                 {/* file input button */}
@@ -161,20 +172,25 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={onKeyDown}
                         // Show different placeholder if there are image previews to encourage description
-                        placeholder={previews.length > 0 ?"Describe the room in the image..." : "Type your message..."}
+                        placeholder={previews.length > 0 ? "Describe the room in the image..." : "Type your message..."}
                         className="min-h-[44px] max-h-[200px] w-full rounded-[var(--radius)] pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden font-sans"
                         // hide textarea prviews.length = 0 to avoid confusion with image previews
                         hidden={previews.length === 0}
                         
                     />
 
-                    {/*  upload your room button show if no previews */}
+                    {/*  upload your room button show if no firstimage */}
                     <div className="relative flex-1 flex items-end">
                         <Button
                         type="button"
                         size="icon"
                         className="w-full rounded-[var(--radius)] h-10 text-sm "
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={() => {
+                            fileInputRef.current?.click();
+                            
+                            // update firstimage with new uploaded image fileInputRef.current?.click();
+                    
+                        }}
                         hidden={previews.length > 0} // hide if there are previews to encourage description 
                     >
                         Upload Your Room
