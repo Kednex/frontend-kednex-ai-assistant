@@ -2,6 +2,9 @@ import { generateUUID } from '@/lib/utils/uuid';
 import { createUIMessageStream, JsonToSseTransformStream } from 'ai';
 import { getMerchantThemeSample } from './merchant-sample';
 
+// Allow up to 120 seconds for this route (covers AI processing time on the backend)
+export const maxDuration = 120;
+
 async function resolveMerchantInfo(userUuid: string) {
     // TODO: replace with backend fetch once schema is ready
 
@@ -118,6 +121,7 @@ export async function POST(req: Request) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(120000)
         });
         
         if (!backendResponse.ok) {
