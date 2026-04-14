@@ -12,4 +12,7 @@
  */
 const attachmentsStore: { current: string[] } = { current: [] };
 
+
+
+
 export default attachmentsStore;

@@ -2,6 +2,10 @@ import { generateUUID } from '@/lib/utils/uuid';
 import { createUIMessageStream, JsonToSseTransformStream } from 'ai';
 import { getMerchantThemeSample } from './merchant-sample';
 
+// Allow up to 120 seconds for this route (covers AI processing time on the backend)
+export const maxDuration = 120;
+export const dynamic = 'force-dynamic';
+
 async function resolveMerchantInfo(userUuid: string) {
     // TODO: replace with backend fetch once schema is ready
 
@@ -110,13 +114,15 @@ export async function POST(req: Request) {
 
         
 
-        const API_BASE = process.env.NEXT_PUBLIC_API_BASE!
-        // const endpoint = `${API_BASE}/chat/merchant/rug`;
+        const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
+        
+        console.log("Using API_BASE:", API_BASE); // Log the API base URL being used
 
         const backendResponse = await fetch(`${API_BASE}/chat/merchant/rug`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(120000)
         });
         
         if (!backendResponse.ok) {
@@ -235,7 +241,14 @@ export async function POST(req: Request) {
             generateId: generateUUID,
         });
 
-        return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
+        return new Response(stream.pipeThrough(new JsonToSseTransformStream()), {
+            headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache, no-transform',
+                'Connection': 'keep-alive',
+                'X-Accel-Buffering': 'no',
+            },
+        });
 
     } catch (error: any) {
         return new Response(JSON.stringify({ error: error.message }), { status: 500 });
@@ -260,6 +273,8 @@ export async function GET(req: Request) {
         if (!merchantInfo) {
             return new Response(JSON.stringify({ error: 'Unknown userUuid' }), { status: 404 });
         }
+
+        console.log('Fetched merchant info for userUuid[route.ts frontend]:', userUuid, merchantInfo);
 
         return new Response(JSON.stringify(merchantInfo), { status: 200 });
 
