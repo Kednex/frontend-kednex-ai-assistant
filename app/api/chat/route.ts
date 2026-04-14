@@ -111,7 +111,8 @@ export async function POST(req: Request) {
         
 
         const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
-        // const endpoint = `${API_BASE}/chat/merchant/rug`;
+        
+        console.log("Using API_BASE:", API_BASE); // Log the API base URL being used
 
         const backendResponse = await fetch(`${API_BASE}/chat/merchant/rug`, {
             method: 'POST',
