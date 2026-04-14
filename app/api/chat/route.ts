@@ -4,6 +4,7 @@ import { getMerchantThemeSample } from './merchant-sample';
 
 // Allow up to 120 seconds for this route (covers AI processing time on the backend)
 export const maxDuration = 120;
+export const dynamic = 'force-dynamic';
 
 async function resolveMerchantInfo(userUuid: string) {
     // TODO: replace with backend fetch once schema is ready
@@ -240,7 +241,14 @@ export async function POST(req: Request) {
             generateId: generateUUID,
         });
 
-        return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
+        return new Response(stream.pipeThrough(new JsonToSseTransformStream()), {
+            headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache, no-transform',
+                'Connection': 'keep-alive',
+                'X-Accel-Buffering': 'no',
+            },
+        });
 
     } catch (error: any) {
         return new Response(JSON.stringify({ error: error.message }), { status: 500 });
