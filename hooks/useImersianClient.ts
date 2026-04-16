@@ -237,7 +237,7 @@ export function useImersianClient() {
       }
 
 
-      console.log(`[useImersianClient] Opening visualiser with SKU=${sku})`); //see the log to verify SKU formatting
+      console.log("[useImersianClient] Opening visualiser with SKU=" + sku + ")"); //see the log to verify SKU formatting
       if (!sku) {
         return { ok: false, message: "Missing sku for Imersian visualiser." };
       }
@@ -259,7 +259,8 @@ export function useImersianClient() {
 
       try {
         // client.showImersianVisualiser(formattedSku);
-        client.showImersianVisualiser(sku, designId);
+        console.log("[useImersianClient] Attempting to open visualiser with SKU=" + sku + " and designId=" + designId);
+        client.showImersianVisualiser(designId, sku);
         return { ok: true, message: "Imersian visualiser opened." };
       } catch {
         return { ok: false, message: "Failed to open Imersian visualiser." };

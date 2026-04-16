@@ -25,6 +25,8 @@ export function ChatInterface() {
         roomAnalysisStatus,
     } = useChatSession();
 
+    
+
     const scrollRef = useRef<HTMLDivElement>(null);
     const [composerPreviews, setComposerPreviews] = useState<PreviewImage[]>([]);
     const [resetPreviewsToken, setResetPreviewsToken] = useState(0);
