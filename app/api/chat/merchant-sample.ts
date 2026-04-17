@@ -80,6 +80,60 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
       },
     },
   },
+  'b46f2e78-9956-4161-9ed6-ae8ca93527fb': {
+    companyId: '1',
+    aiAssistant: {
+      isChatbotEnabled: true,
+      identity: {
+        name: 'Design Assistant',
+        description: 'Rug recommendation assistant',
+        avatarUrl: 'https://example.com/avatar.png',
+      },
+      behaviour: {
+        tone: 'Friendly',
+        welcomeMessage: 'Upload a room photo and tell me your style.',
+      },
+      rules: {
+        fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
+      },
+      theme: {
+        primary: '#24328d',
+        highlight: '#90ef93',
+        highlightText: '#111827',
+        background: '#fef9f9',
+        radius: '0rem',
+        font: 'Inter',
+        // font: 'Playwrite IE'
+      },
+    },
+  },
+  'ece3833c-14e0-4dd2-9e7d-ce86958595a4': {
+    companyId: '1',
+    aiAssistant: {
+      isChatbotEnabled: true,
+      identity: {
+        name: 'Design Assistant',
+        description: 'Rug recommendation assistant',
+        avatarUrl: 'https://example.com/avatar.png',
+      },
+      behaviour: {
+        tone: 'Friendly',
+        welcomeMessage: 'Upload a room photo and tell me your style.',
+      },
+      rules: {
+        fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
+      },
+      theme: {
+        primary: '#24328d',
+        highlight: '#90ef93',
+        highlightText: '#111827',
+        background: '#fef9f9',
+        radius: '0rem',
+        font: 'Inter',
+        // font: 'Playwrite IE'
+      },
+    },
+  },
 }
 
 
