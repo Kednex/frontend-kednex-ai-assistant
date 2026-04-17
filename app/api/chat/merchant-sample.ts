@@ -11,12 +11,7 @@ export type MerchantThemeSample = {
       tone: 'Friendly' | 'Professional' | 'Technical' | 'Minimal'
       welcomeMessage: string
     }
-    suggestions: {
-      firstSuggestion: string
-      secondSuggestion: string
-      thirdSuggestion: string
-      fourthSuggestion: string
-    }
+    suggestions: string []
     rules: {
       fallbackResponse: string
     }
@@ -45,12 +40,12 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         tone: 'Friendly',
         welcomeMessage: 'Upload a room photo and tell me your style.',
       },
-      suggestions: {
-        firstSuggestion: "Give me a modern rug recommendation for my living room",
-        secondSuggestion: "I'm looking for a vintage rug for my bedroom, any suggestions?",
-        thirdSuggestion: "Can you recommend a durable rug for a high-traffic area?",
-        fourthSuggestion: "What are some eco-friendly rug options?"
-      },
+      suggestions: [
+        "Give me a modern rug recommendation for my living room",
+        "I'm looking for a vintage rug for my bedroom, any suggestions?",
+        "Can you recommend a durable rug for a high-traffic area?",
+        "What are some eco-friendly rug options?"
+      ],
       rules: {
         fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
       },
@@ -77,12 +72,12 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
       behaviour: {
         tone: 'Friendly',
         welcomeMessage: 'Upload a room photo and tell me your style.',
-      },suggestions: {
-        firstSuggestion: "what rug styles would go well with a Scandinavian living room?",
-        secondSuggestion: "I have a bohemian bedroom, can you suggest some rug styles that would fit?",
-        thirdSuggestion: "I need a durable rug for my kids playroom, any style recommendations?",
-        fourthSuggestion: "Give me budget-friendly rug options?"
-      },
+      },suggestions: [
+        "what rug styles would go well with a Scandinavian living room?",
+        "I have a bohemian bedroom, can you suggest some rug styles that would fit?",
+        "I need a durable rug for my kids playroom, any style recommendations?",
+        "Give me budget-friendly rug options?"
+      ],
       rules: {
         fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
       },

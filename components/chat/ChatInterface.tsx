@@ -13,7 +13,7 @@ import { useTheme } from "@/app/theme-context";
 import type { PreviewImage } from "@/lib/types";
 
 export function ChatInterface() {
-    const { welcomeMessage } = useTheme();
+    const { welcomeMessage, MerchantSuggestions } = useTheme();
     const {
         hydrated,
         messages,
@@ -134,7 +134,7 @@ export function ChatInterface() {
 
                             {/* Suggestions Grid */}
                             <div className="w-full flex flex-col gap-2.5 mt-auto">
-                                {suggestions.map((suggestion, index) => (
+                                {MerchantSuggestions.map((suggestion, index) => (
                                     <Button
                                         key={index}
                                         onClick={() => void handleSuggestionClick(suggestion)}
@@ -178,6 +178,7 @@ export function ChatInterface() {
                 isLoading={isLoading}
                 onPreviewsChange={setComposerPreviews}
                 resetPreviewsToken={resetPreviewsToken}
+
             />
         </div>
     );

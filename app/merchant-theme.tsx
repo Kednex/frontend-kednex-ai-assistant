@@ -68,7 +68,7 @@ function removeGoogleFont() {
 }
 
 export default function MerchantTheme() {
-  const { setThemeLoading, setWelcomeMessage } = useTheme()
+  const { setThemeLoading, setWelcomeMessage, setMerchantSuggestions } = useTheme()
 
   const resetThemeColors = () => {
     const root = document.documentElement
@@ -83,6 +83,12 @@ export default function MerchantTheme() {
     root.style.removeProperty('--font-sans')
     removeGoogleFont()
     setWelcomeMessage('How can I help you today?') // reset to default welcome message
+    setMerchantSuggestions([
+        `Find 'products under $2000.`,
+        `Show blue wool products}.`,
+        `Recommend washable area products}.`,
+        `List outdoor products} on sale.`,
+    ]) // reset merchant suggestions
   }
 
   useEffect(() => {
@@ -113,6 +119,8 @@ export default function MerchantTheme() {
         }
 
         const payload = await response.json()
+        console.log("Merchant theme payload:", payload)
+        const MerchantSuggetions = payload?.aiAssistant?.suggestions
         const theme = payload?.aiAssistant?.theme
         const nextWelcome = payload?.aiAssistant?.behaviour?.welcomeMessage // allow dynamic welcome message from backend, fallback to default if not provided
         const color = normalizeHexColor(theme?.primary || payload?.primaryColor || '')
@@ -143,6 +151,11 @@ export default function MerchantTheme() {
           // Set welcome message if provided, otherwise keep default
           if (typeof nextWelcome === 'string' && nextWelcome.trim()) {
             setWelcomeMessage(nextWelcome.trim())
+          }
+
+          // Set suggestions if provided
+          if (MerchantSuggetions && Array.isArray(MerchantSuggetions)) {
+            setMerchantSuggestions(MerchantSuggetions.filter((s): s is string => typeof s === 'string' && s.trim().length > 0))
           }
         } else {
           resetThemeColors()
