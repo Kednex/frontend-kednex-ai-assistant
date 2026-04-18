@@ -17,10 +17,10 @@ interface ChatInputProps {
     onPreviewsChange?: (previews: PreviewImage[]) => void;
     resetPreviewsToken?: number;
     hasFirstImage?: boolean;
-    onHasFirstImageChange?: (value: boolean) => void;
+
 }
 
-export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPreviewsToken, hasFirstImage, onHasFirstImageChange }: ChatInputProps) {
+export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPreviewsToken, hasFirstImage }: ChatInputProps) {
     const [input, setInput] = useState("");
     const [previews, setPreviews] = useState<PreviewImage[]>([]);
     
@@ -42,6 +42,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
             setPreviews(regeneratedPreviews);
             // log uploadimages length after push
             console.log("Uploaded images count in first loading", uploadedImages.length);
+
             
             
             
@@ -52,7 +53,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
             // Clear from context after loading so they don't appear again if page reloads
             // clearUploadedImages();
         }
-    }, [uploadedImages, clearUploadedImages, onHasFirstImageChange]);
+    }, [uploadedImages, clearUploadedImages]);
 
     useEffect(() => {
         if (typeof resetPreviewsToken === "undefined") return;
@@ -85,10 +86,6 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
         // log uploadimages length after push
         console.log("Uploaded images in context after push:", uploadedImages.length);
         
-
-        if (files.length > 0 && !hasFirstImage) {
-            onHasFirstImageChange?.(true);
-        }
         
         // Reset so the same file can be re-selected
         e.target.value = "";
@@ -110,18 +107,11 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
             const removed = prev.find((p) => p.id === id);
             if (removed) revokeBlobUrl(removed.previewUrl);
             const newPreviews = prev.filter((p) => p.id !== id);
-            if (newPreviews.length === 0) {
-                onHasFirstImageChange?.(false);
-            }
+            
             return newPreviews;
         });
     };
 
-    // useEffect(() => {
-    //     if (previews.length === 0 && hasFirstImage) {
-    //         onHasFirstImageChange?.(false);
-    //     }
-    // }, [previews, hasFirstImage, onHasFirstImageChange]);
 
 
     
