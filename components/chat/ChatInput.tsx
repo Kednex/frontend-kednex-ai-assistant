@@ -9,18 +9,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { generateUUID } from "@/lib/utils/uuid";
 import type { PreviewImage } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { on } from "events";
 
 interface ChatInputProps {
     onSendMessage: (message: string, base64Images: string[], previewUrls: string[]) => Promise<void>;
     isLoading: boolean;
     onPreviewsChange?: (previews: PreviewImage[]) => void;
     resetPreviewsToken?: number;
+    hasFirstImage?: boolean;
+
 }
 
-export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPreviewsToken }: ChatInputProps) {
+export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPreviewsToken, hasFirstImage }: ChatInputProps) {
     const [input, setInput] = useState("");
     const [previews, setPreviews] = useState<PreviewImage[]>([]);
-    const [firstImage, setFirstImage] = useState<PreviewImage[]>([]);
+    
     const fileInputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const lastResetTokenRef = useRef<number | undefined>(resetPreviewsToken);
@@ -34,15 +37,21 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                 file: image.file,
                 previewUrl: URL.createObjectURL(image.file),
             }));
+            console.log("Loaded uploaded images from intro:", regeneratedPreviews);
 
-            setFirstImage(regeneratedPreviews);
             setPreviews(regeneratedPreviews);
+            // log uploadimages length after push
+            console.log("Uploaded images count in first loading", uploadedImages.length);
+
+            
+            
+            
             
             
 
 
             // Clear from context after loading so they don't appear again if page reloads
-            clearUploadedImages();
+            // clearUploadedImages();
         }
     }, [uploadedImages, clearUploadedImages]);
 
@@ -73,6 +82,11 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
             file,
         }));
         setPreviews((prev) => [...prev, ...newPreviews]);
+        uploadedImages.push(...newPreviews); // Add to context store for access in chat session
+        // log uploadimages length after push
+        console.log("Uploaded images in context after push:", uploadedImages.length);
+        
+        
         // Reset so the same file can be re-selected
         e.target.value = "";
         
@@ -86,6 +100,19 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
             return prev.filter((p) => p.id !== id);
         });
     };
+
+    // remove hasFirstImage state if first preview removed in very first message
+    const removeFirstImage = (id: string) => {
+        setPreviews((prev) => {
+            const removed = prev.find((p) => p.id === id);
+            if (removed) revokeBlobUrl(removed.previewUrl);
+            const newPreviews = prev.filter((p) => p.id !== id);
+            
+            return newPreviews;
+        });
+    };
+
+
 
     
 
@@ -112,7 +139,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
 
         setInput("");
         setPreviews([]);
-        setFirstImage([]);
+        
 
         await onSendMessage(messageText, base64Images, previewUrls);
     };
@@ -124,15 +151,13 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
         }
     };
 
-
-
     return (
         <div className="border-t bg-background p-4 flex flex-col gap-3">
             {/* Previews Row */}
-            {previews.length > 0 && (
-                <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+            {previews.length > 0 &&  !uploadedImages &&(
+                <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar rounded-[var(--radius)]">
                     {previews.map((preview) => (
-                        <div key={preview.id} className="relative shrink-0 group">
+                        <div key={preview.id} className="relative shrink-0 group ">
                             <div className="w-20 h-20 overflow-hidden border bg-muted">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
@@ -151,6 +176,34 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                     ))}
                 </div>
             )}
+
+            {/* Previews Row for first image with different remove handler to update hasFirstImage state */}
+            {uploadedImages &&  (
+                <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar rounded-[var(--radius)]">
+                    {previews.map((preview) => (
+                        <div key={preview.id} className="relative shrink-0 group ">
+                            <div className="w-20 h-20 overflow-hidden border bg-muted">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={preview.previewUrl}
+                                    alt="preview"
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <button
+                                onClick={() => {
+                                    removePreview(preview.id);
+                                    uploadedImages.pop(); // Remove from context store as well
+                                    
+                                }}
+                                className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full p-0.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                                <X size={14} />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
             
             {/* Input Row */}
             <form onSubmit={handleSubmit} className="flex items-end gap-3 max-w-4xl mx-auto w-full">
@@ -160,7 +213,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                     size="icon"
                     className="h-11 w-11 rounded-full shrink-0 bg-muted/50 text-foreground shadow-sm transition-all hover:bg-muted/60 hover:text-foreground hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
                     onClick={() => fileInputRef.current?.click()}
-                    hidden={previews.length === 0} // hide if there are previews to encourage description
+                    hidden={previews.length === 0 && uploadedImages.length === 0} // hide if there are previews to encourage description
                 >
                     <Plus size={20} />
                 </Button>
@@ -175,7 +228,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                         placeholder={previews.length > 0 ? "Describe the room in the image..." : "Type your message..."}
                         className="min-h-[44px] max-h-[200px] w-full rounded-[var(--radius)] pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden font-sans"
                         // hide textarea prviews.length = 0 to avoid confusion with image previews
-                        hidden={previews.length === 0}
+                        hidden={previews.length === 0 && uploadedImages.length === 0}
                         
                     />
 
@@ -191,7 +244,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                             // update firstimage with new uploaded image fileInputRef.current?.click();
                     
                         }}
-                        hidden={previews.length > 0} // hide if there are previews to encourage description 
+                        hidden={previews.length > 0 || uploadedImages.length > 0} // hide if there are previews to encourage description 
                     >
                         Upload Your Room
                     </Button>
@@ -204,7 +257,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                         // Disable send button if loading or input is empty (but allow if there are images to send)
                         disabled={isLoading || input.trim() === ""}
                         className="absolute right-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full shadow-sm"
-                        hidden={previews.length === 0} // hide if there are previews to encourage description 
+                        hidden={previews.length === 0 && uploadedImages.length === 0} // hide if there are previews to encourage description 
                     >
                         <ArrowUp size={18} />
                     </Button>

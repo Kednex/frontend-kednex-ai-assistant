@@ -11,6 +11,7 @@ export type MerchantThemeSample = {
       tone: 'Friendly' | 'Professional' | 'Technical' | 'Minimal'
       welcomeMessage: string
     }
+    suggestions: string []
     rules: {
       fallbackResponse: string
     }
@@ -39,6 +40,12 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         tone: 'Friendly',
         welcomeMessage: 'Upload a room photo and tell me your style.',
       },
+      suggestions: [
+        "Give me a modern rug recommendation for my living room",
+        "I'm looking for a vintage rug for my bedroom, any suggestions?",
+        "Can you recommend a durable rug for a high-traffic area?",
+        "What are some eco-friendly rug options?"
+      ],
       rules: {
         fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
       },
@@ -65,7 +72,12 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
       behaviour: {
         tone: 'Friendly',
         welcomeMessage: 'Upload a room photo and tell me your style.',
-      },
+      },suggestions: [
+        "what rug styles would go well with a Scandinavian living room?",
+        "I have a bohemian bedroom, can you suggest some rug styles that would fit?",
+        "I need a durable rug for my kids playroom, any style recommendations?",
+        "Give me budget-friendly rug options?"
+      ],
       rules: {
         fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
       },

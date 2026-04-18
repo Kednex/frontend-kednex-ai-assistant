@@ -11,7 +11,8 @@ import { normalizeRooms } from '@/lib/utils/storage'
 
 const STORAGE_KEYS = {
     CHAT_ACTIVE_SESSION: 'imersian:chat_active_session',
-    CHAT_SESSION_INDEX: 'imersian:chat_session_index'
+    CHAT_SESSION_INDEX: 'imersian:chat_session_index',
+    CHAT_FIRST_IMAGE_PREFIX: 'imersian:chat_first_image:'
 } as const
 
 export function useChatSession() {
@@ -23,6 +24,7 @@ export function useChatSession() {
     const hasHydratedRef = useRef(false)
     const isNewChatFromIntro = useRef(false)
     const [hydrated, setHydrated] = useState(false)
+    const [hasFirstImage, setHasFirstImage] = useState(false) // track first image
 
     // track the last response ID from the AI backend so we can continue
     const previousResponseId = useRef<string | null>(null);
@@ -81,6 +83,17 @@ export function useChatSession() {
             dispatch(setCategory(session.category || ''))
             dispatch(setRooms(normalizeRooms(session.contextUploads || [])))
 
+            // session-level first-image flag
+            const fromRooms = (session.contextUploads?.length || 0) > 0
+            if (fromRooms) {
+                setHasFirstImage(true)
+            } else {
+                const stored = localStorage.getItem(
+                    `${STORAGE_KEYS.CHAT_FIRST_IMAGE_PREFIX}${session.sessionId}`
+                )
+                setHasFirstImage(stored === '1')
+            }
+
             if (shouldAutoIntro) {
                 isNewChatFromIntro.current = true
             }
@@ -91,6 +104,32 @@ export function useChatSession() {
             setHydrated(true)
         }
     }, [dispatch, intent])
+
+    // Reload first-image state when session changes (new chat => reset)
+    useEffect(() => {
+        if (!sessionId) return
+        try {
+            const stored = localStorage.getItem(
+                `${STORAGE_KEYS.CHAT_FIRST_IMAGE_PREFIX}${sessionId}`
+            )
+            setHasFirstImage(stored === '1' || rooms.length > 0)
+        } catch {
+            setHasFirstImage(rooms.length > 0)
+        }
+    }, [sessionId, rooms.length])
+
+    // Persist first-image state per session
+    useEffect(() => {
+        if (!sessionId) return
+        try {
+            localStorage.setItem(
+                `${STORAGE_KEYS.CHAT_FIRST_IMAGE_PREFIX}${sessionId}`,
+                hasFirstImage ? '1' : '0'
+            )
+        } catch (e) {
+            console.error('Failed to save first image flag', e)
+        }
+    }, [sessionId, hasFirstImage])
 
     // Read userUuid from URL query params
     const userUuid = useMemo(() => {
@@ -339,5 +378,7 @@ export function useChatSession() {
         isLoading,
         getChatSession,
         roomAnalysisStatus,
+        hasFirstImage,
+        setHasFirstImage,
     }
 }

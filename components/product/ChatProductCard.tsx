@@ -38,7 +38,7 @@ export const ChatProductCard = memo(function ChatProductCard({
     const NEXT_PUBLIC_VISUALIZER_URL = process.env.NEXT_PUBLIC_VISUALIZER_URL || "notcatched";
     const designId = useAppSelector((state: RootState) => state.visualiser.designId);
     const { openVisualiser } = useImersianClient(); //load visualiser client and function to open it
-    const { openAIVisualiser } = useImersianClient(); //load AI visualiser client and function to open it
+
     const userUuid = typeof window !== 'undefined'
         ? new URLSearchParams(window.location.search).get('userUuid') || ''
         : '';
