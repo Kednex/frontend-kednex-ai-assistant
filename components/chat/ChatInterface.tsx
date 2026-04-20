@@ -52,12 +52,12 @@ export function ChatInterface() {
     const lastMessage = messages[messages.length - 1];
     const showPendingBubble = isLoading && lastMessage?.role === 'user';
 
-    const suggestions = [
-        `Find ${category || 'products'} under $2000.`,
-        `Show blue wool ${category || 'products'}.`,
-        `Recommend washable area ${category || 'products'}.`,
-        `List outdoor ${category || 'products'} on sale.`,
-    ];
+    // const suggestions = [
+    //     `Find ${category || 'products'} under $2000.`,
+    //     `Show blue wool ${category || 'products'}.`,
+    //     `Recommend washable area ${category || 'products'}.`,
+    //     `List outdoor ${category || 'products'} on sale.`,
+    // ];
 
     // when clicking a suggestion, send it as a message
     const handleSuggestionClick = async (suggestion: string) => {
@@ -139,7 +139,7 @@ export function ChatInterface() {
                                         key={index}
                                         onClick={() => void handleSuggestionClick(suggestion)}
                                         variant="outline"
-                                        className="w-full h-auto px-6 py-4 justify-start text-left rounded-[var(--radius)] border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
+                                        className="w-full h-auto px-6 py-4 justify-start text-left rounded-[var(--radius-sm)] border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
                                     >
                                         <span className="text-sm font-bold truncate">
                                             {suggestion}

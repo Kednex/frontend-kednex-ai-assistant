@@ -28,7 +28,7 @@ export type MerchantThemeSample = {
 
 const merchantThemeSamples: Record<string, MerchantThemeSample> = {
   '835b7458-9477-4394-8957-c1e65225a481': {
-    companyId: '1',
+    companyId: '3',
     aiAssistant: {
       isChatbotEnabled: true,
       identity: {
@@ -54,14 +54,14 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         highlight: '#f59e0b',
         highlightText: '#111827',
         background: '#fef9f9',
-        radius: '1rem',
+        radius: 'sharp',
         font: 'Inter',
         // font: 'Playwrite IE'
       },
     },
   },
-  '8fd0db69-b8cf-4356-8689-6c1a0719fe80': {
-    companyId: '1',
+  'ece3833c-14e0-4dd2-9e7d-ce86958595a4': {
+    companyId: '2',
     aiAssistant: {
       isChatbotEnabled: true,
       identity: {
@@ -82,11 +82,44 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
       },
       theme: {
-        primary: '#24328d',
-        highlight: '#90ef93',
+        primary: '#908464',
+        highlight: '#b2ac8f',
         highlightText: '#111827',
         background: '#fef9f9',
-        radius: '0rem',
+        radius: 'fully-rounded',
+        font: 'Inter',
+        // font: 'Playwrite IE'
+      },
+    },
+  },
+  'b46f2e78-9956-4161-9ed6-ae8ca93527fb': {
+    companyId: '1',
+    aiAssistant: {
+      isChatbotEnabled: true,
+      identity: {
+        name: 'Design Assistant',
+        description: 'Rug recommendation assistant',
+        avatarUrl: 'https://example.com/avatar.png',
+      },
+      behaviour: {
+        tone: 'Friendly',
+        welcomeMessage: 'Upload a room photo and tell me your style.',
+      },suggestions: [
+        "what rug styles would go well with a Scandinavian living room",
+        "I have a bohemian bedroom, can you suggest some rug styles that would fit",
+        "I need a durable rug for my kids playroom, any style recommendations",
+        "Give me budget-friendly rug options"
+      ],
+      rules: {
+        fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
+      },
+      theme: {
+        primary: '#b1365b',
+        highlight: '#d6a9b3',
+        highlightText: '#111827',
+        background: '#fef9f9',
+        radius: 'medium-rounded',
+        // radius: '0.1rem',
         font: 'Inter',
         // font: 'Playwrite IE'
       },

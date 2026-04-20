@@ -54,7 +54,7 @@ export const ChatProductCard = memo(function ChatProductCard({
 
     return (
         <Card
-            className="overflow-hidden border shadow-sm hover:shadow-md transition-shadow cursor-pointer rounded-[var(--radius)] font-sans"
+            className="overflow-hidden border shadow-sm hover:shadow-md transition-shadow cursor-pointer rounded-[var(--radius-sm)] font-sans"
             onClick={() => onOpenProduct?.(product)}
         >
             <div className="relative aspect-square bg-muted">
@@ -77,7 +77,7 @@ export const ChatProductCard = memo(function ChatProductCard({
                 <div className="text-sm font-medium line-clamp-2">{product.title}</div>
                 {product.priceRange && (
                     <div className="text-sm font-bold">
-                        {product.priceRange.minVariantPrice.amount} {product.priceRange.minVariantPrice.currencyCode}
+                        {product.priceRange.minVariantPrice.currencyCode}{product.priceRange.minVariantPrice.amount} 
                     </div>
                 )}
 
@@ -89,7 +89,7 @@ export const ChatProductCard = memo(function ChatProductCard({
                 {onViewInRoom && (
                     <Button
                         variant="default"
-                        className="h-8 w-full text-xs rounded-[var(--radius)] mt-2 imersian-view-in-room cursor-pointer"
+                        className="h-8 w-full text-xs rounded-[var(--radius-md)] mt-2 imersian-view-in-room cursor-pointer"
                         
                         onClick={async (e) => {
                             e.stopPropagation();
