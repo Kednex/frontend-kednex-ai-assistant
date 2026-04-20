@@ -313,7 +313,8 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
             {/* Footer Controls */}
             <div className="p-6 pb-12">
                 <Button
-                    className="w-full rounded-[var(--radius)] h-12 text-lg"
+                    variant="default"
+                    className="w-full rounded-[var(--radius-md)] h-12 text-lg cursor-pointer"
                     // onClick={onNext}
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}

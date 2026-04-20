@@ -12,19 +12,41 @@ function normalizeHexColor(value: string): string | null {
 }
 
 // normalize radius values, allowing numbers (assumed to be px) or strings with units
-function normalizeRadius(value: unknown): string | null {
-  if (typeof value === 'number' && Number.isFinite(value)) return `${value}px`
-  if (typeof value === 'string' && value.trim()) {
-    const trimmed = value.trim()
-    const normalized = trimmed.replace(/\s+/g, '')
-    // ✅ Accept already-unitized values like '24px', '1.5rem', '0.5em'
-    if (/^\d+(\.\d+)?(px|rem|em)$/.test(normalized)) return normalized
-    // ✅ Accept plain numbers as strings like '24'
-    const numeric = Number(normalized)
-    if (Number.isFinite(numeric)) return `${numeric}px`
+// function normalizeRadius(value: unknown): string | null {
+//   if (typeof value === 'number' && Number.isFinite(value)) return `${value}px`
+//   if (typeof value === 'string' && value.trim()) {
+//     const trimmed = value.trim()
+//     const normalized = trimmed.replace(/\s+/g, '')
+//     // ✅ Accept already-unitized values like '24px', '1.5rem', '0.5em'
+//     if (/^\d+(\.\d+)?(px|rem|em)$/.test(normalized)) return normalized
+//     // ✅ Accept plain numbers as strings like '24'
+//     const numeric = Number(normalized)
+//     if (Number.isFinite(numeric)) return `${numeric}px`
+//   }
+//   return null
+// }
+
+// set radius values for radius-sm, radius-md, radius-lg according to the provided radius value
+function applyRadius(RadiusType: string) {
+  switch (RadiusType) {
+    case 'sharp':
+      document.documentElement.style.setProperty('--radius-sm', '0px')
+      document.documentElement.style.setProperty('--radius-md', '0px')
+      document.documentElement.style.setProperty('--radius-lg', '0px')
+      break
+    case 'medium-rounded':
+      document.documentElement.style.setProperty('--radius-sm', '10px')
+      document.documentElement.style.setProperty('--radius-md', '20px')
+      document.documentElement.style.setProperty('--radius-lg', '30px')
+      break
+    case 'fully-rounded':
+      document.documentElement.style.setProperty('--radius-sm', '40px')
+      document.documentElement.style.setProperty('--radius-md', '50px')
+      document.documentElement.style.setProperty('--radius-lg', '60px')
+      break
   }
-  return null
 }
+
 
 
 
@@ -86,7 +108,7 @@ export default function MerchantTheme() {
     setMerchantSuggestions([
         `Find 'products under $2000.`,
         `Show blue wool products}.`,
-        `Recommend washable area products}.`,
+        `Recommend washable area products.`,
         `List outdoor products} on sale.`,
     ]) // reset merchant suggestions
   }
@@ -127,7 +149,8 @@ export default function MerchantTheme() {
         const highlight = normalizeHexColor(theme?.highlight || '')
         const highlightText = normalizeHexColor(theme?.highlightText || '')
         const background = normalizeHexColor(theme?.background || '')
-        const radius = normalizeRadius(theme?.radius)
+        // const radius = normalizeRadius(theme?.radius)
+        const radius = theme?.radius
         const font = normalizeFont(theme?.font)
 
         if (color) {
@@ -141,8 +164,13 @@ export default function MerchantTheme() {
             root.style.setProperty('--card', background)
             root.style.setProperty('--popover', background)
           }
-          if (radius) root.style.setProperty('--radius', radius)
-          
+          // if (radius) {
+          //   root.style.setProperty('--radius', radius)
+          // }
+          if (radius) {
+            applyRadius(radius)
+          }
+
           // change font and load from Google Fonts if specified  
           if (font) {
             ensureGoogleFontLoaded(theme.font)  // ✅ loads wght@300;400;500;600;700

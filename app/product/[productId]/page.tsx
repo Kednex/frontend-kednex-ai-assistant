@@ -40,7 +40,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ produc
                         <h2 className="text-xl font-bold">Product Title</h2>
                         <p className="text-primary font-bold mt-1">$0.00</p>
 
-                        <Button className="w-full mt-4 rounded-full h-12" onClick={() => router.push('/view-in-room')}>
+                        <Button className="w-full mt-4 rounded-[var(--radius-md)] h-12" onClick={() => router.push('/view-in-room')}>
                             View in my room
                         </Button>
                     </div>

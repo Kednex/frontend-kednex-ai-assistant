@@ -28,7 +28,7 @@ export type MerchantThemeSample = {
 
 const merchantThemeSamples: Record<string, MerchantThemeSample> = {
   '835b7458-9477-4394-8957-c1e65225a481': {
-    companyId: '1',
+    companyId: '3',
     aiAssistant: {
       isChatbotEnabled: true,
       identity: {
@@ -54,14 +54,14 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         highlight: '#f59e0b',
         highlightText: '#111827',
         background: '#fef9f9',
-        radius: '1rem',
+        radius: 'sharp',
         font: 'Inter',
         // font: 'Playwrite IE'
       },
     },
   },
   '8fd0db69-b8cf-4356-8689-6c1a0719fe80': {
-    companyId: '1',
+    companyId: '2',
     aiAssistant: {
       isChatbotEnabled: true,
       identity: {
@@ -86,7 +86,7 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         highlight: '#90ef93',
         highlightText: '#111827',
         background: '#fef9f9',
-        radius: '0rem',
+        radius: 'fully-rounded',
         font: 'Inter',
         // font: 'Playwrite IE'
       },
@@ -115,10 +115,11 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
       },
       theme: {
         primary: '#b1365b',
-        highlight: '#784f58',
+        highlight: '#d6a9b3',
         highlightText: '#111827',
         background: '#fef9f9',
-        radius: '0.1rem',
+        radius: 'medium-rounded',
+        // radius: '0.1rem',
         font: 'Inter',
         // font: 'Playwrite IE'
       },

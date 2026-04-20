@@ -42,7 +42,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
             setPreviews(regeneratedPreviews);
             // log uploadimages length after push
             console.log("Uploaded images count in first loading", uploadedImages.length);
-
+            console.log("has first image prop value in chatinput", hasFirstImage);
 
             
             
@@ -227,7 +227,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                         onKeyDown={onKeyDown}
                         // Show different placeholder if there are image previews to encourage description
                         placeholder={previews.length > 0 ? "Describe the room in the image..." : "Type your message..."}
-                        className="min-h-[44px] max-h-[200px] w-full rounded-[var(--radius)] pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden font-sans"
+                        className="min-h-[44px] max-h-[200px] w-full rounded-[var(--radius-sm)] pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden font-sans"
                         // hide textarea prviews.length = 0 to avoid confusion with image previews
                         hidden={previews.length === 0 && uploadedImages.length === 0}
                         
