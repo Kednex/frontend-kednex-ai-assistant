@@ -238,7 +238,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                         <Button
                         type="button"
                         size="icon"
-                        className="w-full rounded-[var(--radius)] h-10 text-sm "
+                        className="w-full rounded-[var(--radius-md)] h-10 text-sm "
                         onClick={() => {
                             fileInputRef.current?.click();
                             

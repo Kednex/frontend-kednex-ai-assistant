@@ -60,7 +60,7 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
       },
     },
   },
-  '8fd0db69-b8cf-4356-8689-6c1a0719fe80': {
+  'ece3833c-14e0-4dd2-9e7d-ce86958595a4': {
     companyId: '2',
     aiAssistant: {
       isChatbotEnabled: true,
@@ -82,8 +82,8 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
       },
       theme: {
-        primary: '#24328d',
-        highlight: '#90ef93',
+        primary: '#908464',
+        highlight: '#b2ac8f',
         highlightText: '#111827',
         background: '#fef9f9',
         radius: 'fully-rounded',
