@@ -13,7 +13,8 @@ export function IntroProvider({ children }: { children: ReactNode }) {
     const [uploadedImages, setUploadedImages] = useState<PreviewImage[]>([]);
 
     const clearUploadedImages = () => setUploadedImages([]);
-
+    // log uploadimages length after reset
+    console.log("Uploaded images in context after reset:", uploadedImages.length);
     return (
         <IntroContext.Provider value={{ uploadedImages, setUploadedImages, clearUploadedImages }}>
             {children}

@@ -259,7 +259,7 @@ export async function POST(req: Request) {
     }
 }
 
-// chat endpoint for fetching merchant information from backend to apply theming based on merchant's primary color
+// chat endpoint for fetching merchant information from frontend to apply theming based on merchant's primary color
 export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);

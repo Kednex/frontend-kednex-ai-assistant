@@ -13,7 +13,7 @@ import { useTheme } from "@/app/theme-context";
 import type { PreviewImage } from "@/lib/types";
 
 export function ChatInterface() {
-    const { welcomeMessage } = useTheme();
+    const { welcomeMessage, MerchantSuggestions } = useTheme();
     const {
         hydrated,
         messages,
@@ -24,6 +24,8 @@ export function ChatInterface() {
         getChatSession,
         roomAnalysisStatus,
     } = useChatSession();
+
+    
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const [composerPreviews, setComposerPreviews] = useState<PreviewImage[]>([]);
@@ -50,12 +52,12 @@ export function ChatInterface() {
     const lastMessage = messages[messages.length - 1];
     const showPendingBubble = isLoading && lastMessage?.role === 'user';
 
-    const suggestions = [
-        `Find ${category || 'products'} under $2000.`,
-        `Show blue wool ${category || 'products'}.`,
-        `Recommend washable area ${category || 'products'}.`,
-        `List outdoor ${category || 'products'} on sale.`,
-    ];
+    // const suggestions = [
+    //     `Find ${category || 'products'} under $2000.`,
+    //     `Show blue wool ${category || 'products'}.`,
+    //     `Recommend washable area ${category || 'products'}.`,
+    //     `List outdoor ${category || 'products'} on sale.`,
+    // ];
 
     // when clicking a suggestion, send it as a message
     const handleSuggestionClick = async (suggestion: string) => {
@@ -132,12 +134,12 @@ export function ChatInterface() {
 
                             {/* Suggestions Grid */}
                             <div className="w-full flex flex-col gap-2.5 mt-auto">
-                                {suggestions.map((suggestion, index) => (
+                                {MerchantSuggestions.map((suggestion, index) => (
                                     <Button
                                         key={index}
                                         onClick={() => void handleSuggestionClick(suggestion)}
                                         variant="outline"
-                                        className="w-full h-auto px-6 py-4 justify-start text-left rounded-[var(--radius)] border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
+                                        className="w-full h-auto px-6 py-4 justify-start text-left rounded-[var(--radius-sm)] border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
                                     >
                                         <span className="text-sm font-bold truncate">
                                             {suggestion}
@@ -176,6 +178,7 @@ export function ChatInterface() {
                 isLoading={isLoading}
                 onPreviewsChange={setComposerPreviews}
                 resetPreviewsToken={resetPreviewsToken}
+
             />
         </div>
     );
