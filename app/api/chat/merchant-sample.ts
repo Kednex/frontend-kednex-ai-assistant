@@ -92,6 +92,38 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
       },
     },
   },
+  'b46f2e78-9956-4161-9ed6-ae8ca93527fb': {
+    companyId: '1',
+    aiAssistant: {
+      isChatbotEnabled: true,
+      identity: {
+        name: 'Design Assistant',
+        description: 'Rug recommendation assistant',
+        avatarUrl: 'https://example.com/avatar.png',
+      },
+      behaviour: {
+        tone: 'Friendly',
+        welcomeMessage: 'Upload a room photo and tell me your style.',
+      },suggestions: [
+        "what rug styles would go well with a Scandinavian living room",
+        "I have a bohemian bedroom, can you suggest some rug styles that would fit",
+        "I need a durable rug for my kids playroom, any style recommendations",
+        "Give me budget-friendly rug options"
+      ],
+      rules: {
+        fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
+      },
+      theme: {
+        primary: '#b1365b',
+        highlight: '#784f58',
+        highlightText: '#111827',
+        background: '#fef9f9',
+        radius: '0.1rem',
+        font: 'Inter',
+        // font: 'Playwrite IE'
+      },
+    },
+  },
 }
 
 

@@ -43,6 +43,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
             // log uploadimages length after push
             console.log("Uploaded images count in first loading", uploadedImages.length);
 
+
             
             
             
