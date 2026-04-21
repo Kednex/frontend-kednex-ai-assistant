@@ -41,7 +41,7 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         welcomeMessage: 'Upload a room photo and tell me your style.',
       },
       suggestions: [
-        "Give me a modern rug recommendation for my living room",
+        "Give me a rug",
         "I'm looking for a vintage rug for my bedroom, any suggestions",
         "Can you recommend a durable rug for a high-traffic area",
         "What are some eco-friendly rug options"
@@ -73,7 +73,7 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         tone: 'Friendly',
         welcomeMessage: 'Upload a room photo and tell me your style.',
       },suggestions: [
-        "what rug styles would go well with my living room?",
+        "Give me a rug?",
         "I have a bedroom, can you suggest some rug styles that would fit?",
         "I need a durable rug for my kids playroom, any style recommendations?",
         "Give me budget-friendly rug options?"
