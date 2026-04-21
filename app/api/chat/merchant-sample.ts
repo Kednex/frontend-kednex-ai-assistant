@@ -27,8 +27,8 @@ export type MerchantThemeSample = {
 }
 
 const merchantThemeSamples: Record<string, MerchantThemeSample> = {
-  '835b7458-9477-4394-8957-c1e65225a481': {
-    companyId: '3',
+  'b46f2e78-9956-4161-9ed6-ae8ca93527fb': { 
+    companyId: '1',
     aiAssistant: {
       isChatbotEnabled: true,
       identity: {
@@ -42,9 +42,9 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
       },
       suggestions: [
         "Give me a modern rug recommendation for my living room",
-        "I'm looking for a vintage rug for my bedroom, any suggestions?",
-        "Can you recommend a durable rug for a high-traffic area?",
-        "What are some eco-friendly rug options?"
+        "I'm looking for a vintage rug for my bedroom, any suggestions",
+        "Can you recommend a durable rug for a high-traffic area",
+        "What are some eco-friendly rug options"
       ],
       rules: {
         fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
@@ -91,40 +91,7 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         // font: 'Playwrite IE'
       },
     },
-  },
-  'b46f2e78-9956-4161-9ed6-ae8ca93527fb': {
-    companyId: '1',
-    aiAssistant: {
-      isChatbotEnabled: true,
-      identity: {
-        name: 'Design Assistant',
-        description: 'Rug recommendation assistant',
-        avatarUrl: 'https://example.com/avatar.png',
-      },
-      behaviour: {
-        tone: 'Friendly',
-        welcomeMessage: 'Upload a room photo and tell me your style.',
-      },suggestions: [
-        "what rug styles would go well with a Scandinavian living room",
-        "I have a bohemian bedroom, can you suggest some rug styles that would fit",
-        "I need a durable rug for my kids playroom, any style recommendations",
-        "Give me budget-friendly rug options"
-      ],
-      rules: {
-        fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
-      },
-      theme: {
-        primary: '#b1365b',
-        highlight: '#d6a9b3',
-        highlightText: '#111827',
-        background: '#fef9f9',
-        radius: 'medium-rounded',
-        // radius: '0.1rem',
-        font: 'Inter',
-        // font: 'Playwrite IE'
-      },
-    },
-  },
+  }
 }
 
 
