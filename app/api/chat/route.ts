@@ -70,7 +70,7 @@ export async function POST(req: Request) {
 
 
         //log the incoming request for debugging
-        console.log("Received chat request from UI:", { messages, category, rooms, sessionId, previousResponseId, attachments });
+        // console.log("Received chat request from UI:", { messages, category, rooms, sessionId, previousResponseId, attachments });
 
         // AI SDK 6.0 uses 'parts'. We extract text from the latest message.
         const latestMessage = messages[messages.length - 1];
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
         };
 
         // debug payload
-        console.log("payload : ", payload);
+        // console.log("payload : ", payload);
 
         
 
@@ -146,14 +146,17 @@ export async function POST(req: Request) {
                 // Read the SSE stream from backend
                 const reader = backendResponse.body?.getReader();
                 const decoder = new TextDecoder();
+                let buffer = '';
 
                 if (reader) {
                     while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
 
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split('\n');
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    // Keep the last (possibly incomplete) line in the buffer
+                    buffer = lines.pop() || '';
 
                     for (const line of lines) {
                         if (line.startsWith('data: ')) {
@@ -169,6 +172,7 @@ export async function POST(req: Request) {
                                     designID = parsed.chunk.replace('___DESIGN_ID___', '').replace('___', '');
                                 }else if(parsed.chunk.startsWith('___PRODUCTS___')) {
                                     const match = parsed.chunk.match(/___PRODUCTS___([\s\S]*?)___END_PRODUCTS___/);
+                                    console.log('🔑 Detected products chunk in backend response, match:', match);
                                     if (match) {
                                         try { products = JSON.parse(match[1]); } catch {}
                                     }
@@ -196,7 +200,7 @@ export async function POST(req: Request) {
                                 }
                             }
                         } catch (e) {
-                            // Skip invalid JSON
+                           console.log("Invalid JSON")
                         }
                         }
                     }
