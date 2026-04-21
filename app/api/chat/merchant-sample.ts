@@ -73,8 +73,8 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
         tone: 'Friendly',
         welcomeMessage: 'Upload a room photo and tell me your style.',
       },suggestions: [
-        "what rug styles would go well with a Scandinavian living room?",
-        "I have a bohemian bedroom, can you suggest some rug styles that would fit?",
+        "what rug styles would go well with my living room?",
+        "I have a bedroom, can you suggest some rug styles that would fit?",
         "I need a durable rug for my kids playroom, any style recommendations?",
         "Give me budget-friendly rug options?"
       ],
