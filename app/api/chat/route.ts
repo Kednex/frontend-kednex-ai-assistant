@@ -62,7 +62,7 @@ function normalizeMcpProduct(p: any) {
 // chat endpoint for handling chat messages from the frontend, forwarding to Imersian backend, and streaming responses back to UI
 export async function POST(req: Request) {
     try {
-        const { messages, category, rooms, sessionId, previousResponseId, attachments, userUuid } = await req.json();
+        const { messages, category, rooms, sessionId, previousResponseId, attachments, userUuid, searchPage } = await req.json();
 
         // merchant informations
         const merchantInfo = userUuid ? await resolveMerchantInfo(userUuid) : undefined;
@@ -106,7 +106,7 @@ export async function POST(req: Request) {
             sessionId,
             attachments: attachments || [],
             userUuid: userUuid || "",
-
+            searchPage: searchPage ?? 0,
         };
 
         // debug payload
@@ -136,6 +136,7 @@ export async function POST(req: Request) {
                 let responseId = '';
                 let products: any[] = [];
                 let designID = '';
+                let returnedSearchPage: number | null = null;
 
                 dataStream.write({
                     type: 'text-start',
@@ -177,7 +178,10 @@ export async function POST(req: Request) {
                                         try { products = JSON.parse(match[1]); } catch {}
                                     }
 
-                                }else if(parsed.chunk === '___ANALYSING_ROOM___') {
+                                } else if (parsed.chunk.startsWith('___SEARCH_PAGE___')) {
+                                    const val = parsed.chunk.replace('___SEARCH_PAGE___', '').replace('___', '');
+                                    returnedSearchPage = parseInt(val, 10);
+                                } else if(parsed.chunk === '___ANALYSING_ROOM___') {
                                     // Room analysis started — send as a data event, NOT as visible text
                                     (dataStream as any).write({
                                         type: 'data-roomAnalysis',
@@ -235,7 +239,8 @@ export async function POST(req: Request) {
                     totalTokens: 0,
                     responseId: responseId,
                     designId: designID,
-                    products: products.map(normalizeMcpProduct)
+                    products: products.map(normalizeMcpProduct),
+                    searchPage: returnedSearchPage,
                     }
                 });
                 
