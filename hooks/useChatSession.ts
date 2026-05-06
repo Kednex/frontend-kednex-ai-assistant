@@ -29,6 +29,9 @@ export function useChatSession() {
     // track the last response ID from the AI backend so we can continue
     const previousResponseId = useRef<string | null>(null);
 
+    // track the current Algolia search page so "show more" fetches the next page
+    const searchPage = useRef<number>(0);
+
     // products returned by the backend MCP tool call — attached to the message in onFinish
     const pendingProducts = useRef<any[] | null>(null);
 
@@ -163,7 +166,8 @@ export function useChatSession() {
                     ...request.body,
                     messages: request.messages,
                     previousResponseId: previousResponseId.current,
-                    attachments: pendingAttachmentsRef.current
+                    attachments: pendingAttachmentsRef.current,
+                    searchPage: searchPage.current,
                 };
                 // clear after sending
                 pendingAttachmentsRef.current = [];
@@ -199,6 +203,11 @@ export function useChatSession() {
                 if ('products' in dataPart.data && Array.isArray((dataPart.data as any).products)) {
                     pendingProducts.current = (dataPart.data as any).products;
                     console.log('✅ Captured products from onData:', pendingProducts.current?.length);
+                }
+
+                if ('searchPage' in dataPart.data && typeof (dataPart.data as any).searchPage === 'number') {
+                    searchPage.current = (dataPart.data as any).searchPage + 1;
+                    console.log('✅ Next searchPage set to:', searchPage.current);
                 }
 
                 if ('designId' in dataPart.data && (dataPart.data as any).designId) {
@@ -333,10 +342,11 @@ export function useChatSession() {
         };
     }, [sessionId, category, messages, rooms, previousResponseId]);
 
-    // if the messages reset (e.g. new chat), clear the stored response id
+    // if the messages reset (e.g. new chat), clear the stored response id and search page
     useEffect(() => {
         if (messages.length === 0) {
             previousResponseId.current = null
+            searchPage.current = 0
         }
     }, [messages.length])
 
