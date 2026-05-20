@@ -1,0 +1,3 @@
+# docker ignore file for imersian-ai-assistant
+# Ignore node modules and build files
+node_modules/
