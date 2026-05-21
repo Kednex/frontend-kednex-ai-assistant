@@ -50,6 +50,7 @@ export const ChatProductCard = memo(function ChatProductCard({
     const firstVariant = variantNodes[0] as any;
     const firstVariantId = firstVariant?.id || "";
     const firstVariantSku = firstVariant?.sku || "";
+    const firstVariantPrice = firstVariant?.price || "";
     const visualiserSku = normalizeVisualiserSku(firstVariantSku || firstVariantId);
 
     return (
@@ -77,7 +78,8 @@ export const ChatProductCard = memo(function ChatProductCard({
                 <div className="text-sm font-medium line-clamp-2">{product.title}</div>
                 {product.priceRange && (
                     <div className="text-sm font-bold">
-                        {product.priceRange.minVariantPrice.currencyCode}{product.priceRange.minVariantPrice.amount} 
+                        {/* {product.priceRange.minVariantPrice.currencyCode}{product.priceRange.minVariantPrice.amount}  */}
+                        {product.priceRange.minVariantPrice.currencyCode}{firstVariantPrice.amount}
                     </div>
                 )}
 
