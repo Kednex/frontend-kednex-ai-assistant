@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, type ReactNode } from "react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Image from "next/image";
 import type { Message, RoomContext, ChatSession } from "@/lib/types";
 import RenderMarkdown from "./RenderMarkdown";
 import { Check, Loader2, LayoutDashboard, ScanLine, Sparkles } from "lucide-react";
@@ -224,18 +224,22 @@ function UserAttachment({ url }: { url: string }) {
     const [loaded, setLoaded] = useState(false);
 
     return (
-        <div className="relative w-36 aspect-square rounded-sm overflow-hidden border shadow-sm bg-background">
+        <div className="relative w-48 aspect-square rounded-sm overflow-hidden border shadow-sm bg-background">
             <div className={cn(
                 "w-full h-full transition-opacity duration-500",
                 loaded ? "opacity-100" : "opacity-0"
             )}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                    src={url}
-                    alt="attachment"
-                    className="w-full h-full object-cover"
-                    onLoad={() => setLoaded(true)}
-                />
+                {url && (
+                    <Image
+                        src={url}
+                        alt="attachment"
+                        onLoad={() => setLoaded(true)}
+                        fill
+                        className="object-cover"
+                    />
+                )}
+
             </div>
         </div>
     );
