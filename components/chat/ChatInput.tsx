@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { generateUUID } from "@/lib/utils/uuid";
 import type { PreviewImage } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { on } from "events";
 
 interface ChatInputProps {
     onSendMessage: (message: string, base64Images: string[], previewUrls: string[]) => Promise<void>;
@@ -234,22 +233,15 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                     />
 
                     {/*  upload your room button show if no firstimage */}
-                    <div className="relative flex-1 flex items-end">
+                    {previews.length === 0 && uploadedImages.length === 0 && (
                         <Button
-                        type="button"
-                        size="icon"
-                        className="w-full rounded-[var(--radius-md)] h-10 text-sm "
-                        onClick={() => {
-                            fileInputRef.current?.click();
-                            
-                            // update firstimage with new uploaded image fileInputRef.current?.click();
-                    
-                        }}
-                        hidden={previews.length > 0 || uploadedImages.length > 0} // hide if there are previews to encourage description 
-                    >
-                        Upload Your Room
-                    </Button>
-                    </div>
+                            type="button"
+                            className="w-full rounded-[var(--radius-md)] h-10 text-sm"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            Upload Your Room
+                        </Button>
+                    )}
                     
 
                     <Button
