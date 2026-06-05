@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, ChevronLeft, Camera, Lock } from "lucide-react";
 import { generateUUID } from "@/lib/utils/uuid";
 import type { PreviewImage } from "@/lib/types";
+import Image from "next/image";
 
 type IntroPageProps = {
     params: Promise<{ step: string }>;
@@ -101,12 +102,6 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
         // Reset so the same file can be re-selected
         e.target.value = "";
     };
-
-    useEffect(() => {
-        if (!isEmbedded) {
-            setEmbeddedStep(routeStep);
-        }
-    }, [isEmbedded, routeStep]);
 
     useEffect(() => {
         return () => {
@@ -265,10 +260,11 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
 
                         <div className="w-full aspect-square border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center bg-muted/20 overflow-hidden">
                             {currentPreview ? (
-                                <img
+                                <Image
                                     src={currentPreview.previewUrl}
                                     alt="Uploaded room preview"
                                     className="w-full h-full object-cover"
+                                    fill
                                 />
                             ) : (
                                 <div className="flex flex-col items-center justify-center space-y-4">
