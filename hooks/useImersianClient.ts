@@ -216,7 +216,7 @@ export function useImersianClient() {
       if (window.location.hostname !== "localhost" && window !== window.top) {
         const dataObject = {
           userUuid: config?.userUuid || getUserUuidFromQuery(),
-          uuid: config?.designId || getDesignIdFromQuery(),
+          designId: config?.designId || getDesignIdFromQuery(),
           sku: sku,
         };
         window.parent.postMessage({ event: "openImersianVisualiser", data: JSON.stringify(dataObject) }, "*");
