@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, type ReactNode } from "react";
-import Image from "next/image";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { Message, RoomContext, ChatSession } from "@/lib/types";
 import RenderMarkdown from "./RenderMarkdown";
 import { Check, Loader2, LayoutDashboard, ScanLine, Sparkles } from "lucide-react";
@@ -104,7 +104,7 @@ export function MessageBubble({
 
                         {/* Assistant content */}
                         <div className={cn(
-                            "w-full p-2 rounded-sm rounded-tl-none overflow-hidden border shadow-sm",
+                            "w-full px-5 py-4 rounded-[var(--radius-sm)] rounded-tl-none overflow-hidden border shadow-sm",
                             message.isError ? "border-destructive/50 bg-destructive/5 text-destructive" : "border-border bg-card text-card-foreground"
                         )}>
                             {/* Room analysis thinking indicator */}
@@ -114,7 +114,7 @@ export function MessageBubble({
                                 <ChatTypingIndicator />
                             ) : content ? (
                                 <div className={cn(
-                                    "text-sm p-1 leading-relaxed",
+                                    "text-sm leading-relaxed",
                                     isStreaming && "opacity-90"
                                 )}>
                                     {renderedMarkdown}
@@ -136,7 +136,7 @@ export function MessageBubble({
                         </div>
                     </div>
                 ) : (
-                    <div className="max-w-[85%] p-2 rounded-sm rounded-br-none bg-primary text-primary-foreground shadow-sm">
+                    <div className="max-w-[85%] px-5 py-4 rounded-[var(--radius-sm)] rounded-br-none bg-primary text-primary-foreground shadow-sm">
                         <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">
                             {content}
                         </p>
@@ -224,22 +224,18 @@ function UserAttachment({ url }: { url: string }) {
     const [loaded, setLoaded] = useState(false);
 
     return (
-        <div className="relative w-48 aspect-square rounded-sm overflow-hidden border shadow-sm bg-background">
+        <div className="relative w-36 aspect-square rounded-[var(--radius-sm)] overflow-hidden border shadow-sm bg-background">
             <div className={cn(
                 "w-full h-full transition-opacity duration-500",
                 loaded ? "opacity-100" : "opacity-0"
             )}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                {url && (
-                    <Image
-                        src={url}
-                        alt="attachment"
-                        onLoad={() => setLoaded(true)}
-                        fill
-                        className="object-cover"
-                    />
-                )}
-
+                <img
+                    src={url}
+                    alt="attachment"
+                    className="w-full h-full object-cover"
+                    onLoad={() => setLoaded(true)}
+                />
             </div>
         </div>
     );

@@ -33,28 +33,24 @@ function applyRadius(RadiusType: string) {
       document.documentElement.style.setProperty('--radius-sm', '0px')
       document.documentElement.style.setProperty('--radius-md', '0px')
       document.documentElement.style.setProperty('--radius-lg', '0px')
-      document.documentElement.style.setProperty('--radius-xl', '0px')
-      document.documentElement.style.setProperty('--radius-2xl', '0px')
-      document.documentElement.style.setProperty('--radius-3xl', '0px')
       break
     case 'medium-rounded':
-      document.documentElement.style.setProperty('--radius-sm', '4px')
-      document.documentElement.style.setProperty('--radius-md', '8px')
-      document.documentElement.style.setProperty('--radius-lg', '12px')
-      document.documentElement.style.setProperty('--radius-xl', '16px')
-      document.documentElement.style.setProperty('--radius-2xl', '20px')
-      document.documentElement.style.setProperty('--radius-3xl', '24px')
+      document.documentElement.style.setProperty('--radius-sm', '10px')
+      document.documentElement.style.setProperty('--radius-md', '20px')
+      document.documentElement.style.setProperty('--radius-lg', '30px')
       break
     case 'fully-rounded':
-      document.documentElement.style.setProperty('--radius-sm', '8px')
-      document.documentElement.style.setProperty('--radius-md', '12px')
-      document.documentElement.style.setProperty('--radius-lg', '16px')
-      document.documentElement.style.setProperty('--radius-xl', '24px')
-      document.documentElement.style.setProperty('--radius-2xl', '32px')
-      document.documentElement.style.setProperty('--radius-3xl', '48px')
+      document.documentElement.style.setProperty('--radius-sm', '40px')
+      document.documentElement.style.setProperty('--radius-md', '50px')
+      document.documentElement.style.setProperty('--radius-lg', '60px')
       break
   }
 }
+
+
+
+
+
 
 function normalizeFont(value: unknown): string | null {
   if (typeof value !== 'string') return null
@@ -75,7 +71,7 @@ function ensureGoogleFontLoaded(fontFamily: string) {
 
   if (existing) {
     if ((existing as HTMLLinkElement).href !== fontUrl) {
-      ; (existing as HTMLLinkElement).href = fontUrl
+      ;(existing as HTMLLinkElement).href = fontUrl
     }
     return
   }
@@ -110,10 +106,10 @@ export default function MerchantTheme() {
     removeGoogleFont()
     setWelcomeMessage('How can I help you today?') // reset to default welcome message
     setMerchantSuggestions([
-      'Find products under $2000.',
-      'Show blue wool products.',
-      'Recommend washable area products.',
-      'List outdoor products on sale.',
+        `Find 'products under $2000.`,
+        `Show blue wool products}.`,
+        `Recommend washable area products.`,
+        `List outdoor products} on sale.`,
     ]) // reset merchant suggestions
   }
 

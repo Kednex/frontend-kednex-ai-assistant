@@ -373,12 +373,9 @@ export function useChatSession() {
             setRoomAnalysisStatus('idle');
             pendingAttachmentsRef.current = base64Images || [];
             pendingPreviewUrlsRef.current = previewUrls || [];
-            if (base64Images && base64Images.length > 0) {
-                setHasFirstImage(true);
-            }
             await sdkSendMessage({ text: content })
         },
-        [sdkSendMessage, isLoading, setHasFirstImage]
+        [sdkSendMessage, isLoading]
     )
 
     return {
