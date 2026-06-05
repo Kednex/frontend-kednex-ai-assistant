@@ -118,7 +118,7 @@ export const ProductSearchResults = memo(function ProductSearchResults({
                         e.stopPropagation();
                         setVisibleCount((v) => v + 4);
                     }}
-                    className="mt-4 py-3 w-full rounded-full"
+                    className="mt-4 py-3 w-full rounded-xl"
                 >
                     Show more ({products.length - visibleCount})
                 </Button>

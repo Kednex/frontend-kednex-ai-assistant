@@ -236,7 +236,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                     {previews.length === 0 && uploadedImages.length === 0 && (
                         <Button
                             type="button"
-                            className="w-full rounded-md h-10 text-sm"
+                            className="w-full rounded-xl h-10 text-sm"
                             onClick={() => fileInputRef.current?.click()}
                         >
                             Upload Your Room

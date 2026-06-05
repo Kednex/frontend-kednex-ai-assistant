@@ -186,6 +186,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                     <div className="flex flex-col items-center justify-center h-full gap-4">
 
                         
+                        <div className="overflow-hidden rounded-2xl shadow-sm bg-muted">
                             <video 
                                 src="https://s3.ap-southeast-2.amazonaws.com/cdn.imersian/landing/imersian-ai-assistant.mp4"
                                 className="w-full h-full object-cover"
@@ -315,7 +316,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
             <div className="p-6 pb-12">
                 <Button
                     variant="default"
-                    className="w-full rounded-md h-12 text-lg cursor-pointer"
+                    className="w-full rounded-xl h-12 text-lg cursor-pointer"
                     // onClick={onNext}
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
