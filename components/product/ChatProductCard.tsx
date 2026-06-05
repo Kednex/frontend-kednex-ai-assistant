@@ -77,10 +77,14 @@ export const ChatProductCard = memo(function ChatProductCard({
             <CardContent className="p-3 flex flex-col gap-1">
                 <div className="text-sm font-medium line-clamp-2">{product.title}</div>
                 {product.priceRange && (
-                    <div className="text-sm font-bold">
-                        {/* {product.priceRange.minVariantPrice.currencyCode}{product.priceRange.minVariantPrice.amount}  */}
-                        {product.priceRange.minVariantPrice.currencyCode}{firstVariantPrice.amount}
-                    </div>
+                    <p className="text-sm font-bold">
+                        <span className="text-sm font-bold">From </span> {" "}
+                        {/* {product?.variants?.length > 1 ? (
+                            <span className="text-sm font-bold">From
+                            </span>) : null} {" "} */}
+                        {product.priceRange.minVariantPrice.currencyCode}{product.priceRange.minVariantPrice.amount}
+
+                    </p>
                 )}
 
                 {/* Imersian Visualiser Trigger SKU */}
