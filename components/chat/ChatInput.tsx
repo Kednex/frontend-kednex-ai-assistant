@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { generateUUID } from "@/lib/utils/uuid";
 import type { PreviewImage } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { on } from "events";
 
 interface ChatInputProps {
     onSendMessage: (message: string, base64Images: string[], previewUrls: string[]) => Promise<void>;
@@ -158,7 +159,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                 <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar rounded-[var(--radius)]">
                     {previews.map((preview) => (
                         <div key={preview.id} className="relative shrink-0 group ">
-                            <div className="w-20 h-20 overflow-hidden border bg-muted rounded-sm">
+                            <div className="w-20 h-20 overflow-hidden border bg-muted">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={preview.previewUrl}
@@ -225,23 +226,30 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={onKeyDown}
                         // Show different placeholder if there are image previews to encourage description
-                        placeholder={previews.length > 0 ? "Style my room..." : "Ask Anything..."}
-                        className="min-h-[44px] max-h-[200px] w-full rounded-sm pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden font-sans"
+                        placeholder={previews.length > 0 ? "Describe the room in the image..." : "Type your message..."}
+                        className="min-h-[44px] max-h-[200px] w-full rounded-[var(--radius-sm)] pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden font-sans"
                         // hide textarea prviews.length = 0 to avoid confusion with image previews
                         hidden={previews.length === 0 && uploadedImages.length === 0}
                         
                     />
 
                     {/*  upload your room button show if no firstimage */}
-                    {previews.length === 0 && uploadedImages.length === 0 && (
+                    <div className="relative flex-1 flex items-end">
                         <Button
-                            type="button"
-                            className="w-full rounded-xl h-10 text-sm"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            Upload Your Room
-                        </Button>
-                    )}
+                        type="button"
+                        size="icon"
+                        className="w-full rounded-[var(--radius-md)] h-10 text-sm "
+                        onClick={() => {
+                            fileInputRef.current?.click();
+                            
+                            // update firstimage with new uploaded image fileInputRef.current?.click();
+                    
+                        }}
+                        hidden={previews.length > 0 || uploadedImages.length > 0} // hide if there are previews to encourage description 
+                    >
+                        Upload Your Room
+                    </Button>
+                    </div>
                     
 
                     <Button
