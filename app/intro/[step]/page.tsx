@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight, ChevronLeft, Camera, Lock } from "lucide-react";
 import { generateUUID } from "@/lib/utils/uuid";
 import type { PreviewImage } from "@/lib/types";
+import Image from "next/image";
 
 type IntroPageProps = {
     params: Promise<{ step: string }>;
@@ -103,12 +104,6 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
     };
 
     useEffect(() => {
-        if (!isEmbedded) {
-            setEmbeddedStep(routeStep);
-        }
-    }, [isEmbedded, routeStep]);
-
-    useEffect(() => {
         return () => {
             previews.forEach((preview) => URL.revokeObjectURL(preview.previewUrl));
         };
@@ -186,6 +181,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                     <div className="flex flex-col items-center justify-center h-full gap-4">
 
                         
+                        <div className="overflow-hidden rounded-2xl shadow-sm bg-muted">
                             <video 
                                 src="https://s3.ap-southeast-2.amazonaws.com/cdn.imersian/landing/imersian-ai-assistant.mp4"
                                 className="w-full h-full object-cover"
@@ -194,6 +190,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                                 muted 
                                 playsInline
                             />
+                        </div>
                         
                         
                         
@@ -261,12 +258,13 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                             className="hidden"
                         />
 
-                        <div className="w-full aspect-square max-w-xs border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center bg-muted/20 overflow-hidden">
+                        <div className="w-full aspect-square border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center bg-muted/20 overflow-hidden">
                             {currentPreview ? (
-                                <img
+                                <Image
                                     src={currentPreview.previewUrl}
                                     alt="Uploaded room preview"
                                     className="w-full h-full object-cover"
+                                    fill
                                 />
                             ) : (
                                 <div className="flex flex-col items-center justify-center space-y-4">
@@ -279,7 +277,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                                     {/* 2. The Separate Button */}
                                     <Button
                                         type="button"
-                                        className="h-10 px-6 rounded-[var(--radius)] bg-primary text-primary-foreground shadow-sm hover:opacity-90 transition-all"
+                                        className="h-10 px-6 rounded-sm bg-primary text-primary-foreground shadow-sm hover:opacity-90 transition-all"
                                         onClick={() => fileInputRef.current?.click()}
                                     >
                                         Upload Image
@@ -314,7 +312,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
             <div className="p-6 pb-12">
                 <Button
                     variant="default"
-                    className="w-full rounded-[var(--radius-md)] h-12 text-lg cursor-pointer"
+                    className="w-full rounded-xl h-12 text-lg cursor-pointer"
                     // onClick={onNext}
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}

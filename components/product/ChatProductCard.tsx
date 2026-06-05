@@ -55,10 +55,10 @@ export const ChatProductCard = memo(function ChatProductCard({
 
     return (
         <Card
-            className="overflow-hidden border shadow-sm hover:shadow-md transition-shadow cursor-pointer rounded-[var(--radius-sm)] font-sans"
+            className="overflow-hidden m-1 p-1 shadow-sm hover:shadow-md transition-shadow cursor-pointer rounded-sm bg-card"
             onClick={() => onOpenProduct?.(product)}
         >
-            <div className="relative aspect-square bg-muted">
+            <div className="relative aspect-square bg-muted rounded-md overflow-auto" >
                 {product.featuredImage?.url ? (
                     <Image
                         src={product.featuredImage.url}
@@ -74,13 +74,16 @@ export const ChatProductCard = memo(function ChatProductCard({
                 )}
                 {/* Custom Favorite Button Could go here in the future */}
             </div>
-            <CardContent className="p-3 flex flex-col gap-1">
-                <div className="text-sm font-medium line-clamp-2">{product.title}</div>
+            <CardContent className="p-1 m-0 flex-1 flex-col gap-1">
+                <div className="text-sm font-medium line-clamp-2 leading-5 h-10">{product.title}</div>
                 {product.priceRange && (
-                    <div className="text-sm font-bold">
-                        {/* {product.priceRange.minVariantPrice.currencyCode}{product.priceRange.minVariantPrice.amount}  */}
-                        {product.priceRange.minVariantPrice.currencyCode}{firstVariantPrice.amount}
-                    </div>
+                    <p className="text-sm font-bold">
+                        {product?.variants?.length > 1 ? (
+                            <span className="text-sm font-bold">From
+                            </span>) : null} {" "}
+                         {product.priceRange.minVariantPrice.currencyCode}{product.priceRange.minVariantPrice.amount}
+
+                    </p>
                 )}
 
                 {/* Imersian Visualiser Trigger SKU */}
@@ -91,8 +94,8 @@ export const ChatProductCard = memo(function ChatProductCard({
                 {onViewInRoom && (
                     <Button
                         variant="default"
-                        className="h-8 w-full text-xs rounded-[var(--radius-md)] mt-2 imersian-view-in-room cursor-pointer"
-                        
+                        className="h-8 w-full text-xs rounded-xl mt-2 imersian-view-in-room cursor-pointer flex items-center justify-center gap-1.5"
+
                         onClick={async (e) => {
                             e.stopPropagation();
 
@@ -123,7 +126,7 @@ export const ChatProductCard = memo(function ChatProductCard({
                             // window.open(url, "_blank");
                             // onViewInRoom?.(product);
                         }}
-                        
+
                     >
                         View in my room
                     </Button>
