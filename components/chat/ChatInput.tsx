@@ -158,7 +158,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                 <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar rounded-[var(--radius)]">
                     {previews.map((preview) => (
                         <div key={preview.id} className="relative shrink-0 group ">
-                            <div className="w-20 h-20 overflow-hidden border bg-muted">
+                            <div className="w-20 h-20 overflow-hidden border bg-muted rounded-sm">
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={preview.previewUrl}
@@ -226,7 +226,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                         onKeyDown={onKeyDown}
                         // Show different placeholder if there are image previews to encourage description
                         placeholder={previews.length > 0 ? "Style my room..." : "Ask Anything..."}
-                        className="min-h-[44px] max-h-[200px] w-full rounded-[var(--radius-sm)] pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden font-sans"
+                        className="min-h-[44px] max-h-[200px] w-full rounded-sm pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden font-sans"
                         // hide textarea prviews.length = 0 to avoid confusion with image previews
                         hidden={previews.length === 0 && uploadedImages.length === 0}
                         
@@ -236,7 +236,7 @@ export function ChatInput({ onSendMessage, isLoading, onPreviewsChange, resetPre
                     {previews.length === 0 && uploadedImages.length === 0 && (
                         <Button
                             type="button"
-                            className="w-full rounded-[var(--radius-md)] h-10 text-sm"
+                            className="w-full rounded-md h-10 text-sm"
                             onClick={() => fileInputRef.current?.click()}
                         >
                             Upload Your Room

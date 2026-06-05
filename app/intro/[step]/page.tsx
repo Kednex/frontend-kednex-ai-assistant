@@ -194,6 +194,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                                 muted 
                                 playsInline
                             />
+                        </div>
                         
                         
                         
@@ -261,7 +262,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                             className="hidden"
                         />
 
-                        <div className="w-full aspect-square max-w-xs border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center bg-muted/20 overflow-hidden">
+                        <div className="w-full aspect-square border-2 border-dashed border-border rounded-2xl flex flex-col items-center justify-center bg-muted/20 overflow-hidden">
                             {currentPreview ? (
                                 <img
                                     src={currentPreview.previewUrl}
@@ -279,7 +280,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
                                     {/* 2. The Separate Button */}
                                     <Button
                                         type="button"
-                                        className="h-10 px-6 rounded-[var(--radius)] bg-primary text-primary-foreground shadow-sm hover:opacity-90 transition-all"
+                                        className="h-10 px-6 rounded-sm bg-primary text-primary-foreground shadow-sm hover:opacity-90 transition-all"
                                         onClick={() => fileInputRef.current?.click()}
                                     >
                                         Upload Image
@@ -314,7 +315,7 @@ export default function IntroPage({ params, onComplete }: IntroPageProps) {
             <div className="p-6 pb-12">
                 <Button
                     variant="default"
-                    className="w-full rounded-[var(--radius-md)] h-12 text-lg cursor-pointer"
+                    className="w-full rounded-md h-12 text-lg cursor-pointer"
                     // onClick={onNext}
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
