@@ -74,7 +74,7 @@ export const ChatProductCard = memo(function ChatProductCard({
                 {/* Custom Favorite Button Could go here in the future */}
             </div>
             <CardContent className="p-1 m-0 flex-1 flex-col gap-1">
-                <div className="text-sm font-medium line-clamp-2">{product.title}</div>
+                <div className="text-sm font-medium line-clamp-2 leading-5 h-10">{product.title}</div>
                 {product.priceRange && (
                     <p className="text-sm font-bold">
                         {product?.variants?.length > 1 ? (
