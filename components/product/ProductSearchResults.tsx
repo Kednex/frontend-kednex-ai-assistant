@@ -87,7 +87,7 @@ export const ProductSearchResults = memo(function ProductSearchResults({
         if (!query) return null;
         return (
             <div className="p-4 text-center text-sm text-muted-foreground italic">
-                No specific products found for "{query}".
+                No specific products found for {query}.
             </div>
         );
     }
@@ -95,12 +95,12 @@ export const ProductSearchResults = memo(function ProductSearchResults({
     return (
         <div className="w-full overflow-hidden">
             <div className="flex justify-between items-center mb-3">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-center flex-1">
+                <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground text-center flex-1">
                     Recommended Products
                 </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-1">
                 {products.slice(0, visibleCount).map((product: Product) => (
                     <ChatProductCard
                         key={product.id}
@@ -118,7 +118,7 @@ export const ProductSearchResults = memo(function ProductSearchResults({
                         e.stopPropagation();
                         setVisibleCount((v) => v + 4);
                     }}
-                    className="mt-4 py-3 w-full rounded-full"
+                    className="mt-4 py-3 w-full rounded-xl"
                 >
                     Show more ({products.length - visibleCount})
                 </Button>
