@@ -106,10 +106,10 @@ export default function MerchantTheme() {
     removeGoogleFont()
     setWelcomeMessage('How can I help you today?') // reset to default welcome message
     setMerchantSuggestions([
-        `Find 'products under $2000.`,
-        `Show blue wool products}.`,
-        `Recommend washable area products.`,
-        `List outdoor products} on sale.`,
+        'Find products under $2000.',
+        'Show blue wool products.',
+        'Recommend washable area products.',
+        'List outdoor products on sale.',
     ]) // reset merchant suggestions
   }
 
