@@ -104,7 +104,7 @@ export function MessageBubble({
 
                         {/* Assistant content */}
                         <div className={cn(
-                            "w-full px-5 py-4 rounded-sm rounded-tl-none overflow-hidden border shadow-sm",
+                            "w-full p-2 rounded-sm rounded-tl-none overflow-hidden border shadow-sm",
                             message.isError ? "border-destructive/50 bg-destructive/5 text-destructive" : "border-border bg-card text-card-foreground"
                         )}>
                             {/* Room analysis thinking indicator */}
@@ -114,7 +114,7 @@ export function MessageBubble({
                                 <ChatTypingIndicator />
                             ) : content ? (
                                 <div className={cn(
-                                    "text-sm leading-relaxed",
+                                    "text-sm p-1 leading-relaxed",
                                     isStreaming && "opacity-90"
                                 )}>
                                     {renderedMarkdown}
@@ -136,7 +136,7 @@ export function MessageBubble({
                         </div>
                     </div>
                 ) : (
-                    <div className="max-w-[85%] px-5 py-4 rounded-sm rounded-br-none bg-primary text-primary-foreground shadow-sm">
+                    <div className="max-w-[85%] p-2 rounded-sm rounded-br-none bg-primary text-primary-foreground shadow-sm">
                         <p className="text-sm font-medium leading-relaxed whitespace-pre-wrap">
                             {content}
                         </p>
