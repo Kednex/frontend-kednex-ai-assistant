@@ -212,11 +212,21 @@ export function useImersianClient() {
 
   const openVisualiser = useCallback(
     async (sku?: string, config?: Partial<ImersianConfig>) => {
+      // When running in production inside an iframe, delegate via postMessage
+      if (window.location.hostname !== "localhost" && window !== window.top) {
+        const dataObject = {
+          userUuid: config?.userUuid || getUserUuidFromQuery(),
+          uuid: config?.designId || getDesignIdFromQuery(),
+          sku: sku,
+        };
+        window.parent.postMessage({ event: "openImersianVisualiser", data: JSON.stringify(dataObject) }, "*");
+        return { ok: true, message: "Imersian visualiser requested on parent window." };
+      }
+
       const configured = await configure(config);
       if (!configured.ok) {
         return configured;
       }
-
 
       console.log("[useImersianClient] Opening visualiser with SKU=" + sku + ")"); //see the log to verify SKU formatting
       if (!sku) {
@@ -228,18 +238,17 @@ export function useImersianClient() {
         return { ok: false, message: "Imersian library is unavailable." };
       }
 
-      // get desingnId from config or query params to pass to visualiser
+      // get designId from config or query params to pass to visualiser
       const designId = config?.designId || getDesignIdFromQuery();
       if (!designId) {
         return { ok: false, message: "Missing designId for Imersian visualiser." };
       }
 
-      if (requestParentVisualiserOpen(sku, designId )) {
+      if (requestParentVisualiserOpen(sku, designId)) {
         return { ok: true, message: "Imersian visualiser requested on parent window." };
       }
 
       try {
-        
         console.log("[useImersianClient] Attempting to open visualiser with SKU=" + sku + " and designId=" + designId);
         client.showImersianVisualiser(designId, sku);
         return { ok: true, message: "Imersian visualiser opened." };
