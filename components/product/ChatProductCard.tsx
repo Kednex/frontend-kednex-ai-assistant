@@ -50,6 +50,7 @@ export const ChatProductCard = memo(function ChatProductCard({
     const firstVariant = variantNodes[0] as any;
     const firstVariantId = firstVariant?.id || "";
     const firstVariantSku = firstVariant?.sku || "";
+    const firstVariantPrice = firstVariant?.price || "";
     const visualiserSku = normalizeVisualiserSku(firstVariantSku || firstVariantId);
 
     return (
