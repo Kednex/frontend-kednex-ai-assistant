@@ -223,12 +223,17 @@ export function useChatSession() {
         if (intent?.sessionId === sessionId && intent.messages?.length) {
             session = intent
         } else {
-            const raw = localStorage.getItem(STORAGE_KEYS.CHAT_ACTIVE_SESSION)
-            if (raw) {
-                const stored = JSON.parse(raw) as ChatSession
-                if (stored.sessionId === sessionId) {
-                    session = stored
+            // Guarded: third-party iframes (Safari) can throw on localStorage access.
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.CHAT_ACTIVE_SESSION)
+                if (raw) {
+                    const stored = JSON.parse(raw) as ChatSession
+                    if (stored.sessionId === sessionId) {
+                        session = stored
+                    }
                 }
+            } catch (e) {
+                console.error('[useChatSession] Restore read failed:', e)
             }
         }
 
