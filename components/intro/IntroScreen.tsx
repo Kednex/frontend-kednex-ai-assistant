@@ -68,7 +68,7 @@ export function IntroScreen({ step = 1, onComplete, hasResumableSession, onResum
 
         try {
             await readFileWithProgress(selectedFile);
-        } catch (error) {
+        } catch {
             setIsUploading(false);
             setUploadProgress(0);
             e.target.value = "";

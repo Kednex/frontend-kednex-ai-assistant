@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, Check, Loader2, PanelLeft } from "lucide-react";
+import { Check, Loader2, PanelLeft } from "lucide-react";
 import { useChatSession } from "@/hooks/useChatSession";
 import { withCurrentQuery } from "@/lib/utils/navigation";
 import { getRecentSessions, setActiveSession } from "@/lib/utils/sessions";

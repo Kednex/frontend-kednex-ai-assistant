@@ -68,13 +68,12 @@ export function clearActiveSession(): void {
  */
 export function getSessionTitle(session: ChatSession): string {
     const firstUser = session.messages?.find((m) => m.role === 'user');
-    const text = firstUser
-        ? (firstUser.parts || [])
-              .filter((p: any) => p.type === 'text')
-              .map((p: any) => p.text)
-              .join(' ')
-              .trim()
-        : '';
+    const parts = (firstUser?.parts || []) as Array<{ type?: string; text?: string }>;
+    const text = parts
+        .filter((p) => p.type === 'text')
+        .map((p) => p.text ?? '')
+        .join(' ')
+        .trim();
 
     if (text) return text;
     if (session.category) return session.category;
@@ -91,11 +90,11 @@ export function discardSession(sessionId: string): void {
     try {
         const raw = localStorage.getItem(CHAT_SESSION_INDEX);
         if (raw) {
-            const arr = JSON.parse(raw);
+            const arr = JSON.parse(raw) as Array<{ sessionId?: string }>;
             if (Array.isArray(arr)) {
                 localStorage.setItem(
                     CHAT_SESSION_INDEX,
-                    JSON.stringify(arr.filter((s: any) => s?.sessionId !== sessionId))
+                    JSON.stringify(arr.filter((s) => s?.sessionId !== sessionId))
                 );
             }
         }
