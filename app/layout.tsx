@@ -6,6 +6,7 @@ import MerchantTheme from "./merchant-theme";
 import { ThemeProvider } from "./theme-context";
 import { ThemeWrapper } from "./theme-wrapper";
 import { ImersianInitializer } from "@/components/ImersianInitializer";
+import { Providers } from "./providers";
 
 // const roboto = Roboto({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -39,7 +40,9 @@ export default function RootLayout({
         <ThemeProvider>
           <MerchantTheme />
           <ThemeWrapper>
-            {children}
+            <Providers>
+              {children}
+            </Providers>
           </ThemeWrapper>
         </ThemeProvider>
       </body>
