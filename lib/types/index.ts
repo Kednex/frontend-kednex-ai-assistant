@@ -69,6 +69,7 @@ export type ChatSession = {
     contextUploads?: RoomContext[];
     genContent?: GeneratedContent[];
     previousResponseId?: string | null;
+    designId?: string | null; // 3D reconstructed-room reference, needed to restore the visualiser
 };
 
 export type GeneratedContent = {
