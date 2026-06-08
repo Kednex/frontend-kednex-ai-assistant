@@ -5,26 +5,30 @@ import { createContext, useContext, useState, ReactNode } from 'react'
 interface ThemeContextType {
   isThemeLoading: boolean
   setThemeLoading: (loading: boolean) => void
+  heading: string
+  setHeading: (heading: string) => void
   welcomeMessage: string
   setWelcomeMessage: (message: string) => void
   MerchantSuggestions: string[]
   setMerchantSuggestions: (suggestions: string[]) => void
 }
 
+const DEFAULT_HEADING = 'Style your room'
+
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [isThemeLoading, setThemeLoading] = useState(true)
-  const [welcomeMessage, setWelcomeMessage] = useState('How can I help you today?')
+  const [heading, setHeading] = useState(DEFAULT_HEADING)
+  const [welcomeMessage, setWelcomeMessage] = useState("Upload a room photo and tell me what you're looking for.")
   const [MerchantSuggestions, setMerchantSuggestions] = useState([
-          'Find products under $2000.',
-          'Show blue wool products.',
-          'Recommend washable area products.',
-          'List outdoor products on sale.',
+          'Find a vintage rug for my bedroom',
+          'Recommend a durable rug for a busy home',
+          'Show eco-friendly rug options',
       ])
 
   return (
-    <ThemeContext.Provider value={{ isThemeLoading, setThemeLoading, welcomeMessage, setWelcomeMessage, MerchantSuggestions, setMerchantSuggestions }}>
+    <ThemeContext.Provider value={{ isThemeLoading, setThemeLoading, heading, setHeading, welcomeMessage, setWelcomeMessage, MerchantSuggestions, setMerchantSuggestions }}>
       {children}
     </ThemeContext.Provider>
   )

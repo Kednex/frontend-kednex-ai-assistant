@@ -94,7 +94,7 @@ function removeGoogleFont() {
 }
 
 export default function MerchantTheme() {
-  const { setThemeLoading, setWelcomeMessage, setMerchantSuggestions } = useTheme()
+  const { setThemeLoading, setHeading, setWelcomeMessage, setMerchantSuggestions } = useTheme()
 
   const resetThemeColors = () => {
     const root = document.documentElement
@@ -108,12 +108,12 @@ export default function MerchantTheme() {
     root.style.removeProperty('--radius')
     root.style.removeProperty('--font-sans')
     removeGoogleFont()
-    setWelcomeMessage('How can I help you today?') // reset to default welcome message
+    setHeading('Style your room') // reset to default heading
+    setWelcomeMessage("Upload a room photo and tell me what you're looking for.") // reset to default welcome message
     setMerchantSuggestions([
-      'Find products under $2000.',
-      'Show blue wool products.',
-      'Recommend washable area products.',
-      'List outdoor products on sale.',
+      'Find a vintage rug for my bedroom',
+      'Recommend a durable rug for a busy home',
+      'Show eco-friendly rug options',
     ]) // reset merchant suggestions
   }
 
@@ -148,6 +148,7 @@ export default function MerchantTheme() {
         console.log("Merchant theme payload:", payload)
         const MerchantSuggetions = payload?.aiAssistant?.suggestions
         const theme = payload?.aiAssistant?.theme
+        const nextHeading = payload?.aiAssistant?.behaviour?.heading // allow dynamic heading from backend, fallback to default if not provided
         const nextWelcome = payload?.aiAssistant?.behaviour?.welcomeMessage // allow dynamic welcome message from backend, fallback to default if not provided
         const color = normalizeHexColor(theme?.primary || payload?.primaryColor || '')
         const highlight = normalizeHexColor(theme?.highlight || '')
@@ -180,6 +181,11 @@ export default function MerchantTheme() {
             ensureGoogleFontLoaded(theme.font)  // ✅ loads wght@300;400;500;600;700
             root.style.setProperty('--font-sans', `'${theme.font}', sans-serif`)
           }
+          // Set heading if provided, otherwise keep default
+          if (typeof nextHeading === 'string' && nextHeading.trim()) {
+            setHeading(nextHeading.trim())
+          }
+
           // Set welcome message if provided, otherwise keep default
           if (typeof nextWelcome === 'string' && nextWelcome.trim()) {
             setWelcomeMessage(nextWelcome.trim())

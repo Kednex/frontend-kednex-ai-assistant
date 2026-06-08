@@ -8,11 +8,12 @@ import { setDesignId } from '@/lib/store/visualiserSlice'
 import type { ChatSession, Message } from '@/lib/types'
 import { generateUUID } from '@/lib/utils/uuid'
 import { normalizeRooms } from '@/lib/utils/storage'
+import { buildRoomBackgroundUrl, rehydrateRoomAttachments } from '@/lib/utils/roomImage'
+import { MAX_SAVED_SESSIONS } from '@/lib/utils/sessions'
 
 const STORAGE_KEYS = {
     CHAT_ACTIVE_SESSION: 'imersian:chat_active_session',
     CHAT_SESSION_INDEX: 'imersian:chat_session_index',
-    CHAT_FIRST_IMAGE_PREFIX: 'imersian:chat_first_image:'
 } as const
 
 export function useChatSession() {
@@ -20,11 +21,11 @@ export function useChatSession() {
     const { sessionId, category, rooms, intent } = useAppSelector(
         (state: RootState) => state.chat
     )
+    const designId = useAppSelector((state: RootState) => state.visualiser.designId)
 
     const hasHydratedRef = useRef(false)
     const isNewChatFromIntro = useRef(false)
     const [hydrated, setHydrated] = useState(false)
-    const [hasFirstImage, setHasFirstImage] = useState(false) // track first image
 
     // track the last response ID from the AI backend so we can continue
     const previousResponseId = useRef<string | null>(null);
@@ -82,20 +83,12 @@ export function useChatSession() {
                 previousResponseId.current = session.previousResponseId;
             }
 
+            // restore the 3D reconstructed-room reference so the visualiser can reopen it
+            dispatch(setDesignId(session.designId ?? null))
+
             dispatch(setSessionId(session.sessionId))
             dispatch(setCategory(session.category || ''))
             dispatch(setRooms(normalizeRooms(session.contextUploads || [])))
-
-            // session-level first-image flag
-            const fromRooms = (session.contextUploads?.length || 0) > 0
-            if (fromRooms) {
-                setHasFirstImage(true)
-            } else {
-                const stored = localStorage.getItem(
-                    `${STORAGE_KEYS.CHAT_FIRST_IMAGE_PREFIX}${session.sessionId}`
-                )
-                setHasFirstImage(stored === '1')
-            }
 
             if (shouldAutoIntro) {
                 isNewChatFromIntro.current = true
@@ -107,32 +100,6 @@ export function useChatSession() {
             setHydrated(true)
         }
     }, [dispatch, intent])
-
-    // Reload first-image state when session changes (new chat => reset)
-    useEffect(() => {
-        if (!sessionId) return
-        try {
-            const stored = localStorage.getItem(
-                `${STORAGE_KEYS.CHAT_FIRST_IMAGE_PREFIX}${sessionId}`
-            )
-            setHasFirstImage(stored === '1' || rooms.length > 0)
-        } catch {
-            setHasFirstImage(rooms.length > 0)
-        }
-    }, [sessionId, rooms.length])
-
-    // Persist first-image state per session
-    useEffect(() => {
-        if (!sessionId) return
-        try {
-            localStorage.setItem(
-                `${STORAGE_KEYS.CHAT_FIRST_IMAGE_PREFIX}${sessionId}`,
-                hasFirstImage ? '1' : '0'
-            )
-        } catch (e) {
-            console.error('Failed to save first image flag', e)
-        }
-    }, [sessionId, hasFirstImage])
 
     // Read userUuid from URL query params
     const userUuid = useMemo(() => {
@@ -244,23 +211,45 @@ export function useChatSession() {
     setMessagesRef.current = setMessages;
     const isLoading = status === 'submitted' || status === 'streaming'
 
-    // Restore previous messages AFTER hydration + chat initialised
+    // Restore previous messages AFTER hydration + chat initialised.
+    // Prefer the resume `intent` (a possibly non-active session the user chose to
+    // resume); otherwise fall back to the persisted active session.
     useEffect(() => {
         if (!hydrated) return
         if (!sessionId) return
 
-        const raw = localStorage.getItem(STORAGE_KEYS.CHAT_ACTIVE_SESSION)
-        if (!raw) return
+        let session: ChatSession | null = null
 
-        const session = JSON.parse(raw) as ChatSession
+        if (intent?.sessionId === sessionId && intent.messages?.length) {
+            session = intent
+        } else {
+            // Guarded: third-party iframes (Safari) can throw on localStorage access.
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.CHAT_ACTIVE_SESSION)
+                if (raw) {
+                    const stored = JSON.parse(raw) as ChatSession
+                    if (stored.sessionId === sessionId) {
+                        session = stored
+                    }
+                }
+            } catch (e) {
+                console.error('[useChatSession] Restore read failed:', e)
+            }
+        }
+
+        if (!session) return
+
         if (session.messages?.length) {
-            setMessages(session.messages)
+            // Restored attachments are dead blob: URLs. Rebuild the durable hosted
+            // room image from the session's designId so it survives reopen.
+            const backgroundUrl = buildRoomBackgroundUrl(session.designId)
+            setMessages(rehydrateRoomAttachments(session.messages, backgroundUrl))
         }
         // also restore response id if available (already done in hydration block, but safe here too)
         if (session.previousResponseId) {
             previousResponseId.current = session.previousResponseId
         }
-    }, [hydrated, sessionId, setMessages])
+    }, [hydrated, sessionId, intent, setMessages])
 
     // Autosave
     useEffect(() => {
@@ -273,7 +262,8 @@ export function useChatSession() {
                 messages,
                 contextUploads: rooms,
                 timestamp: Date.now(),
-                previousResponseId: previousResponseId.current
+                previousResponseId: previousResponseId.current,
+                designId
             }
 
             try {
@@ -304,7 +294,7 @@ export function useChatSession() {
 
                 localStorage.setItem(
                     STORAGE_KEYS.CHAT_SESSION_INDEX,
-                    JSON.stringify(index.slice(0, 10))
+                    JSON.stringify(index.slice(0, MAX_SAVED_SESSIONS))
                 )
             } catch (e) {
                 console.error('Failed to save session', e)
@@ -312,7 +302,7 @@ export function useChatSession() {
         }, 800)
 
         return () => clearTimeout(timeout)
-    }, [sessionId, messages, category, rooms])
+    }, [sessionId, messages, category, rooms, designId])
 
     // Auto intro
     useEffect(() => {
@@ -339,8 +329,9 @@ export function useChatSession() {
             contextUploads: rooms,
             timestamp: Date.now(),
             previousResponseId: previousResponseId.current,
+            designId,
         };
-    }, [sessionId, category, messages, rooms, previousResponseId]);
+    }, [sessionId, category, messages, rooms, previousResponseId, designId]);
 
     // if the messages reset (e.g. new chat), clear the stored response id and search page
     useEffect(() => {
@@ -373,12 +364,9 @@ export function useChatSession() {
             setRoomAnalysisStatus('idle');
             pendingAttachmentsRef.current = base64Images || [];
             pendingPreviewUrlsRef.current = previewUrls || [];
-            if (base64Images && base64Images.length > 0) {
-                setHasFirstImage(true);
-            }
             await sdkSendMessage({ text: content })
         },
-        [sdkSendMessage, isLoading, setHasFirstImage]
+        [sdkSendMessage, isLoading]
     )
 
     return {
@@ -391,7 +379,5 @@ export function useChatSession() {
         isLoading,
         getChatSession,
         roomAnalysisStatus,
-        hasFirstImage,
-        setHasFirstImage,
     }
 }
