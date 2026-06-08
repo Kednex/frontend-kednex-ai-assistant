@@ -1,35 +1,57 @@
 'use client';
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, Check, Loader2, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ChevronLeft, Check, Loader2, PanelLeft } from "lucide-react";
 import { useChatSession } from "@/hooks/useChatSession";
+import { withCurrentQuery } from "@/lib/utils/navigation";
+import { getRecentSessions, setActiveSession } from "@/lib/utils/sessions";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
+import { ChatSidebar } from "./ChatSidebar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/app/theme-context";
-import type { PreviewImage } from "@/lib/types";
+import type { ChatSession } from "@/lib/types";
 
 export function ChatInterface() {
-    const { welcomeMessage, MerchantSuggestions } = useTheme();
+    const router = useRouter();
+    const { heading, welcomeMessage, MerchantSuggestions } = useTheme();
     const {
         hydrated,
         messages,
         category,
         isLoading,
         rooms,
+        sessionId,
         sendMessage,
         getChatSession,
         roomAnalysisStatus,
     } = useChatSession();
 
-    
-
     const scrollRef = useRef<HTMLDivElement>(null);
-    const [composerPreviews, setComposerPreviews] = useState<PreviewImage[]>([]);
-    const [resetPreviewsToken, setResetPreviewsToken] = useState(0);
+    // Prefill payload pushed into the composer when a suggestion is clicked.
+    const [prefill, setPrefill] = useState<{ text: string; token: number }>({ text: "", token: 0 });
+
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [recentSessions, setRecentSessions] = useState<ChatSession[]>([]);
+
+    const openSidebar = () => {
+        setRecentSessions(getRecentSessions());
+        setSidebarOpen(true);
+    };
+
+    const selectSession = (session: ChatSession) => {
+        if (session.sessionId === sessionId) {
+            setSidebarOpen(false);
+            return;
+        }
+        // Make it active and hard-navigate so the chat re-hydrates from it.
+        setActiveSession(session);
+        window.location.assign(withCurrentQuery("/chat"));
+    };
 
     const scrollToBottom = () => {
         if (scrollRef.current) {
@@ -59,33 +81,17 @@ export function ChatInterface() {
     //     `List outdoor ${category || 'products'} on sale.`,
     // ];
 
-    // when clicking a suggestion, send it as a message
-    const handleSuggestionClick = async (suggestion: string) => {
-        const fileToBase64 = (file: File): Promise<string> => {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result as string);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        };
-
-        const previewUrls = composerPreviews.map((p) => p.previewUrl);
-        const base64Images = await Promise.all(
-            composerPreviews.map((p) => fileToBase64(p.file))
-        );
-
-        await sendMessage(suggestion, base64Images, previewUrls);
-
-        // Reset previews in composer after suggestion send to match send button behavior.
-        setComposerPreviews([]);
-        setResetPreviewsToken((prev) => prev + 1);
+    // Clicking a suggestion drops it into the composer (so the user can edit /
+    // add their image before sending) rather than sending it immediately.
+    const handleSuggestionClick = (suggestion: string) => {
+        setPrefill((p) => ({ text: suggestion, token: p.token + 1 }));
     };
 
     const startNewChat = () => {
-        // Clear session and store to start fresh
-        localStorage.removeItem('imersian:chat_active_session');
-        window.location.reload(); // Hard refresh to ensure clean state
+        // A new chat always begins at the intro (upload-your-room) flow.
+        // The current session stays in history and remains resumable from there.
+        setSidebarOpen(false);
+        router.push(withCurrentQuery('/intro'));
     };
 
     if (!hydrated) {
@@ -101,17 +107,26 @@ export function ChatInterface() {
 
     return (
         <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden font-sans">
+            <ChatSidebar
+                open={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+                onNewChat={startNewChat}
+                sessions={recentSessions}
+                onSelectSession={selectSession}
+                activeSessionId={sessionId}
+            />
+
             {/* Header */}
             <header className="flex items-center justify-between px-4 py-3 border-b bg-card z-10 sticky top-0">
                 <div className="flex items-center gap-2">
                     <Button
                         variant="ghost"
                         size="icon-sm"
-                        onClick={startNewChat}
+                        onClick={openSidebar}
                         className="rounded-full"
+                        aria-label="Open chat history"
                     >
-                        <Plus size={20} />
-                        
+                        <PanelLeft size={20} />
                     </Button>
                     <h1 className="text-base font-semibold tracking-tight">Design Assistant</h1>
                 </div>
@@ -119,29 +134,26 @@ export function ChatInterface() {
 
             {/* Messages Scroll Area */}
             <ScrollArea ref={scrollRef} className="flex-1 overflow-y-auto px-4">
-                <div className="py-6 flex flex-col gap-4 min-h-full ">
+                <div className="py-4 flex flex-col gap-4 min-h-full ">
                     {messages.length === 0 ? (
-                        <div className="flex flex-col items-start justify-start flex-1 text-left min-h-[400px]">
-                            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl mb-2">
-                                Hello there!
+                        <div className="flex w-full flex-col items-start text-left">
+                            <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-1">
+                                {heading}
                             </h2>
-                            <p className="text-lg font-medium text-muted-foreground mb-8">
+                            <p className="w-full text-sm font-medium text-muted-foreground mb-5 text-balance break-words">
                                 {welcomeMessage}
-                                
                             </p>
 
-                            <div className="flex-1" aria-hidden="true" />
-
                             {/* Suggestions Grid */}
-                            <div className="w-full flex flex-col gap-2.5 mt-auto">
+                            <div className="w-full flex flex-col gap-2.5">
                                 {MerchantSuggestions.map((suggestion, index) => (
                                     <Button
                                         key={index}
-                                        onClick={() => void handleSuggestionClick(suggestion)}
+                                        onClick={() => handleSuggestionClick(suggestion)}
                                         variant="outline"
-                                        className="w-full h-auto px-6 py-4 justify-start text-left rounded-xl border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
+                                        className="w-full h-auto px-5 py-3 justify-start text-left rounded-xl border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
                                     >
-                                        <span className="text-sm font-bold truncate">
+                                        <span className="text-sm font-semibold whitespace-normal break-words leading-snug">
                                             {suggestion}
                                         </span>
                                     </Button>
@@ -176,9 +188,9 @@ export function ChatInterface() {
             <ChatInput
                 onSendMessage={sendMessage}
                 isLoading={isLoading}
-                onPreviewsChange={setComposerPreviews}
-                resetPreviewsToken={resetPreviewsToken}
-
+                prefillText={prefill.text}
+                prefillToken={prefill.token}
+                hasChatHistory={messages.length > 0}
             />
         </div>
     );
