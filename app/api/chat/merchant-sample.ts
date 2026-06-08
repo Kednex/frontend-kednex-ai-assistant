@@ -38,13 +38,12 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
       },
       behaviour: {
         tone: 'Friendly',
-        welcomeMessage: 'Upload a room photo and tell me your style.',
+        welcomeMessage: "Upload a room photo and tell me what you're looking for.",
       },
       suggestions: [
-        "Give me a rug",
-        "I'm looking for a vintage rug for my bedroom, any suggestions",
-        "Can you recommend a durable rug for a high-traffic area",
-        "What are some eco-friendly rug options"
+        "Find a vintage rug for my bedroom",
+        "Recommend a durable rug for a busy home",
+        "Show eco-friendly rug options",
       ],
       rules: {
         fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
