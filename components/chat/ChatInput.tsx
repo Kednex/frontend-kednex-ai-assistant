@@ -4,7 +4,7 @@ import { useRef, useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useIntroContext } from "@/lib/store/IntroContext";
 import { withCurrentQuery } from "@/lib/utils/navigation";
-import { revokeBlobUrl } from "@/lib/utils/imageUtils";
+import { revokeBlobUrl, fileToBase64 } from "@/lib/utils/imageUtils";
 import { ImagePlus, X, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -81,15 +81,6 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
             const removed = prev.find((p) => p.id === id);
             if (removed) revokeBlobUrl(removed.previewUrl);
             return prev.filter((p) => p.id !== id);
-        });
-    };
-
-    const fileToBase64 = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
         });
     };
 
