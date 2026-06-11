@@ -1,14 +1,13 @@
+import { fileToBase64 } from "./imageOrientation";
+
 /**
- * Converts a File object to a base64 string
+ * Converts a File object to a base64 string.
+ *
+ * Normalizes EXIF orientation so camera photos (portrait shots in particular)
+ * encode as upright pixels for every downstream consumer. See
+ * {@link ./imageOrientation} for details.
  */
-export const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
-};
+export { fileToBase64 };
 
 /**
  * Converts multiple files to base64 strings
