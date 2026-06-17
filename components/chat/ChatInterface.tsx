@@ -219,6 +219,7 @@ export function ChatInterface() {
                 prefillText={prefill.text}
                 prefillToken={prefill.token}
                 openUploaderToken={openUploaderToken}
+                hasChatHistory={messages.length > 0}
             />
         </div>
     );

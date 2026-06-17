@@ -2,6 +2,7 @@
 
 import { useRef, useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { useIntroContext } from "@/lib/store/IntroContext";
+import { useOnboardingFlag } from "@/hooks/useOnboardingFlag";
 import { revokeBlobUrl, fileToBase64 } from "@/lib/utils/imageUtils";
 import { ImagePlus, X, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,21 +10,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { generateUUID } from "@/lib/utils/uuid";
 import type { PreviewImage } from "@/lib/types";
 
+const UPLOAD_NUDGE_KEY = 'imersian:onboarding_upload_nudge_seen';
+
 interface ChatInputProps {
     onSendMessage: (message: string, base64Images: string[], previewUrls: string[]) => Promise<void>;
     isLoading: boolean;
     prefillText?: string;
     prefillToken?: number;
     openUploaderToken?: number;
+    hasChatHistory?: boolean;
 }
 
-export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken, openUploaderToken }: ChatInputProps) {
+export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken, openUploaderToken, hasChatHistory }: ChatInputProps) {
     const [input, setInput] = useState("");
     const [previews, setPreviews] = useState<PreviewImage[]>([]);
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { uploadedImages, clearUploadedImages } = useIntroContext();
+    const { unseen: uploadNudgeUnseen, dismiss: dismissUploadNudge } = useOnboardingFlag(UPLOAD_NUDGE_KEY);
+
+    // First-time hint pointing at the attach button — only on a brand-new chat
+    // with nothing staged, until the user has seen it once.
+    const showUploadNudge = uploadNudgeUnseen && !hasChatHistory && previews.length === 0;
 
     // Load pre-loaded images from intro on mount (and whenever the staged set changes).
     useEffect(() => {
@@ -102,6 +111,7 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
 
         setInput("");
         clearComposer();
+        dismissUploadNudge();
 
         await onSendMessage(messageText, base64Images, previewUrls);
     };
@@ -145,15 +155,35 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
             {/* Input Row */}
             <form onSubmit={handleSubmit} className="flex items-end gap-3 max-w-4xl mx-auto w-full">
                 {/* attach-image button — a native label so the file picker opens reliably */}
-                <Button
-                    asChild
-                    size="icon"
-                    className="h-11 w-11 rounded-full shrink-0 cursor-pointer bg-muted/50 text-foreground shadow-sm transition-all hover:bg-muted/60 hover:text-foreground hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
-                >
-                    <label htmlFor="chat-image-input" aria-label="Attach an image">
-                        <ImagePlus size={20} />
-                    </label>
-                </Button>
+                <div className="relative shrink-0">
+                    <Button
+                        asChild
+                        size="icon"
+                        className="h-11 w-11 rounded-full cursor-pointer bg-muted/50 text-foreground shadow-sm transition-all hover:bg-muted/60 hover:text-foreground hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
+                    >
+                        <label htmlFor="chat-image-input" aria-label="Attach an image" onClick={dismissUploadNudge}>
+                            <ImagePlus size={20} />
+                        </label>
+                    </Button>
+
+                    {/* One-time onboarding hint for the optional room upload. */}
+                    {showUploadNudge && (
+                        <div
+                            role="status"
+                            className="absolute bottom-full left-0 mb-2 w-56 rounded-xl border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-lg"
+                        >
+                            <button
+                                type="button"
+                                onClick={dismissUploadNudge}
+                                aria-label="Dismiss"
+                                className="absolute -top-1.5 -right-1.5 rounded-full bg-muted p-0.5 text-muted-foreground shadow-sm hover:bg-muted/80"
+                            >
+                                <X size={12} />
+                            </button>
+                            <span className="font-medium">📸 Add a room photo</span> to preview items in your space.
+                        </div>
+                    )}
+                </div>
 
                 <div className="relative flex-1 flex items-end">
                     <Textarea
