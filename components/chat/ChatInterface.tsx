@@ -17,12 +17,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/app/theme-context";
-import { VISUALISE_CAPABILITY, type OnboardingCapability } from "@/lib/constants/onboarding";
+import { VISUALISE_CAPABILITY, STYLIST_CAPABILITY, type OnboardingCapability } from "@/lib/constants/onboarding";
 import type { ChatSession } from "@/lib/types";
 
 export function ChatInterface() {
     const dispatch = useAppDispatch();
-    const { heading, welcomeMessage, MerchantSuggestions } = useTheme();
+    const { heading, welcomeMessage, MerchantSuggestions, isVisualiserEnabled } = useTheme();
+    // Lead the empty state with the visualiser card where available, otherwise
+    // the stylist "upload your room" framing.
+    const leadCapability = isVisualiserEnabled ? VISUALISE_CAPABILITY : STYLIST_CAPABILITY;
     const {
         hydrated,
         messages,
@@ -93,11 +96,11 @@ export function ChatInterface() {
         setPrefill((p) => ({ text: suggestion, token: p.token + 1 }));
     };
 
-    // Capability card: prefill its prompt and, for the visualise capability,
-    // open the room-photo uploader so the user lands on the differentiator.
+    // Capability card: prefill its prompt and, when the capability is
+    // upload-based, open the room-photo uploader.
     const handleCapabilitySelect = (capability: OnboardingCapability) => {
         setPrefill((p) => ({ text: capability.prompt, token: p.token + 1 }));
-        if (capability.id === 'visualise') {
+        if (capability.opensUploader) {
             setOpenUploaderToken((t) => t + 1);
         }
     };
@@ -164,10 +167,10 @@ export function ChatInterface() {
                                 {welcomeMessage}
                             </p>
 
-                            {/* Lead value-prop: the visualiser differentiator. */}
+                            {/* Lead value-prop: visualiser where available, else stylist upload. */}
                             <div className="w-full mb-3">
                                 <CapabilityCard
-                                    capability={VISUALISE_CAPABILITY}
+                                    capability={leadCapability}
                                     onSelect={handleCapabilitySelect}
                                 />
                             </div>

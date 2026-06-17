@@ -94,7 +94,7 @@ function removeGoogleFont() {
 }
 
 export default function MerchantTheme() {
-  const { setThemeLoading, setHeading, setWelcomeMessage, setMerchantSuggestions } = useTheme()
+  const { setThemeLoading, setHeading, setWelcomeMessage, setMerchantSuggestions, setIsVisualiserEnabled } = useTheme()
 
   const resetThemeColors = () => {
     const root = document.documentElement
@@ -115,6 +115,7 @@ export default function MerchantTheme() {
       'Recommend a durable rug for a busy home',
       'Show eco-friendly rug options',
     ]) // reset merchant suggestions
+    setIsVisualiserEnabled(false) // reset to stylist default
   }
 
   useEffect(() => {
@@ -147,6 +148,7 @@ export default function MerchantTheme() {
         const payload = await response.json()
         console.log("Merchant theme payload:", payload)
         const MerchantSuggetions = payload?.aiAssistant?.suggestions
+        const visualiserEnabled = payload?.aiAssistant?.isVisualiserEnabled === true
         const theme = payload?.aiAssistant?.theme
         const nextHeading = payload?.aiAssistant?.behaviour?.heading // allow dynamic heading from backend, fallback to default if not provided
         const nextWelcome = payload?.aiAssistant?.behaviour?.welcomeMessage // allow dynamic welcome message from backend, fallback to default if not provided
@@ -195,6 +197,9 @@ export default function MerchantTheme() {
           if (MerchantSuggetions && Array.isArray(MerchantSuggetions)) {
             setMerchantSuggestions(MerchantSuggetions.filter((s): s is string => typeof s === 'string' && s.trim().length > 0))
           }
+
+          // Visualiser availability drives the empty-state value prop.
+          setIsVisualiserEnabled(visualiserEnabled)
         } else {
           resetThemeColors()
         }

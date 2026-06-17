@@ -11,6 +11,8 @@ interface ThemeContextType {
   setWelcomeMessage: (message: string) => void
   MerchantSuggestions: string[]
   setMerchantSuggestions: (suggestions: string[]) => void
+  isVisualiserEnabled: boolean
+  setIsVisualiserEnabled: (enabled: boolean) => void
 }
 
 const DEFAULT_HEADING = 'Style your room'
@@ -26,9 +28,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           'Recommend a durable rug for a busy home',
           'Show eco-friendly rug options',
       ])
+  // Default off: only promise the 3D visualiser for merchants whose config opts in.
+  const [isVisualiserEnabled, setIsVisualiserEnabled] = useState(false)
 
   return (
-    <ThemeContext.Provider value={{ isThemeLoading, setThemeLoading, heading, setHeading, welcomeMessage, setWelcomeMessage, MerchantSuggestions, setMerchantSuggestions }}>
+    <ThemeContext.Provider value={{ isThemeLoading, setThemeLoading, heading, setHeading, welcomeMessage, setWelcomeMessage, MerchantSuggestions, setMerchantSuggestions, isVisualiserEnabled, setIsVisualiserEnabled }}>
       {children}
     </ThemeContext.Provider>
   )

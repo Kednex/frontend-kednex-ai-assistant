@@ -1,8 +1,13 @@
 'use client';
 
-import { Camera } from "lucide-react";
+import { Camera, Sparkles, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { OnboardingCapability } from "@/lib/constants/onboarding";
+
+const CAPABILITY_ICONS: Record<OnboardingCapability['id'], LucideIcon> = {
+    visualise: Camera,
+    stylist: Sparkles,
+};
 
 interface CapabilityCardProps {
     capability: OnboardingCapability;
@@ -16,6 +21,7 @@ interface CapabilityCardProps {
  * room uploader).
  */
 export function CapabilityCard({ capability, onSelect, className }: CapabilityCardProps) {
+    const Icon = CAPABILITY_ICONS[capability.id];
     return (
         <button
             type="button"
@@ -26,7 +32,7 @@ export function CapabilityCard({ capability, onSelect, className }: CapabilityCa
             )}
         >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
-                <Camera className="h-5 w-5" />
+                <Icon className="h-5 w-5" />
             </span>
             <span className="flex min-w-0 flex-col">
                 <span className="text-sm font-semibold leading-snug">{capability.label}</span>

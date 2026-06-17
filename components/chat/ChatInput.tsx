@@ -180,7 +180,7 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                             >
                                 <X size={12} />
                             </button>
-                            <span className="font-medium">📸 Add a room photo</span> to preview items in your space.
+                            <span className="font-medium">📸 Add a room photo</span> for picks tailored to your space.
                         </div>
                     )}
                 </div>
