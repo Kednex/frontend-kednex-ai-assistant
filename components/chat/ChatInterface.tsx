@@ -46,6 +46,9 @@ export function ChatInterface() {
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [recentSessions, setRecentSessions] = useState<ChatSession[]>([]);
+    // Hide the pinned suggestions while the composer is focused (keyboard open on
+    // mobile) so they don't compete for the shrunken viewport.
+    const [composerFocused, setComposerFocused] = useState(false);
 
     const openSidebar = () => {
         setRecentSessions(getRecentSessions());
@@ -119,7 +122,7 @@ export function ChatInterface() {
 
     if (!hydrated) {
         return (
-            <div className="p-4 h-screen flex flex-col gap-4">
+            <div className="p-4 h-dvh flex flex-col gap-4">
                 <Skeleton className="h-14 w-full rounded-2xl" />
                 <Skeleton className="h-24 w-3/4 rounded-2xl" />
                 <Skeleton className="h-24 w-full rounded-2xl" />
@@ -129,7 +132,7 @@ export function ChatInterface() {
     }
 
     return (
-        <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden font-sans">
+        <div className="flex flex-col h-dvh bg-background text-foreground overflow-hidden font-sans">
             <ChatSidebar
                 open={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
@@ -209,7 +212,7 @@ export function ChatInterface() {
             {/* Merchant suggestions — pinned just above the composer on a fresh chat.
                 Kept out of the scroll area so they sit right above the input regardless
                 of content height. Bordered + merchant-themed. */}
-            {messages.length === 0 && MerchantSuggestions.length > 0 && (
+            {messages.length === 0 && !composerFocused && MerchantSuggestions.length > 0 && (
                 <div className="px-4 pt-2">
                     <div className="mx-auto flex w-full max-w-4xl flex-col gap-2.5">
                         {MerchantSuggestions.map((suggestion, index) => (
@@ -236,6 +239,7 @@ export function ChatInterface() {
                 prefillToken={prefill.token}
                 openUploaderToken={openUploaderToken}
                 hasChatHistory={messages.length > 0}
+                onFocusChange={setComposerFocused}
             />
         </div>
     );

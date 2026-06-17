@@ -19,9 +19,10 @@ interface ChatInputProps {
     prefillToken?: number;
     openUploaderToken?: number;
     hasChatHistory?: boolean;
+    onFocusChange?: (focused: boolean) => void;
 }
 
-export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken, openUploaderToken, hasChatHistory }: ChatInputProps) {
+export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken, openUploaderToken, hasChatHistory, onFocusChange }: ChatInputProps) {
     const [input, setInput] = useState("");
     const [previews, setPreviews] = useState<PreviewImage[]>([]);
 
@@ -191,6 +192,8 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={onKeyDown}
+                        onFocus={() => onFocusChange?.(true)}
+                        onBlur={() => onFocusChange?.(false)}
                         // Show different placeholder if there are image previews to encourage description
                         placeholder={previews.length > 0 ? "Style my room..." : "Ask Anything..."}
                         className="min-h-[44px] max-h-[200px] w-full rounded-sm pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden font-sans"

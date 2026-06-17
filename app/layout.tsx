@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 // import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -23,6 +23,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Imersian AI Assistant",
   description: "An AI assistant for furniture shopping and interior design, powered by Imersian's 3D product data and visualisation technology.",
+};
+
+// Resize the layout (not just the visual viewport) when the mobile keyboard
+// opens, so the composer and h-dvh layout reflow instead of hiding behind it.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({
