@@ -159,7 +159,7 @@ export function ChatInterface() {
             <ScrollArea ref={scrollRef} className="flex-1 overflow-y-auto px-4">
                 <div className="py-4 flex flex-col gap-4 min-h-full ">
                     {messages.length === 0 ? (
-                        <div className="flex w-full flex-1 flex-col items-start text-left">
+                        <div className="flex w-full flex-col items-start text-left">
                             <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-1">
                                 {heading}
                             </h2>
@@ -169,7 +169,8 @@ export function ChatInterface() {
 
                             {/* Capabilities — top aligned, 1×2 grid. Card 1 is the upload
                                 value-prop (visualiser where available, else stylist); card 2
-                                is styling advice (prefills a prompt, no uploader). */}
+                                is styling advice (prefills a prompt, no uploader). The
+                                merchant suggestions are pinned above the composer below. */}
                             <div className="w-full grid grid-cols-2 gap-2">
                                 <CapabilityCard
                                     capability={leadCapability}
@@ -179,22 +180,6 @@ export function ChatInterface() {
                                     capability={ADVICE_CAPABILITY}
                                     onSelect={handleCapabilitySelect}
                                 />
-                            </div>
-
-                            {/* Suggestions — bottom aligned, bordered (merchant-themed). */}
-                            <div className="w-full mt-auto pt-6 flex flex-col gap-2.5">
-                                {MerchantSuggestions.map((suggestion, index) => (
-                                    <Button
-                                        key={index}
-                                        onClick={() => handleSuggestionClick(suggestion)}
-                                        variant="outline"
-                                        className="w-full h-auto px-5 py-3 justify-start text-left rounded-xl border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
-                                    >
-                                        <span className="text-sm font-semibold whitespace-normal break-words leading-snug">
-                                            {suggestion}
-                                        </span>
-                                    </Button>
-                                ))}
                             </div>
                         </div>
                     ) : (
@@ -220,6 +205,28 @@ export function ChatInterface() {
                     )}
                 </div>
             </ScrollArea>
+
+            {/* Merchant suggestions — pinned just above the composer on a fresh chat.
+                Kept out of the scroll area so they sit right above the input regardless
+                of content height. Bordered + merchant-themed. */}
+            {messages.length === 0 && MerchantSuggestions.length > 0 && (
+                <div className="px-4 pt-2">
+                    <div className="mx-auto flex w-full max-w-4xl flex-col gap-2.5">
+                        {MerchantSuggestions.map((suggestion, index) => (
+                            <Button
+                                key={index}
+                                onClick={() => handleSuggestionClick(suggestion)}
+                                variant="outline"
+                                className="w-full h-auto px-5 py-3 justify-start text-left rounded-xl border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
+                            >
+                                <span className="text-sm font-semibold whitespace-normal break-words leading-snug">
+                                    {suggestion}
+                                </span>
+                            </Button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Input Area */}
             <ChatInput
