@@ -11,11 +11,13 @@ import { setDesignId } from "@/lib/store/visualiserSlice";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 import { ChatSidebar } from "./ChatSidebar";
+import { CapabilityCard } from "./CapabilityCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/app/theme-context";
+import { VISUALISE_CAPABILITY, type OnboardingCapability } from "@/lib/constants/onboarding";
 import type { ChatSession } from "@/lib/types";
 
 export function ChatInterface() {
@@ -36,6 +38,8 @@ export function ChatInterface() {
     const scrollRef = useRef<HTMLDivElement>(null);
     // Prefill payload pushed into the composer when a suggestion is clicked.
     const [prefill, setPrefill] = useState<{ text: string; token: number }>({ text: "", token: 0 });
+    // Bumped to ask ChatInput to open the room-photo uploader (e.g. from the capability card).
+    const [openUploaderToken, setOpenUploaderToken] = useState(0);
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [recentSessions, setRecentSessions] = useState<ChatSession[]>([]);
@@ -87,6 +91,15 @@ export function ChatInterface() {
     // add their image before sending) rather than sending it immediately.
     const handleSuggestionClick = (suggestion: string) => {
         setPrefill((p) => ({ text: suggestion, token: p.token + 1 }));
+    };
+
+    // Capability card: prefill its prompt and, for the visualise capability,
+    // open the room-photo uploader so the user lands on the differentiator.
+    const handleCapabilitySelect = (capability: OnboardingCapability) => {
+        setPrefill((p) => ({ text: capability.prompt, token: p.token + 1 }));
+        if (capability.id === 'visualise') {
+            setOpenUploaderToken((t) => t + 1);
+        }
     };
 
     const startNewChat = () => {
@@ -151,6 +164,14 @@ export function ChatInterface() {
                                 {welcomeMessage}
                             </p>
 
+                            {/* Lead value-prop: the visualiser differentiator. */}
+                            <div className="w-full mb-3">
+                                <CapabilityCard
+                                    capability={VISUALISE_CAPABILITY}
+                                    onSelect={handleCapabilitySelect}
+                                />
+                            </div>
+
                             {/* Suggestions Grid */}
                             <div className="w-full flex flex-col gap-2.5">
                                 {MerchantSuggestions.map((suggestion, index) => (
@@ -197,6 +218,7 @@ export function ChatInterface() {
                 isLoading={isLoading}
                 prefillText={prefill.text}
                 prefillToken={prefill.token}
+                openUploaderToken={openUploaderToken}
             />
         </div>
     );

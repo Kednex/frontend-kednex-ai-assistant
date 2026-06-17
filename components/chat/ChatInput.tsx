@@ -14,13 +14,15 @@ interface ChatInputProps {
     isLoading: boolean;
     prefillText?: string;
     prefillToken?: number;
+    openUploaderToken?: number;
 }
 
-export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken }: ChatInputProps) {
+export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken, openUploaderToken }: ChatInputProps) {
     const [input, setInput] = useState("");
     const [previews, setPreviews] = useState<PreviewImage[]>([]);
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const { uploadedImages, clearUploadedImages } = useIntroContext();
 
     // Load pre-loaded images from intro on mount (and whenever the staged set changes).
@@ -49,6 +51,12 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken 
         textareaRef.current?.focus();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [prefillToken]);
+
+    // Open the room-photo picker when asked (e.g. from the empty-state capability card).
+    useEffect(() => {
+        if (!openUploaderToken) return;
+        fileInputRef.current?.click();
+    }, [openUploaderToken]);
 
     // Auto-resize textarea
     useEffect(() => {
@@ -170,6 +178,7 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken 
 
                     <input
                         id="chat-image-input"
+                        ref={fileInputRef}
                         type="file"
                         onChange={handleFileChange}
                         accept="image/*"
