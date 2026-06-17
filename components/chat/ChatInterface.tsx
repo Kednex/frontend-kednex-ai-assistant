@@ -175,16 +175,19 @@ export function ChatInterface() {
                                 />
                             </div>
 
-                            {/* Suggestions Grid */}
-                            <div className="w-full flex flex-col gap-2.5">
+                            {/* Suggestions — kept light and secondary to the hero card.
+                                Uses neutral muted tokens + merchant accent on hover and a
+                                rounded-* class wired to the merchant radius, so it inherits
+                                the merchant theme. */}
+                            <div className="w-full flex flex-wrap gap-2">
                                 {MerchantSuggestions.map((suggestion, index) => (
                                     <Button
                                         key={index}
                                         onClick={() => handleSuggestionClick(suggestion)}
-                                        variant="outline"
-                                        className="w-full h-auto px-5 py-3 justify-start text-left rounded-xl border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
+                                        variant="ghost"
+                                        className="h-auto w-auto max-w-full px-3 py-2 justify-start text-left rounded-lg bg-muted/60 text-muted-foreground shadow-none hover:bg-accent hover:text-accent-foreground transition-colors active:scale-[0.98]"
                                     >
-                                        <span className="text-sm font-semibold whitespace-normal break-words leading-snug">
+                                        <span className="text-xs font-medium whitespace-normal break-words leading-snug">
                                             {suggestion}
                                         </span>
                                     </Button>
