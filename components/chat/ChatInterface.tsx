@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Check, Loader2, PanelLeft } from "lucide-react";
 import { useChatSession } from "@/hooks/useChatSession";
 import { withCurrentQuery } from "@/lib/utils/navigation";
-import { getRecentSessions, setActiveSession } from "@/lib/utils/sessions";
+import { getRecentSessions, setActiveSession, clearActiveSession } from "@/lib/utils/sessions";
+import { useAppDispatch } from "@/lib/store/hooks";
+import { clearSession } from "@/lib/store/chatSlice";
+import { setDesignId } from "@/lib/store/visualiserSlice";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 import { ChatSidebar } from "./ChatSidebar";
@@ -17,7 +19,7 @@ import { useTheme } from "@/app/theme-context";
 import type { ChatSession } from "@/lib/types";
 
 export function ChatInterface() {
-    const router = useRouter();
+    const dispatch = useAppDispatch();
     const { heading, welcomeMessage, MerchantSuggestions } = useTheme();
     const {
         hydrated,
@@ -88,10 +90,15 @@ export function ChatInterface() {
     };
 
     const startNewChat = () => {
-        // A new chat always begins at the intro (upload-your-room) flow.
-        // The current session stays in history and remains resumable from there.
+        // Start a fresh session in place: clear in-memory chat state and drop the
+        // active-session pointer so /chat hydrates a brand-new conversation. The
+        // current session stays in history and remains resumable from the sidebar.
         setSidebarOpen(false);
-        router.push(withCurrentQuery('/intro'));
+        dispatch(clearSession());
+        dispatch(setDesignId(null));
+        clearActiveSession();
+        // Hard-navigate so useChatSession re-hydrates with a new sessionId.
+        window.location.assign(withCurrentQuery('/chat'));
     };
 
     if (!hydrated) {
@@ -190,7 +197,6 @@ export function ChatInterface() {
                 isLoading={isLoading}
                 prefillText={prefill.text}
                 prefillToken={prefill.token}
-                hasChatHistory={messages.length > 0}
             />
         </div>
     );

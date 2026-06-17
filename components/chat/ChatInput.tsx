@@ -1,9 +1,7 @@
 'use client';
 
 import { useRef, useState, ChangeEvent, FormEvent, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useIntroContext } from "@/lib/store/IntroContext";
-import { withCurrentQuery } from "@/lib/utils/navigation";
 import { revokeBlobUrl, fileToBase64 } from "@/lib/utils/imageUtils";
 import { ImagePlus, X, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,11 +14,9 @@ interface ChatInputProps {
     isLoading: boolean;
     prefillText?: string;
     prefillToken?: number;
-    hasChatHistory?: boolean;
 }
 
-export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken, hasChatHistory }: ChatInputProps) {
-    const router = useRouter();
+export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken }: ChatInputProps) {
     const [input, setInput] = useState("");
     const [previews, setPreviews] = useState<PreviewImage[]>([]);
 
@@ -109,12 +105,6 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
         }
     };
 
-    // Show the "Upload Your Room" prompt only for a brand-new conversation:
-    // no chat history yet and nothing staged. Once a chat exists, always show
-    // the text input (more images go through the + button).
-    const hasStagedImage = previews.length > 0 || uploadedImages.length > 0;
-    const showUploadPrompt = !hasChatHistory && !hasStagedImage;
-
     return (
         <div className="border-t bg-background p-4 flex flex-col gap-3">
             {/* Previews Row */}
@@ -151,7 +141,6 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                     asChild
                     size="icon"
                     className="h-11 w-11 rounded-full shrink-0 cursor-pointer bg-muted/50 text-foreground shadow-sm transition-all hover:bg-muted/60 hover:text-foreground hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
-                    hidden={showUploadPrompt}
                 >
                     <label htmlFor="chat-image-input" aria-label="Attach an image">
                         <ImagePlus size={20} />
@@ -167,21 +156,7 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                         // Show different placeholder if there are image previews to encourage description
                         placeholder={previews.length > 0 ? "Style my room..." : "Ask Anything..."}
                         className="min-h-[44px] max-h-[200px] w-full rounded-sm pl-4 pr-14 py-3 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none transition-all overflow-hidden font-sans"
-                        hidden={showUploadPrompt}
                     />
-
-                    {/* Upload prompt for a brand-new conversation — a new chat
-                        always starts from the intro (upload-your-room) flow. */}
-                    {showUploadPrompt && (
-                        <Button
-                            type="button"
-                            className="w-full rounded-xl h-10 text-sm"
-                            onClick={() => router.push(withCurrentQuery('/intro'))}
-                        >
-                            Upload Your Room
-                        </Button>
-                    )}
-                    
 
                     <Button
                         type="submit"
@@ -189,7 +164,6 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                         // Disable send button if loading or input is empty (but allow if there are images to send)
                         disabled={isLoading || input.trim() === ""}
                         className="absolute right-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full shadow-sm"
-                        hidden={showUploadPrompt}
                     >
                         <ArrowUp size={18} />
                     </Button>

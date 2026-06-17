@@ -11,5 +11,5 @@ export default async function Home({
         )
     ).toString();
 
-    redirect(`/intro${params ? `?${params}` : ""}`);
+    redirect(`/chat${params ? `?${params}` : ""}`);
 }
