@@ -17,7 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/app/theme-context";
-import { VISUALISE_CAPABILITY, STYLIST_CAPABILITY, type OnboardingCapability } from "@/lib/constants/onboarding";
+import { VISUALISE_CAPABILITY, STYLIST_CAPABILITY, ADVICE_CAPABILITY, type OnboardingCapability } from "@/lib/constants/onboarding";
 import type { ChatSession } from "@/lib/types";
 
 export function ChatInterface() {
@@ -159,7 +159,7 @@ export function ChatInterface() {
             <ScrollArea ref={scrollRef} className="flex-1 overflow-y-auto px-4">
                 <div className="py-4 flex flex-col gap-4 min-h-full ">
                     {messages.length === 0 ? (
-                        <div className="flex w-full flex-col items-start text-left">
+                        <div className="flex w-full flex-1 flex-col items-start text-left">
                             <h2 className="text-xl sm:text-2xl font-bold tracking-tight mb-1">
                                 {heading}
                             </h2>
@@ -167,27 +167,30 @@ export function ChatInterface() {
                                 {welcomeMessage}
                             </p>
 
-                            {/* Lead value-prop: visualiser where available, else stylist upload. */}
-                            <div className="w-full mb-3">
+                            {/* Capabilities — top aligned, 1×2 grid. Card 1 is the upload
+                                value-prop (visualiser where available, else stylist); card 2
+                                is styling advice (prefills a prompt, no uploader). */}
+                            <div className="w-full grid grid-cols-2 gap-2">
                                 <CapabilityCard
                                     capability={leadCapability}
                                     onSelect={handleCapabilitySelect}
                                 />
+                                <CapabilityCard
+                                    capability={ADVICE_CAPABILITY}
+                                    onSelect={handleCapabilitySelect}
+                                />
                             </div>
 
-                            {/* Suggestions — kept light and secondary to the hero card.
-                                Uses neutral muted tokens + merchant accent on hover and a
-                                rounded-* class wired to the merchant radius, so it inherits
-                                the merchant theme. */}
-                            <div className="w-full flex flex-wrap gap-2">
+                            {/* Suggestions — bottom aligned, bordered (merchant-themed). */}
+                            <div className="w-full mt-auto pt-6 flex flex-col gap-2.5">
                                 {MerchantSuggestions.map((suggestion, index) => (
                                     <Button
                                         key={index}
                                         onClick={() => handleSuggestionClick(suggestion)}
-                                        variant="ghost"
-                                        className="h-auto w-auto max-w-full px-3 py-2 justify-start text-left rounded-lg bg-muted/60 text-muted-foreground shadow-none hover:bg-accent hover:text-accent-foreground transition-colors active:scale-[0.98]"
+                                        variant="outline"
+                                        className="w-full h-auto px-5 py-3 justify-start text-left rounded-xl border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
                                     >
-                                        <span className="text-xs font-medium whitespace-normal break-words leading-snug">
+                                        <span className="text-sm font-semibold whitespace-normal break-words leading-snug">
                                             {suggestion}
                                         </span>
                                     </Button>

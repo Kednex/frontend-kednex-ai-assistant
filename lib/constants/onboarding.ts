@@ -22,7 +22,7 @@
 
 export type OnboardingCapability = {
     /** Stable id for the capability (drives the card icon). */
-    id: 'visualise' | 'stylist';
+    id: 'visualise' | 'stylist' | 'advice';
     /** Short card title. */
     label: string;
     /** One-line example shown under the title. */
@@ -57,4 +57,16 @@ export const STYLIST_CAPABILITY: OnboardingCapability = {
     example: 'Get product picks tailored to your space.',
     prompt: 'Here is my room, recommend products that would suit this space.',
     opensUploader: true,
+};
+
+/**
+ * "Get styling advice" — interior-design guidance. Prefills a prompt; does not
+ * open the uploader. Pairs with the upload card in the empty-state grid.
+ */
+export const ADVICE_CAPABILITY: OnboardingCapability = {
+    id: 'advice',
+    label: 'Get styling advice',
+    example: 'Design guidance for your space.',
+    prompt: 'Help me style my living room — what would you suggest?',
+    opensUploader: false,
 };
