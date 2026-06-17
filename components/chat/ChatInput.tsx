@@ -30,9 +30,10 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
     const { uploadedImages, clearUploadedImages } = useIntroContext();
     const { unseen: uploadNudgeUnseen, dismiss: dismissUploadNudge } = useOnboardingFlag(UPLOAD_NUDGE_KEY);
 
-    // First-time hint pointing at the attach button — only on a brand-new chat
+    // First-time hint pointing at the attach button — shown once the chat has
+    // started (the empty state already leads with the upload capability card),
     // with nothing staged, until the user has seen it once.
-    const showUploadNudge = uploadNudgeUnseen && !hasChatHistory && previews.length === 0;
+    const showUploadNudge = uploadNudgeUnseen && !!hasChatHistory && previews.length === 0;
 
     // Load pre-loaded images from intro on mount (and whenever the staged set changes).
     useEffect(() => {
@@ -111,7 +112,6 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
 
         setInput("");
         clearComposer();
-        dismissUploadNudge();
 
         await onSendMessage(messageText, base64Images, previewUrls);
     };
