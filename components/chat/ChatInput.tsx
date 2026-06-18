@@ -78,14 +78,24 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
     }, [input]);
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files || []);
-        const newPreviews: PreviewImage[] = files.map((file) => ({
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // A single room photo per message: replace any previously staged image
+        // (revoking its blob URL) rather than accumulating, so the visualiser
+        // input is unambiguous — exactly one image drives the room.
+        previews.forEach((p) => revokeBlobUrl(p.previewUrl));
+
+        const newPreview: PreviewImage = {
             id: generateUUID(),
             previewUrl: URL.createObjectURL(file),
             file,
-        }));
-        setPreviews((prev) => [...prev, ...newPreviews]);
-        uploadedImages.push(...newPreviews); // Add to context store for access in chat session
+        };
+        setPreviews([newPreview]);
+
+        // Keep the intro context in sync — single entry, replaced in place so the
+        // regeneration effect doesn't churn blob URLs.
+        uploadedImages.splice(0, uploadedImages.length, newPreview);
 
         // Reset so the same file can be re-selected
         e.target.value = "";
@@ -134,27 +144,32 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
 
     return (
         <div className="border-t bg-background p-4 flex flex-col gap-3">
-            {/* Previews Row */}
+            {/* Previews Row — a single staged room photo. */}
             {previews.length > 0 && (
-                <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar rounded-[var(--radius)]">
-                    {previews.map((preview) => (
-                        <div key={preview.id} className="relative shrink-0 group ">
-                            <div className="w-20 h-20 overflow-hidden border bg-muted">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src={preview.previewUrl}
-                                    alt="preview"
-                                    className="w-full h-full object-cover"
-                                />
+                <div className="flex flex-col gap-1.5">
+                    <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar rounded-[var(--radius)]">
+                        {previews.map((preview) => (
+                            <div key={preview.id} className="relative shrink-0 group ">
+                                <div className="w-20 h-20 overflow-hidden border bg-muted">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={preview.previewUrl}
+                                        alt="preview"
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <button
+                                    onClick={() => removePreview(preview.id)}
+                                    className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full p-0.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                    <X size={14} />
+                                </button>
                             </div>
-                            <button
-                                onClick={() => removePreview(preview.id)}
-                                className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full p-0.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                                <X size={14} />
-                            </button>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
+                    <p className="px-0.5 text-xs text-muted-foreground">
+                        This photo is used as your room.
+                    </p>
                 </div>
             )}
 
@@ -220,7 +235,6 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                         type="file"
                         onChange={handleFileChange}
                         accept="image/*"
-                        multiple
                         className="sr-only"
                     />
                 </div>
