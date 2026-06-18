@@ -2,6 +2,9 @@ export type MerchantThemeSample = {
   companyId: string
   aiAssistant: {
     isChatbotEnabled: boolean
+    // Whether this merchant's plan includes the 3D room visualiser. Drives the
+    // empty-state value prop: "See it in your room" vs stylist "Upload your room".
+    isVisualiserEnabled?: boolean
     identity: {
       name: string
       description: string
@@ -31,6 +34,7 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
     companyId: '1',
     aiAssistant: {
       isChatbotEnabled: true,
+      isVisualiserEnabled: true, // sample: visualiser plan → "See it in your room"
       identity: {
         name: 'Design Assistant',
         description: 'Rug recommendation assistant',
@@ -63,6 +67,7 @@ const merchantThemeSamples: Record<string, MerchantThemeSample> = {
     companyId: '2',
     aiAssistant: {
       isChatbotEnabled: true,
+      isVisualiserEnabled: false, // sample: stylist only → "Upload your room"
       identity: {
         name: 'Design Assistant',
         description: 'Rug recommendation assistant',

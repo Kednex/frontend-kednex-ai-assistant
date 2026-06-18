@@ -90,6 +90,10 @@ export async function POST(req: Request) {
         // Log the extracted text for debugging
         console.log("Extracted latest text from message:", latestText);
 
+        // TODO [PR-522]: Every attachment is assumed to be the user's room (note the
+        // hardcoded name: "room.png" below). Add a per-attachment `role`
+        // (room | reference | none) so reference / inspiration / context images skip
+        // room reconstruction. https://linear.app/imersian/issue/PR-522
         // Map URL strings to the Attachment shape MerchantChatService expects
         const attachmentObjects = Array.isArray(attachments) && attachments.length > 0
             ? attachments.map((url: string) => ({
@@ -107,6 +111,10 @@ export async function POST(req: Request) {
             attachments: attachments || [],
             userUuid: userUuid || "",
             searchPage: searchPage ?? 0,
+            // TODO [PR-523]: Thread the merchant visualiser mode here
+            // (visualise | stylist) so the backend skips 3D reconstruction for
+            // stylist-only merchants. isVisualiserEnabled is currently
+            // frontend-only. https://linear.app/imersian/issue/PR-523
         };
 
         // debug payload

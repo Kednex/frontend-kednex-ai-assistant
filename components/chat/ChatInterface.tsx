@@ -11,16 +11,21 @@ import { setDesignId } from "@/lib/store/visualiserSlice";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 import { ChatSidebar } from "./ChatSidebar";
+import { CapabilityCard } from "./CapabilityCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/app/theme-context";
+import { VISUALISE_CAPABILITY, STYLIST_CAPABILITY, ADVICE_CAPABILITY, type OnboardingCapability } from "@/lib/constants/onboarding";
 import type { ChatSession } from "@/lib/types";
 
 export function ChatInterface() {
     const dispatch = useAppDispatch();
-    const { heading, welcomeMessage, MerchantSuggestions } = useTheme();
+    const { heading, welcomeMessage, MerchantSuggestions, isVisualiserEnabled } = useTheme();
+    // Lead the empty state with the visualiser card where available, otherwise
+    // the stylist "upload your room" framing.
+    const leadCapability = isVisualiserEnabled ? VISUALISE_CAPABILITY : STYLIST_CAPABILITY;
     const {
         hydrated,
         messages,
@@ -36,9 +41,14 @@ export function ChatInterface() {
     const scrollRef = useRef<HTMLDivElement>(null);
     // Prefill payload pushed into the composer when a suggestion is clicked.
     const [prefill, setPrefill] = useState<{ text: string; token: number }>({ text: "", token: 0 });
+    // Bumped to ask ChatInput to open the room-photo uploader (e.g. from the capability card).
+    const [openUploaderToken, setOpenUploaderToken] = useState(0);
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [recentSessions, setRecentSessions] = useState<ChatSession[]>([]);
+    // Hide the pinned suggestions while the composer is focused (keyboard open on
+    // mobile) so they don't compete for the shrunken viewport.
+    const [composerFocused, setComposerFocused] = useState(false);
 
     const openSidebar = () => {
         setRecentSessions(getRecentSessions());
@@ -89,6 +99,15 @@ export function ChatInterface() {
         setPrefill((p) => ({ text: suggestion, token: p.token + 1 }));
     };
 
+    // Capability card: prefill its prompt and, when the capability is
+    // upload-based, open the room-photo uploader.
+    const handleCapabilitySelect = (capability: OnboardingCapability) => {
+        setPrefill((p) => ({ text: capability.prompt, token: p.token + 1 }));
+        if (capability.opensUploader) {
+            setOpenUploaderToken((t) => t + 1);
+        }
+    };
+
     const startNewChat = () => {
         // Start a fresh session in place: clear in-memory chat state and drop the
         // active-session pointer so /chat hydrates a brand-new conversation. The
@@ -103,7 +122,7 @@ export function ChatInterface() {
 
     if (!hydrated) {
         return (
-            <div className="p-4 h-screen flex flex-col gap-4">
+            <div className="p-4 h-dvh flex flex-col gap-4">
                 <Skeleton className="h-14 w-full rounded-2xl" />
                 <Skeleton className="h-24 w-3/4 rounded-2xl" />
                 <Skeleton className="h-24 w-full rounded-2xl" />
@@ -113,7 +132,7 @@ export function ChatInterface() {
     }
 
     return (
-        <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden font-sans">
+        <div className="flex flex-col h-dvh bg-background text-foreground overflow-hidden font-sans">
             <ChatSidebar
                 open={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
@@ -151,20 +170,19 @@ export function ChatInterface() {
                                 {welcomeMessage}
                             </p>
 
-                            {/* Suggestions Grid */}
-                            <div className="w-full flex flex-col gap-2.5">
-                                {MerchantSuggestions.map((suggestion, index) => (
-                                    <Button
-                                        key={index}
-                                        onClick={() => handleSuggestionClick(suggestion)}
-                                        variant="outline"
-                                        className="w-full h-auto px-5 py-3 justify-start text-left rounded-xl border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
-                                    >
-                                        <span className="text-sm font-semibold whitespace-normal break-words leading-snug">
-                                            {suggestion}
-                                        </span>
-                                    </Button>
-                                ))}
+                            {/* Capabilities — top aligned, 1×2 grid. Card 1 is the upload
+                                value-prop (visualiser where available, else stylist); card 2
+                                is styling advice (prefills a prompt, no uploader). The
+                                merchant suggestions are pinned above the composer below. */}
+                            <div className="w-full grid grid-cols-2 gap-2">
+                                <CapabilityCard
+                                    capability={leadCapability}
+                                    onSelect={handleCapabilitySelect}
+                                />
+                                <CapabilityCard
+                                    capability={ADVICE_CAPABILITY}
+                                    onSelect={handleCapabilitySelect}
+                                />
                             </div>
                         </div>
                     ) : (
@@ -191,12 +209,37 @@ export function ChatInterface() {
                 </div>
             </ScrollArea>
 
+            {/* Merchant suggestions — pinned just above the composer on a fresh chat.
+                Kept out of the scroll area so they sit right above the input regardless
+                of content height. Bordered + merchant-themed. */}
+            {messages.length === 0 && !composerFocused && MerchantSuggestions.length > 0 && (
+                <div className="px-4 pt-2">
+                    <div className="mx-auto flex w-full max-w-4xl flex-col gap-2.5">
+                        {MerchantSuggestions.map((suggestion, index) => (
+                            <Button
+                                key={index}
+                                onClick={() => handleSuggestionClick(suggestion)}
+                                variant="outline"
+                                className="w-full h-auto px-5 py-3 justify-start text-left rounded-xl border-border bg-card hover:bg-accent hover:text-accent-foreground shadow-sm transition-all active:scale-[0.98]"
+                            >
+                                <span className="text-sm font-semibold whitespace-normal break-words leading-snug">
+                                    {suggestion}
+                                </span>
+                            </Button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Input Area */}
             <ChatInput
                 onSendMessage={sendMessage}
                 isLoading={isLoading}
                 prefillText={prefill.text}
                 prefillToken={prefill.token}
+                openUploaderToken={openUploaderToken}
+                hasChatHistory={messages.length > 0}
+                onFocusChange={setComposerFocused}
             />
         </div>
     );
