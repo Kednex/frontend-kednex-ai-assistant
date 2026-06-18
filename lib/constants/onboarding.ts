@@ -67,6 +67,6 @@ export const ADVICE_CAPABILITY: OnboardingCapability = {
     id: 'advice',
     label: 'Get styling advice',
     example: 'Design guidance for your space.',
-    prompt: 'Help me style my living room — what would you suggest?',
+    prompt: 'Help me style my living room. What would you suggest?',
     opensUploader: false,
 };
