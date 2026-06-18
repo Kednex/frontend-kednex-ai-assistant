@@ -92,11 +92,19 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
     };
 
     const removePreview = (id: string) => {
-        setPreviews((prev) => {
-            const removed = prev.find((p) => p.id === id);
-            if (removed) revokeBlobUrl(removed.previewUrl);
-            return prev.filter((p) => p.id !== id);
-        });
+        const removed = previews.find((p) => p.id === id);
+        if (removed) {
+            revokeBlobUrl(removed.previewUrl);
+            // Drop the matching entry from the intro context too. Match by File
+            // reference (stable across both the chat-upload and intro-staged
+            // paths) rather than position, so removing a non-last image doesn't
+            // desync previews from uploadedImages. Mutated in place — like the
+            // push in handleFileChange — to avoid retriggering the regeneration
+            // effect (which would churn blob URLs).
+            const idx = uploadedImages.findIndex((img) => img.file === removed.file);
+            if (idx !== -1) uploadedImages.splice(idx, 1);
+        }
+        setPreviews((prev) => prev.filter((p) => p.id !== id));
     };
 
     const handleSubmit = async (e?: FormEvent) => {
@@ -140,10 +148,7 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                                 />
                             </div>
                             <button
-                                onClick={() => {
-                                    removePreview(preview.id);
-                                    uploadedImages.pop(); // keep the intro context in sync
-                                }}
+                                onClick={() => removePreview(preview.id)}
                                 className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full p-0.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                             >
                                 <X size={14} />
