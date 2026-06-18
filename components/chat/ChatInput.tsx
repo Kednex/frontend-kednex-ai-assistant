@@ -185,7 +185,7 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                     <Button
                         asChild
                         size="icon"
-                        className="h-11 w-11 rounded-full cursor-pointer bg-muted/50 text-foreground shadow-sm transition-all hover:bg-muted/60 hover:text-foreground hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
+                        className="h-11 w-11 rounded-3xl cursor-pointer bg-muted/50 text-foreground shadow-sm transition-all hover:bg-muted/60 hover:text-foreground hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2"
                     >
                         <label htmlFor="chat-image-input" aria-label="Attach an image" onClick={dismissUploadNudge}>
                             <ImagePlus size={20} />
@@ -229,7 +229,7 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                         size="icon"
                         // Disable send button if loading or input is empty (but allow if there are images to send)
                         disabled={isLoading || input.trim() === ""}
-                        className="absolute right-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full shadow-sm"
+                        className="absolute right-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-3xl shadow-sm"
                     >
                         <ArrowUp size={18} />
                     </Button>
