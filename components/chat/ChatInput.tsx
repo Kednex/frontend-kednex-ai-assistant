@@ -77,6 +77,10 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
         }
     }, [input]);
 
+    // TODO [PR-522]: Once the backend supports a per-attachment role, add a
+    // per-image toggle (My room / Reference) here so users can attach
+    // inspiration/context images without triggering room reconstruction.
+    // https://linear.app/imersian/issue/PR-522
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -168,7 +172,7 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                         ))}
                     </div>
                     <p className="px-0.5 text-xs text-muted-foreground">
-                        This photo is used as your room.
+                        Your room image will be used to match products to your room.
                     </p>
                 </div>
             )}
@@ -239,6 +243,9 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                     />
                 </div>
             </form>
+            <p className="px-0.5 text-xs text-muted-foreground">
+                Your images remain private. Learn more : <a href="https://www.imersian.com/legal/privacy-policy" className="underline hover:text-foreground">Imersian's privacy policy</a>.
+            </p>
         </div>
     );
 }
