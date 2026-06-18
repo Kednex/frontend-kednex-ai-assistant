@@ -172,7 +172,7 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                         ))}
                     </div>
                     <p className="px-0.5 text-xs text-muted-foreground">
-                        Your room image will be used to match products to your room.
+                        We’ll suggest products based on your room.
                     </p>
                 </div>
             )}
