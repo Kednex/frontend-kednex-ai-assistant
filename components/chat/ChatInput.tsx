@@ -35,6 +35,7 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
     // started (the empty state already leads with the upload capability card),
     // with nothing staged, until the user has seen it once.
     const showUploadNudge = uploadNudgeUnseen && !!hasChatHistory && previews.length === 0;
+    const showPrivacyNotice = !hasChatHistory;
 
     // Load pre-loaded images from intro on mount (and whenever the staged set changes).
     useEffect(() => {
@@ -243,9 +244,11 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
                     />
                 </div>
             </form>
-            <p className="px-0.5 text-xs text-muted-foreground">
-                Your images remain private. Learn more : <a href="https://www.imersian.com/legal/privacy-policy" className="underline hover:text-foreground">Imersian's privacy policy</a>.
-            </p>
+            {showPrivacyNotice && (
+                <p className="px-0.5 text-center text-xs text-muted-foreground">
+                    <a href="https://www.imersian.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">How we process your chat and data.</a>
+                </p>
+            )}
         </div>
     );
 }
