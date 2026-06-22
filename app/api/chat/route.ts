@@ -62,7 +62,7 @@ function normalizeMcpProduct(p: any) {
 // chat endpoint for handling chat messages from the frontend, forwarding to Imersian backend, and streaming responses back to UI
 export async function POST(req: Request) {
     try {
-        const { messages, category, rooms, sessionId, previousResponseId, attachments, userUuid, searchPage } = await req.json();
+        const { messages, category, rooms, sessionId, previousResponseId, attachments, userUuid, searchPage, assistantType } = await req.json();
 
         // merchant informations
         const merchantInfo = userUuid ? await resolveMerchantInfo(userUuid) : undefined;
@@ -123,15 +123,32 @@ export async function POST(req: Request) {
         
 
         const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
+        // const API_BASE = 'http://localhost:4000';
         
         console.log("Using API_BASE:", API_BASE); // Log the API base URL being used
 
-        const backendResponse = await fetch(`${API_BASE}/chat/merchant/rug`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-            signal: AbortSignal.timeout(120000)
-        });
+        let backendResponse: any;
+
+        if (assistantType === "wallpaper" || assistantType === "wall-paper") {
+            console.log("Forwarding request to wallpaper endpoint");
+            backendResponse = await fetch(`${API_BASE}/chat/merchant/wallpaper`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                signal: AbortSignal.timeout(120000)
+            });
+        }
+        if (assistantType === "rug" || assistantType === "rugs") {
+            console.log("Forwarding request to rug endpoint");
+            backendResponse = await fetch(`${API_BASE}/chat/merchant/rug`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                signal: AbortSignal.timeout(120000)
+            });
+        }
+
+        
         
         if (!backendResponse.ok) {
         throw new Error(`Backend error: ${backendResponse.status}`);

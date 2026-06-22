@@ -30,6 +30,8 @@ export function useChatSession() {
     // track the last response ID from the AI backend so we can continue
     const previousResponseId = useRef<string | null>(null);
 
+
+
     // track the current Algolia search page so "show more" fetches the next page
     const searchPage = useRef<number>(0);
 
@@ -107,15 +109,22 @@ export function useChatSession() {
         return new URLSearchParams(window.location.search).get('userUuid') || ''
     }, [])
 
+    // read assistant type from url query params
+    const assistantType = useMemo(() => {
+        if (typeof window === 'undefined') return 'general'
+        return new URLSearchParams(window.location.search).get('assistantType') || 'rug'
+    }, [])
+
     // Memoise body so it updates when category/rooms change
     const baseChatBody = useMemo(() => {
         return {
             sessionId,
             category,
             rooms: rooms.map(r => r.imageUrl),
-            userUuid
+            userUuid,
+            assistantType,
         }
-    }, [sessionId, category, rooms, userUuid])
+    }, [sessionId, category, rooms, userUuid, assistantType])
 
     // ref to hold pending base64 attachments for the next API request
     const pendingAttachmentsRef = useRef<string[]>([]);
