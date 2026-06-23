@@ -56,7 +56,7 @@ export const ChatProductCard = memo(function ChatProductCard({
     return (
         <Card
             className="overflow-hidden m-1 p-1 shadow-sm hover:shadow-md transition-shadow cursor-pointer rounded-sm bg-card"
-            onClick={() => onOpenProduct?.(product)}
+            //onClick={() => onOpenProduct?.(product)}
         >
             <div className="relative aspect-square bg-muted rounded-md overflow-auto" >
                 {product.featuredImage?.url ? (
