@@ -20,8 +20,11 @@ export function getRecentSessions(): ChatSession[] {
         const parsed = JSON.parse(raw);
         if (!Array.isArray(parsed)) return [];
 
+        // return only sessions for the current userUuid
+        const userUuid = new URLSearchParams(window.location.search).get('userUuid') || '';
+        console.log("Filtering sessions for userUuid: [sessions.ts]", userUuid);
         return (parsed as ChatSession[]).filter(
-            (session) => session?.sessionId && (session.messages?.length || 0) > 0
+            (session) => session?.sessionId && session.userUuid === userUuid && (session.messages?.length || 0) > 0
         );
     } catch {
         return [];

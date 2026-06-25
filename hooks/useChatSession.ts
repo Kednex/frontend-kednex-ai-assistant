@@ -30,8 +30,6 @@ export function useChatSession() {
     // track the last response ID from the AI backend so we can continue
     const previousResponseId = useRef<string | null>(null);
 
-
-
     // track the current Algolia search page so "show more" fetches the next page
     const searchPage = useRef<number>(0);
 
@@ -43,6 +41,18 @@ export function useChatSession() {
 
     // room analysis status driven by ___ANALYSING_ROOM___ / ___DETECTED_ROOM_LAYOUT___ tokens
     const [roomAnalysisStatus, setRoomAnalysisStatus] = useState<'idle' | 'analysing' | 'detected'>('idle');
+
+    // Read userUuid from URL query params
+    const userUuid = useMemo(() => {
+        if (typeof window === 'undefined') return ''
+        return new URLSearchParams(window.location.search).get('userUuid') || ''
+    }, [])
+
+    // read assistant type from url query params
+    const assistantType = useMemo(() => {
+        if (typeof window === 'undefined') return 'general'
+        return new URLSearchParams(window.location.search).get('assistantType') || 'rug'
+    }, [])
 
     // Hydrate once
     useEffect(() => {
@@ -76,7 +86,8 @@ export function useChatSession() {
                     contextUploads: [],
                     messages: [],
                     previousResponseId: null,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    userUuid: userUuid,
                 }
             }
 
@@ -102,18 +113,6 @@ export function useChatSession() {
             setHydrated(true)
         }
     }, [dispatch, intent])
-
-    // Read userUuid from URL query params
-    const userUuid = useMemo(() => {
-        if (typeof window === 'undefined') return ''
-        return new URLSearchParams(window.location.search).get('userUuid') || ''
-    }, [])
-
-    // read assistant type from url query params
-    const assistantType = useMemo(() => {
-        if (typeof window === 'undefined') return 'general'
-        return new URLSearchParams(window.location.search).get('assistantType') || 'rug'
-    }, [])
 
     // Memoise body so it updates when category/rooms change
     const baseChatBody = useMemo(() => {
@@ -272,7 +271,8 @@ export function useChatSession() {
                 contextUploads: rooms,
                 timestamp: Date.now(),
                 previousResponseId: previousResponseId.current,
-                designId
+                designId,
+                userUuid: userUuid,
             }
 
             try {

@@ -70,6 +70,7 @@ export type ChatSession = {
     genContent?: GeneratedContent[];
     previousResponseId?: string | null;
     designId?: string | null; // 3D reconstructed-room reference, needed to restore the visualiser
+    userUuid?: string; // Associate sessions with users
 };
 
 export type GeneratedContent = {
