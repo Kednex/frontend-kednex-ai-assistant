@@ -22,7 +22,6 @@ export function getRecentSessions(): ChatSession[] {
 
         // return only sessions for the current userUuid
         const userUuid = new URLSearchParams(window.location.search).get('userUuid') || '';
-        console.log("Filtering sessions for userUuid: [sessions.ts]", userUuid);
         return (parsed as ChatSession[]).filter(
             (session) => session?.sessionId && session.userUuid === userUuid && (session.messages?.length || 0) > 0
         );
