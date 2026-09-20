@@ -7,28 +7,6 @@ export const maxDuration = 120;
 export const dynamic = 'force-dynamic';
 
 async function resolveMerchantInfo(userUuid: string) {
-    // TODO: replace with backend fetch once schema is ready
-
-    // // fetch merchant info from backend
-    // if (!userUuid) {
-    //     return new Response(JSON.stringify({ error:'Missing userUuid parameter' }), { status: 400 });
-    // }
-
-    // const Backend = process.env.BackEnd || 'http:/localhost:4000';
-    // const response = await fetch(`${Backend}/merchantinfo/${userUuid}`);
-
-    // if (!response.ok) {
-    //     throw new Error(`Backend error: ${responsestatus}`);
-    // }
-
-    // const merchantInfo = await response.json();
-    // if (!merchantInfo) {
-    //     return new Response(JSON.stringify({ error:'Unknown userUuid' }), { status: 404 });
-    // }
-
-    // return new Response(JSON.stringify(merchantInfo), {status: 200 });    
-
-
     return getMerchantThemeSample(userUuid);
 }
 

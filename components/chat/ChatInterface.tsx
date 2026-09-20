@@ -157,10 +157,6 @@ export function ChatInterface() {
                             <div className="flex flex-col gap-3 w-full max-w-4xl">
                                <KednexAIBot /> 
                             </div>
-                            
-                            
-
-
                         </div>
                     ) : (
                         <>
