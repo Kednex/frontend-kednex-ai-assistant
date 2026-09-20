@@ -11,21 +11,6 @@ function normalizeHexColor(value: string): string | null {
   return isValid ? withHash : null
 }
 
-// normalize radius values, allowing numbers (assumed to be px) or strings with units
-// function normalizeRadius(value: unknown): string | null {
-//   if (typeof value === 'number' && Number.isFinite(value)) return `${value}px`
-//   if (typeof value === 'string' && value.trim()) {
-//     const trimmed = value.trim()
-//     const normalized = trimmed.replace(/\s+/g, '')
-//     // ✅ Accept already-unitized values like '24px', '1.5rem', '0.5em'
-//     if (/^\d+(\.\d+)?(px|rem|em)$/.test(normalized)) return normalized
-//     // ✅ Accept plain numbers as strings like '24'
-//     const numeric = Number(normalized)
-//     if (Number.isFinite(numeric)) return `${numeric}px`
-//   }
-//   return null
-// }
-
 // set radius values for radius-sm, radius-md, radius-lg according to the provided radius value
 function applyRadius(RadiusType: string) {
   switch (RadiusType) {
@@ -108,12 +93,12 @@ export default function MerchantTheme() {
     root.style.removeProperty('--radius')
     root.style.removeProperty('--font-sans')
     removeGoogleFont()
-    setHeading('Style your room') // reset to default heading
-    setWelcomeMessage("Upload a room photo and tell me what you're looking for.") // reset to default welcome message
+    setHeading('Guide you to find the perfect answer') // reset to default heading
+    setWelcomeMessage("Tell me what you're looking for") // reset to default welcome message
     setMerchantSuggestions([
-      'Find a vintage rug for my bedroom',
-      'Recommend a durable rug for a busy home',
-      'Show eco-friendly rug options',
+      'Who is kednex?',
+      'What services does kednex offer?',
+      'How can I get started with kednex?',
     ]) // reset merchant suggestions
     setIsVisualiserEnabled(false) // reset to stylist default
   }

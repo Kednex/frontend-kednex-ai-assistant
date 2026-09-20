@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 // import { Geist, Geist_Mono, Roboto } from "next/font/google";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
 import MerchantTheme from "./merchant-theme";
 import { ThemeProvider } from "./theme-context";
 import { ThemeWrapper } from "./theme-wrapper";
@@ -40,7 +40,7 @@ export default function RootLayout({
 }>) {
   return (
     // <html lang="en" className={roboto.variable}>
-    < html lang="en" >
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable}`}
       >

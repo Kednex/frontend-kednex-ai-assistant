@@ -15,18 +15,18 @@ interface ThemeContextType {
   setIsVisualiserEnabled: (enabled: boolean) => void
 }
 
-const DEFAULT_HEADING = 'Style your room'
+const DEFAULT_HEADING = 'Guide you to the perfect answer'
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [isThemeLoading, setThemeLoading] = useState(true)
   const [heading, setHeading] = useState(DEFAULT_HEADING)
-  const [welcomeMessage, setWelcomeMessage] = useState("Upload a room photo and tell me what you're looking for.")
+  const [welcomeMessage, setWelcomeMessage] = useState("Tell me what you're looking for.")
   const [MerchantSuggestions, setMerchantSuggestions] = useState([
-          'Find a vintage rug for my bedroom',
-          'Recommend a durable rug for a busy home',
-          'Show eco-friendly rug options',
+          'Who is kednex?',
+          'What services does kednex offer?',
+          'How can I get started with kednex?',
       ])
   // Default off: only promise the 3D visualiser for merchants whose config opts in.
   const [isVisualiserEnabled, setIsVisualiserEnabled] = useState(false)

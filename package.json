@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.99",
+    "@lottiefiles/dotlottie-react": "^0.19.16",
     "@reduxjs/toolkit": "^2.11.2",
     "ai": "^6.0.97",
     "class-variance-authority": "^0.7.1",

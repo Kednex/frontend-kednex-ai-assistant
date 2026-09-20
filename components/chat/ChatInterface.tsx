@@ -11,7 +11,6 @@ import { setDesignId } from "@/lib/store/visualiserSlice";
 import { MessageBubble } from "./MessageBubble";
 import { ChatInput } from "./ChatInput";
 import { ChatSidebar } from "./ChatSidebar";
-import { CapabilityCard } from "./CapabilityCard";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -19,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { useTheme } from "@/app/theme-context";
 import { VISUALISE_CAPABILITY, STYLIST_CAPABILITY, ADVICE_CAPABILITY, type OnboardingCapability } from "@/lib/constants/onboarding";
 import type { ChatSession } from "@/lib/types";
+import KednexAIBot from "@/components/chat/robot-annimation/KednexAIBot"
 
 export function ChatInterface() {
     const dispatch = useAppDispatch();
@@ -86,26 +86,10 @@ export function ChatInterface() {
     const lastMessage = messages[messages.length - 1];
     const showPendingBubble = isLoading && lastMessage?.role === 'user';
 
-    // const suggestions = [
-    //     `Find ${category || 'products'} under $2000.`,
-    //     `Show blue wool ${category || 'products'}.`,
-    //     `Recommend washable area ${category || 'products'}.`,
-    //     `List outdoor ${category || 'products'} on sale.`,
-    // ];
-
     // Clicking a suggestion drops it into the composer (so the user can edit /
     // add their image before sending) rather than sending it immediately.
     const handleSuggestionClick = (suggestion: string) => {
         setPrefill((p) => ({ text: suggestion, token: p.token + 1 }));
-    };
-
-    // Capability card: prefill its prompt and, when the capability is
-    // upload-based, open the room-photo uploader.
-    const handleCapabilitySelect = (capability: OnboardingCapability) => {
-        setPrefill((p) => ({ text: capability.prompt, token: p.token + 1 }));
-        if (capability.opensUploader) {
-            setOpenUploaderToken((t) => t + 1);
-        }
     };
 
     const startNewChat = () => {
@@ -154,7 +138,7 @@ export function ChatInterface() {
                     >
                         <PanelLeft size={20} />
                     </Button>
-                    <h1 className="text-base font-semibold tracking-tight">Design Assistant</h1>
+                    <h1 className="text-base font-semibold tracking-tight">AI Assistant</h1>
                 </div>
             </header>
 
@@ -170,20 +154,13 @@ export function ChatInterface() {
                                 {welcomeMessage}
                             </p>
 
-                            {/* Capabilities — top aligned, 1×2 grid. Card 1 is the upload
-                                value-prop (visualiser where available, else stylist); card 2
-                                is styling advice (prefills a prompt, no uploader). The
-                                merchant suggestions are pinned above the composer below. */}
-                            <div className="w-full grid grid-cols-2 gap-2">
-                                <CapabilityCard
-                                    capability={leadCapability}
-                                    onSelect={handleCapabilitySelect}
-                                />
-                                <CapabilityCard
-                                    capability={ADVICE_CAPABILITY}
-                                    onSelect={handleCapabilitySelect}
-                                />
+                            <div className="flex flex-col gap-3 w-full max-w-4xl">
+                               <KednexAIBot /> 
                             </div>
+                            
+                            
+
+
                         </div>
                     ) : (
                         <>

@@ -246,7 +246,7 @@ export function ChatInput({ onSendMessage, isLoading, prefillText, prefillToken,
             </form>
             {showPrivacyNotice && (
                 <p className="px-0.5 text-center text-xs text-muted-foreground">
-                    <a href="https://www.imersian.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">How we process your chat and data.</a>
+                    <a href="#" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">How we process your chat and data.</a>
                 </p>
             )}
         </div>
