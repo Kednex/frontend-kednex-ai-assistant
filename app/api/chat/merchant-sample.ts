@@ -30,27 +30,27 @@ export type MerchantThemeSample = {
 }
 
 const merchantThemeSamples: Record<string, MerchantThemeSample> = {
-  'b46f2e78-9956-4161-9ed6-ae8ca93527fb': { 
+  '10': { 
     companyId: '1',
     aiAssistant: {
       isChatbotEnabled: true,
-      isVisualiserEnabled: true, // sample: visualiser plan → "See it in your room"
+      // isVisualiserEnabled: false, // sample: visualiser plan → "See it in your room"
       identity: {
-        name: 'Design Assistant',
-        description: 'Rug recommendation assistant',
+        name: 'Guiding Assistant',
+        description: 'Information Providing assistant',
         avatarUrl: 'https://example.com/avatar.png',
       },
       behaviour: {
         tone: 'Friendly',
-        welcomeMessage: "Upload a room photo and tell me what you're looking for.",
+        welcomeMessage: "Tell me what you're looking for.",
       },
       suggestions: [
-        "Find a vintage rug for my bedroom",
-        "Recommend a durable rug for a busy home",
-        "Show eco-friendly rug options",
+        'Who is kednex?',
+        'What services does kednex offer?',
+        'How can I get started with kednex?',
       ],
       rules: {
-        fallbackResponse: 'Sorry, I could not find a match yet. Try another style.',
+        fallbackResponse: 'Sorry, I could not anser now. Try another time.',
       },
       theme: {
         primary: '#8d2424',

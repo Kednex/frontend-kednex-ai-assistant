@@ -96,9 +96,9 @@ export default function MerchantTheme() {
     setHeading('Guide you to find the perfect answer') // reset to default heading
     setWelcomeMessage("Tell me what you're looking for") // reset to default welcome message
     setMerchantSuggestions([
-      'Who is kednex?',
-      'What services does kednex offer?',
-      'How can I get started with kednex?',
+      '',
+      '',
+      '',
     ]) // reset merchant suggestions
     setIsVisualiserEnabled(false) // reset to stylist default
   }

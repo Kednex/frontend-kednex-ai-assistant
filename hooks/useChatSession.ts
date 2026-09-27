@@ -51,7 +51,7 @@ export function useChatSession() {
     // read assistant type from url query params
     const assistantType = useMemo(() => {
         if (typeof window === 'undefined') return 'general'
-        return new URLSearchParams(window.location.search).get('assistantType') || 'rug'
+        return new URLSearchParams(window.location.search).get('assistantType') || 'rag'
     }, [])
 
     // Hydrate once
