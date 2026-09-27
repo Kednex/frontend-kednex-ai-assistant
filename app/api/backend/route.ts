@@ -18,6 +18,11 @@ export async function POST(request: Request) {
     const payload = await request.json();
     console.log("backend recived payload : ", payload)
 
+    return NextResponse.json({
+      reply: "bakend recived the message",
+      responseId: "not yet implemented"
+    });
+
   } catch (error) {
     return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 });
   }
@@ -52,10 +57,10 @@ export async function POST(request: Request) {
 
   //   const response = await openai.responses.create(requestPayload);
 
-  //   return NextResponse.json({
-  //     reply: response.output_text,
-  //     responseId: response.id,
-  //   });
+    // return NextResponse.json({
+    //   reply: response.output_text,
+    //   responseId: response.id,
+    // });
   // } catch (error) {
   //   const messageText =
   //     error instanceof Error ? error.message : "Unexpected error";

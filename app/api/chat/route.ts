@@ -48,7 +48,7 @@ export async function POST(req: Request) {
 
 
         //log the incoming request for debugging
-        // console.log("Received chat request from UI:", { messages, category, rooms, sessionId, previousResponseId, attachments });
+        console.log("Received chat request from UI:", { messages, category, rooms, sessionId, previousResponseId, attachments, userUuid, searchPage, assistantType });
 
         // AI SDK 6.0 uses 'parts'. We extract text from the latest message.
         const latestMessage = messages[messages.length - 1];
@@ -96,29 +96,20 @@ export async function POST(req: Request) {
         };
 
         // debug payload
-        // console.log("payload : ", payload);
+        console.log("payload : ", payload);
 
         
 
-        const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
-        //const API_BASE = 'http://localhost:4000';
+        // const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
+        const API_BASE = 'http://localhost:3000';
         
         console.log("Using API_BASE:", API_BASE); // Log the API base URL being used
 
         let backendResponse: any;
 
-        if (assistantType === "wallpaper" || assistantType === "wall-paper") {
-            console.log("Forwarding request to wallpaper endpoint");
-            backendResponse = await fetch(`${API_BASE}/chat/merchant/wallpaper`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-                signal: AbortSignal.timeout(120000)
-            });
-        }
-        if (assistantType === "rug" || assistantType === "rugs") {
-            console.log("Forwarding request to rug endpoint");
-            backendResponse = await fetch(`${API_BASE}/chat/merchant/rug`, {
+        if (assistantType === "rag") {
+            console.log("Forwarding request to rag endpoint");
+            backendResponse = await fetch(`${API_BASE}/backend`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
@@ -266,6 +257,12 @@ export async function POST(req: Request) {
         return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
 }
+
+
+
+
+
+
 
 // chat endpoint for fetching merchant information from frontend to apply theming based on merchant's primary color
 export async function GET(req: Request) {
