@@ -101,7 +101,7 @@ export async function POST(req: Request) {
         
 
         // const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:4000';
-        const API_BASE = 'http://localhost:3000';
+        const API_BASE = 'http://localhost:8080';
         
         console.log("Using API_BASE:", API_BASE); // Log the API base URL being used
 
@@ -109,7 +109,7 @@ export async function POST(req: Request) {
 
         if (assistantType === "rag") {
             console.log("Forwarding request to rag endpoint");
-            backendResponse = await fetch(`${API_BASE}/backend`, {
+            backendResponse = await fetch(`${API_BASE}/chat/merchant`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
